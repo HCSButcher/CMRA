@@ -950,15 +950,16 @@ app.post('/comments', async(req, res) => {
 });
 
 //get request for comments
-app.get('/comments', async(req, res) => {
-    try{
-        const Comments = await Comment.find();
-        res.json(Comments)
+app.get('/comments', async (req, res) => {
+    try {
+        const comments = await Comment.find(); // Fetch all comments
+        res.json(comments);
     } catch (error) {
-        console.error('Error fetching updates:', error);
-        res.status(500).send('Server error');
+        console.error('Error fetching comments:', error);
+        res.status(500).json({ error: 'Server error' }); // More structured response
     }
-})
+});
+
 
 //handle comments delete
 app.delete('/comments/:id', async(req, res) => {

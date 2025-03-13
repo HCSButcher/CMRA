@@ -160,7 +160,7 @@ useEffect (() => {
             </tr>        
           </thead> 
           <tbody>                     
-                  {comments && comments > 0 ? (
+                  {comments && comments.length > 0 ? (
                     comments.map((comment) => (
                       <tr key={comment._id}>
                         <td>{comment.unit} </td>

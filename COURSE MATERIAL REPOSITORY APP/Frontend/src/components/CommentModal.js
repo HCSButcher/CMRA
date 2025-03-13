@@ -53,7 +53,7 @@ const CommentModal = () => {
                 <div className="shape"></div>
             </div>
             <form onSubmit={handleSubmit}>
-                <h2>Announcements</h2>
+                <h2>Comments</h2>
                
                 <label htmlFor="unit">Unit</label>
                     <input

@@ -25,6 +25,7 @@ import Courses from './components/Courses';
 import CourseManagement from './components/CourseManagement';
 import LecturerModal from './components/LecturerModal';
 import StudentsModal from './components/StudentsModal';
+import Comment2Modal from './components/Comment2Modal';
 
 
 const App = () => {
@@ -84,6 +85,7 @@ const App = () => {
           <Route path="/lecturers" element={<LecturerModal />} />
           <Route path="/students" element={<StudentsModal />} />
           <Route path="/repository" element={<Repository />} />
+          <Route path="/comment2Modal" element={<Comment2Modal />} />
           <Route path="/viewModal" element={<ViewModal />} />             
           <Route path="/unit/:unitId" element={<RepoDisplay />} />        
          
