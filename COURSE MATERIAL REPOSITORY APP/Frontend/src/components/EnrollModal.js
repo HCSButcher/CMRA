@@ -91,6 +91,7 @@ const EnrollModal = () => {
            background-color: rgba(255, 255, 255, 0.13);
           }
            .btn-e{
+           cursor:pointer;
     border: #f1f1f1;
 background: #f05462;
 color: white;

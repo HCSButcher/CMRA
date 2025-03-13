@@ -118,9 +118,9 @@ useEffect (() => {
         </div>     
       <ul> 
         
-        <li > <img src ='http://localhost:3000/schools.png' alt =''/> &nbsp; <span>Library</span></li>
-        <li > <img src ='http://localhost:3000/schools.png' alt =''/> &nbsp; <span>Past Papers</span></li>
-        <li > <img src ='http://localhost:3000/teachers.png' alt =''/> &nbsp;<span>Course Evaluation</span> </li>
+        <li > <a style={{color:'white'}} href ="https://kabarak.ac.ke/library" target = "_blank" rel = "noopener noreferrer" >  <img src ='http://localhost:3000/schools.png' alt =''/> &nbsp;<br /> <span>Library</span></a></li>
+          <li > <a style={{color:'white'}}  href='https://pastpapers.kabarak.ac.ke/login?next=%2F' target='blank' rel='noopener noreferrer' >  <img src ='http://localhost:3000/schools.png' alt =''/> &nbsp; <br /> <span>Past Papers</span></a> </li>
+        <li > <a style={{color:'white'}} href='https://eserver.kabarak.ac.ke/Students/' target='blank' rel='noopener noreferrer' > <img src ='http://localhost:3000/teachers.png' alt =''/> &nbsp; <br /> <span>Student Portal</span></a> </li>
         <li onClick={() =>handleNavigate('/repository')} >  <img src ='http://localhost:3000/students.png' alt =''/> &nbsp; <span>  Repository  </span>  </li>
                
       
@@ -259,7 +259,7 @@ useEffect (() => {
       <div className="new-student">
       <div className="titles">
                 <h2>Recent Uploads</h2>
-                <a href="/viewModal"className='btn'>View all</a>
+                
                 
         </div>
         <table>

@@ -61,7 +61,7 @@ const ViewModal = () => {
             right: -80px;
             bottom: -50px;
           }
-          form {
+          form {          
             margin: 0 auto;
             padding: 20px;
             text-align: center;
