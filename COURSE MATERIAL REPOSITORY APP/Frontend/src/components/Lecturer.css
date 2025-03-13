@@ -1,0 +1,345 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'poppins','sans-serif';
+  }
+
+ul {
+list-style-type: none;
+}
+
+.btn{
+background: #f05462;
+color: white;
+padding: 5px 10px;
+text-align: center;
+}
+
+.btn:hover {
+    color: #f05462;
+    background: white;
+    padding: 3px 8px;
+    border: 2px solid #f05462;
+}
+
+.cards-5 .card-5 .box-5 {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 10px 10px;
+    border-bottom: 2px solid #999;
+}
+
+
+
+.content-5 .cards-6 .box-6{    
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 15px 15px;
+    border-bottom: 2px solid #999; 
+}
+
+.titles-5 {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 15px 10px;
+    border-bottom: 2px solid #999;
+}
+table{
+    padding: 10px;
+}
+th, td{
+    
+    text-align: center;
+    padding: 8px;
+
+}
+
+li {
+list-style: none;
+}
+
+h3 {
+    color: #999;
+}
+
+a {
+    text-decoration: none;
+}
+.side-menu {
+    position: fixed;
+    background-color: var(--clr-primary);
+    width: 20vw;
+    min-height: 100vh;
+    padding: 36px 20px;
+    display: flex;
+    flex-direction: column;
+    
+}
+
+.side-menu .brand-name {
+   height: 10vh;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+
+.side-menu li {
+    font-size: 24px;
+    padding: 10px 40px;
+    color: white;
+    display: flex;
+    align-items: center;
+    
+}
+
+.side-menu li:hover {
+      
+    border: 1px solid var(--clr-primar-light);
+}
+
+
+
+.container{
+    position: absolute;
+    right: 0;
+    width: 80vw;
+    height: 100vh;
+    background: #f1f1f1;
+   
+}
+
+.container .header {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 80vw;
+    height: 10vh;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0 ,0 ,0 ,0.2);
+    z-index: 1;
+}
+.container .header .nav .search .input:hover{
+    border: 1px solid var(--clr-primar-light);
+}
+.container .header .nav .search button:hover{
+    border: 1px solid var(--clr-primar-light);
+}
+
+.container .header .nav {    
+    width: 90%;
+    display: flex;
+    align-items:center;
+    justify-content: center;
+}
+
+.container .header .nav .search {
+    flex: 3;
+    display: flex;
+    
+    
+}
+
+.container .header .nav .search input[type = text]{
+    border: none;
+    background: #f1f1f1;
+    padding: 10px;
+    width: 50%;
+}
+
+.container .header .nav .search button{
+    width: 40px;
+    height: 40px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn {
+    cursor:pointer;
+}
+
+.container .header .nav .search button img{
+    width: 30px;
+    height: 30px;
+}
+.container .header .nav .user {
+    flex: 0.3;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+}
+.container .header .nav .user img {
+    
+    width: 40px;
+    height: 40px;
+}
+.container .header .nav .user .img-case {
+    position:relative;
+    width: 50px;
+    height: 50px;
+}
+
+.container .header .nav .user .img-case img{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+}
+.content-5 {
+    position: relative;
+    margin-top: 10vh;
+    min-height: 90vh;    
+    background: #f1f1f1;
+}
+
+.content-5 .cards-5 {
+    padding: 0px 20px;
+    display: flex;
+    align-items: center;
+    justify-content:space-evenly;
+    flex-wrap: wrap;
+
+}
+
+
+
+.content-5 .cards-6 .box-6  th{
+    text-align: left;
+}
+
+.content-5 .cards-6 .box-6 th,td{
+    text-align:left;
+}
+
+.cards-5 .card-5 th,td{
+    text-align: center;
+}
+
+ .content-5 .cards-5 .card-5 {
+    width: 400px;   
+    background:white;
+    min-height: 50vh;
+    margin: 15px 25px;
+    box-shadow: 0 4px 8px 0 rgba(0 ,0 ,0 ,0.2),0 6px 20px 0 rgba(0 ,0 ,0 ,0.19);
+    display: flex;
+    flex-direction: column;
+}
+.content-5 .cards-5 .card-5:hover{
+    border: 1px solid var(--clr-primar-light);
+}
+
+.cards-6 .card-6 th,td{
+    text-align: center;
+}
+
+ .content-5 .cards-6 {    
+    width: 560px;
+    min-height: 50vh;
+    margin: 15px 25px;
+    background: white;    
+    box-shadow: 0 4px 8px 0 rgba(0 ,0 ,0 ,0.2),0 6px 20px 0 rgba(0 ,0 ,0 ,0.19);
+    display: flex;
+    flex-direction: column;
+}
+.content-5 .cards-6:hover{
+    border: 1px solid var(--clr-primar-light);
+}
+.content-5 .content-6 {
+    min-height: 60vh;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    flex-wrap: wrap;
+
+}
+
+.content-5 .content-6 .lecturer-5 {
+    min-height: 50vh;
+    flex: 5;
+    background:white;
+    margin: 0 25px 25px 25px;
+    box-shadow: 0 4px 8px 0 rgba(0 ,0 ,0 ,0.2),0 6px 20px 0 rgba(0 ,0 ,0 ,0.19);
+    display: flex;
+    flex-direction: column;
+}
+.content-5 .content-6 .lecturer-5:hover{
+    border: 1px solid var(--clr-primar-light);
+}
+
+.content-5 .content-6 .new-student-5 {
+    flex: 2;
+    background: white;
+    min-height: 50vh;
+    margin: 0 25px;
+    box-shadow: 0 4px 8px 0 rgba(0 ,0 ,0 ,0.2),0 6px 20px 0 rgba(0 ,0 ,0 ,0.19);
+    display: flex;
+    flex-direction: column;
+}
+.content-5 .content-6 .new-student-5:hover{
+    border: 1px solid var(--clr-primar-light);
+}
+.content-6 .new-student-5 table td:nth-child(1) img{
+height: 40px;
+width: 40px;
+}
+
+@media screen and (max-width: 1100px) {
+    .side-menu li {
+        font-size: 18px;
+    }
+}
+
+@media screen and (max-width: 940px) {
+    .side-menu li span{
+        display: none;
+    }
+    .side-menu{
+        align-items: center;
+    }
+    .side-menu li img{
+        width: 40px;
+        height: 40px;
+    }
+    .side-menu li:hover {
+        border: 2px solid var(--clr-primar-light);
+        padding: 8px 38px;
+    }
+}
+
+@media screen and (max-width: 536px) {
+.brand-name h1 {
+font-size: 18px;
+}
+ .content-5 .cards-5 {
+    justify-content: center;
+}
+.side-menu li img {
+    width: 30px;
+    height: 30px;
+}
+ .content .cards-6 .card-6 table th:nth-child(2),
+ .content .cards-6 .card-6 table td:nth-child(2) {
+    display: none;
+ }
+ .content-5 .content-6 .lecturer-5 table th:nth-child(4),
+ .content-5 .content-6 .lecturer-5 table td:nth-child(4) {
+    display: none;
+ }
+ .content-5 .content-6 .lecturer-5 table th:nth-child(5),
+ .content-5 .content-6 .lecturer-5 table td:nth-child(5) {
+    display: none;
+ }
+
+
+}

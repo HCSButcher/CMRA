@@ -1,0 +1,121 @@
+
+footer {
+  color: #ffffff;
+  text-align: center;
+  margin: 32px auto 20px;
+}
+
+.alert {
+  color: #ffffff;
+  text-align: left;
+  font-size: 15px;
+  margin-top: -5px;
+}
+
+form h1, h2 {
+  font-size: 25px;
+  font-weight: 500;
+  line-height: 25px;
+  text-align: center;
+  margin-top: -10px;
+}
+
+.background {
+  width: 430px;
+  height: 520px;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+}
+
+.background .shape {
+  height: 200px;
+  width: 200px;
+  position: absolute;
+  border-radius: 50%;
+}
+
+.shape:first-child {
+  background: linear-gradient(
+      #1845ad,
+      #23a2f6
+  );
+  left: -130px;
+  top: -0px;
+}
+
+.shape:last-child {
+  background: linear-gradient(
+      to right,
+      #ff512f,
+      #f09819
+  );
+  right: -80px;
+  bottom: -50px;
+}
+
+form {
+  height: 450px;
+  width: 370px;
+  background-color: rgba(255, 255, 255, 0.13);
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 45%;
+  left: 50%;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
+  padding: 50px 35px;
+}
+
+form * {
+  font-family: 'Poppins', sans-serif;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  outline: none;
+  border: none;
+}
+
+.form_group {
+  margin-bottom: 20px; /* Added spacing between input fields */
+}
+
+label {
+  display: block;
+  margin-top: 30px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+ .shape:first-child {
+            animation: floatLeft 4s ease-in-out infinite;
+          }
+          .shape:last-child {
+            animation: floatRight 4s ease-in-out infinite;
+          }
+          @keyframes floatLeft {
+            0% {
+              transform: translateX(0);
+            }
+            50% {
+              transform: translateX(-20px);
+            }
+            100% {
+              transform: translateX(0);
+            }
+          }
+          @keyframes floatRight {
+            0% {
+              transform: translateX(0);
+            }
+            50% {
+              transform: translateX(20px);
+            }
+            100% {
+              transform: translateX(0);
+            }
+          }
+
+

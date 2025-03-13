@@ -1,0 +1,118 @@
+form h2 {
+    color: #ffff;
+}
+.alert{
+    color:#ffffff;
+    text-align:left;
+    font-size: 15px;
+    margin-top: -5px;
+  }
+  .form-group .file{
+    background-color: rgba(255,255,255,0.13);
+  }
+ 
+.background-1{
+    width: 430px;
+    height: 520px;
+    position: absolute;
+    transform: translate(-50%,-50%);
+    left: 50%;
+    top: 50%;
+  }
+  .background-1 .shape{
+    height: 200px;
+    width: 200px;
+    position: absolute;
+    border-radius: 50%;
+  }
+  .shape:first-child{
+    background: linear-gradient(
+        #1845ad,
+        #23a2f6
+    );
+    left: -130px;
+    top: -0px;
+  }
+  .shape:last-child{
+    background: linear-gradient(
+        to right,
+        #ff512f,
+        #f09819
+    );
+    right: -80px;
+    bottom: -50px;
+  }
+
+  form *{
+    font-family: 'Poppins',sans-serif;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    outline: none;
+    border: none;
+  }
+  
+  label{
+    display: block;
+    margin-top: 20px;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  input{
+    display: block;
+    height: 50px;
+    width: 100%;
+    background-color: rgba(255,255,255,0.07);
+    border-radius: 3px;
+    padding: 0 10px;
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 300;
+  }
+  ::placeholder{
+    color: #e5e5e5;
+    border-color:#e5e5e5 ;
+  }
+  .close{
+    background-color:#080710;
+    border-radius: 0px;
+  }
+  button{
+    margin-top: 10px;
+    width: 100%;
+    background-color: #ffffff;
+    color: #080710;
+    padding: 15px 0;
+    font-size: 18px;
+    font-weight: 600;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+   .shape:first-child {
+            animation: floatLeft 4s ease-in-out infinite;
+          }
+          .shape:last-child {
+            animation: floatRight 4s ease-in-out infinite;
+          }
+          @keyframes floatLeft {
+            0% {
+              transform: translateX(0);
+            }
+            50% {
+              transform: translateX(-20px);
+            }
+            100% {
+              transform: translateX(0);
+            }
+          }
+          @keyframes floatRight {
+            0% {
+              transform: translateX(0);
+            }
+            50% {
+              transform: translateX(20px);
+            }
+            100% {
+              transform: translateX(0);
+            }
+          }
