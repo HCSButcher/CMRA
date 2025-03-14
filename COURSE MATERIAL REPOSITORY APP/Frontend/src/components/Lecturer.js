@@ -4,6 +4,7 @@ import { SidebarContext } from '../context/SidebarContext';
 import { useNavigate } from 'react-router-dom';
 import UploadModal from './UploadMaterials'
 import UpdateModal from './Updates'
+import Comment2Modal from './Comment2Modal';
 import LogoutButton from './LogoutButton';
 import AnnouncementModal from './AnnouncementModal'
 import CoursesModal from './CoursesModal'
@@ -30,6 +31,7 @@ const { isSidebarOpen, toggleSidebar } = useContext(SidebarContext);
   const openAnnouncementModal= () => setShowAnnouncementModal(true);
   const CloseAnnouncementModal = () => setShowAnnouncementModal(false);
 
+  //view modal
   const [showViewModal, setShowViewModal] = useState(false);
   const openViewModal = () => setShowViewModal(true);
   const CloseViewModal = () => setShowViewModal(false);
@@ -48,6 +50,11 @@ const CloseUpdateModal = () => setShowUpdateModal(false);
   const [showCoursesModal, setShowCoursesModal] = useState(false);
   const openCoursesModal = () => setShowCoursesModal(true);
   const CloseCoursesModal = () => setShowCoursesModal(false);
+
+  //comment2Modal
+  const [showComment2Modal, setShowComment2Modal] = useState(false)
+  const openComment2Modal = () => setShowComment2Modal(true);
+  const CloseComment2Modal = () => setShowComment2Modal(false);
 
 //registration courses fetch
 useEffect (() =>{
@@ -152,7 +159,7 @@ const uploadDelete = (id) => {
       <ul>        
        
         <li onClick={() =>handleNavigate('/enroll')} > <img src ='http://localhost:3000/teachers.png' alt =''/> &nbsp; <span>Course Management</span></li>
-        <li > <img src ='http://localhost:3000/students.png' alt =''/> &nbsp; <span>Student Interaction</span></li>        
+        <li onClick={openComment2Modal }  > <img src ='http://localhost:3000/students.png' alt =''/> &nbsp; <span>Student Interaction</span></li>        
         <li > <img src ='http://localhost:3000/schools.png' alt =''/> &nbsp; <span>Library</span></li>
         <li  onClick={openUploadModal}> <img src ='http://localhost:3000/download.png' alt =''/> &nbsp;<span>Upload Materials</span> </li>        
       </ul>      
@@ -381,7 +388,15 @@ const uploadDelete = (id) => {
 				<UpdateModal  CloseModal ={CloseUpdateModal} />
 			</div>
 		</div>
-	)}
+        )}
+        {showComment2Modal && (
+          <div className="modal">
+            <div className="modal-content">
+              <span className="close" onClick={CloseComment2Modal} >&times;  </span>
+              <Comment2Modal  CloseModal = {CloseComment2Modal} />
+            </div>
+          </div>
+  ) }
 </div>
 </div>
   )

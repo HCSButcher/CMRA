@@ -3,10 +3,19 @@ import { useNavigate } from 'react-router-dom';
 
 const LogoutButton = () => {
     const navigate = useNavigate();
+
     const handleLogout = async () => {
         try {
-            await fetch('/logout', { method: 'GET', credentials: 'include' });
+            await fetch('http://localhost:3001/logout', { 
+                method: 'GET', 
+                credentials: 'include' 
+            });
+
+            // Clear stored authentication data
             localStorage.removeItem('token');
+            localStorage.removeItem('userEmail');
+
+            // Redirect user to login page
             navigate('/login');
         } catch (error) {
             console.error('Error during logout:', error);

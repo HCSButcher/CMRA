@@ -22,7 +22,9 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
 const compression = require('compression')
-
+const authenticateToken = require('./config/requireAuth.js');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 //define super-user
 const SUPER_ADMIN_EMAIL = 'trevor254oduol@gmail.com';
@@ -60,13 +62,18 @@ mongoose.connect(dbURL)
       app.use(flash());
       
 // Setup Nodemailer
+require('dotenv').config(); // Ensure you load environment variables
+
 const transporter = nodemailer.createTransport({
-  service: 'Gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    secure: false, // Use `true` for port 465, `false` for 587
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+    }
 });
+
 
  //global variables
  app.use((req,res, next) => {
@@ -142,44 +149,58 @@ app.post('/register', upload.single('file'), async (req, res) => {
 });
 
 // Post for login
-app.post('/login', (req, res, next) => {
-  passport.authenticate('local', (err, user, ) => {
-      if (err) {
-          return res.status(500).json({ message: 'Internal server error', error: err });
-      }
-      if (!user) {
-          return res.status(401).json({ errors: [{ msg: 'Invalid email or password' }] });
-      }
-      req.login(user, (err) => {
-          if (err) {
-              return res.status(500).json({ message: 'Login failed', error: err });
-          }  
-          let redirectUrl;
-          if (user.email === SUPER_ADMIN_EMAIL) {
-              redirectUrl = '/admin';
-          } else if (user.role === 'admin') {
-              redirectUrl = '/admin';
-          } else if (user.role === 'student') {
-              redirectUrl = '/student';
-          } else {
-              redirectUrl = '/lecturer';
-          }
 
-          return res.json({ message: 'Login successful', redirect: redirectUrl, user });
-      });
-  })(req, res, next);
+
+app.post('/login', (req, res, next) => {
+    passport.authenticate('local', (err, user) => {
+        if (err) {
+            return res.status(500).json({ message: 'Internal server error', error: err });
+        }
+        if (!user) {
+            return res.status(401).json({ errors: [{ msg: 'Invalid email or password' }] });
+        }
+
+        req.login(user, (err) => {
+            if (err) {
+                return res.status(500).json({ message: 'Login failed', error: err });
+            }
+
+            // Generate JWT token with user email and role
+            const token = jwt.sign(
+                { email: user.email, role: user.role }, 
+                'your_jwt_secret', 
+                { expiresIn: '1h' }
+            );
+
+            // Determine redirect URL based on role
+            let redirectUrl;
+            if (user.email === process.env.SUPER_ADMIN_EMAIL) {
+                redirectUrl = '/admin';
+            } else if (user.role === 'admin') {
+                redirectUrl = '/admin';
+            } else if (user.role === 'student') {
+                redirectUrl = '/student';
+            } else {
+                redirectUrl = '/lecturer';
+            }
+
+            return res.json({ 
+                message: 'Login successful', 
+                redirect: redirectUrl, 
+                token,   // Send token for authentication
+                user: { email: user.email, role: user.role }
+            });
+        });
+    })(req, res, next);
 });
+
 
 //get request for logout
-app.get('logout', (req, res) => {
-    req.logout((err) => {
-        if (err) {
-            console.error('Error during Logout:', err);
-            return res.status(500).json({ message: 'Error logging out' });
-        }
-        res.redirect('/login');
-    });
+app.get('/logout', (req, res) => {
+    res.clearCookie('connect.sid'); // Clear session cookie (if using express-session)
+    res.json({ message: 'Logout successful' });
 });
+
 
 //api communication handling
    app.get('/api/messages', (req, res) => {
@@ -226,15 +247,16 @@ app.post('/reset', async (req, res) => {
     }
 });
 
-// reset password token
 app.post('/resetpassword/:token', async (req, res) => {
     try {
         const { password, password2 } = req.body;
 
+        // Check if passwords match
         if (password !== password2) {
             return res.status(400).json({ errors: [{ msg: 'Passwords do not match.' }] });
         }
 
+        // Find user with valid token
         const user = await User.findOne({
             resetPasswordToken: req.params.token,
             resetPasswordExpires: { $gt: Date.now() },
@@ -244,22 +266,28 @@ app.post('/resetpassword/:token', async (req, res) => {
             return res.status(400).json({ errors: [{ msg: 'Password reset token is invalid or has expired.' }] });
         }
 
-        user.password = await bcrypt.hash(password, 10);
+        // Hash the new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+
+        // Clear reset token fields
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
         await user.save();
 
+        // Send confirmation email
         const mailOptions = {
             to: user.email,
-            from: process.env.EMAIL_USER, // Replace with your actual email
+            from: process.env.SMTP_USER,
             subject: 'Your password has been changed',
-            text: `Hello,\n\nThis is a confirmation that the password for your account ${user.email} has just been changed.\n`,
+            text: `Hello,\n\nThis is a confirmation that the password for your account ${user.email} has just been changed.\n`
         };
 
         await transporter.sendMail(mailOptions);
+
         return res.json({ message: 'Success! Your password has been changed.' });
     } catch (err) {
-        console.error(err); // Log the error for debugging
+        console.error('Reset Password Error:', err);
         return res.status(500).json({ errors: [{ msg: 'An error occurred. Please try again later.' }] });
     }
 });

@@ -8,24 +8,34 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState([]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setErrors([]);
-        try {
-            const result = await axios.post('http://localhost:3001/login', { email, password });
-            console.log(result.data);
+const handleSubmit = async (e) => { 
+    e.preventDefault();
+    setErrors([]);
+
+    try {
+        const result = await axios.post('http://localhost:3001/login', { email, password });
+
+        if (result.data.token) {
+            // Store the token and user email in localStorage
+            localStorage.setItem('token', result.data.token);
+            localStorage.setItem('userEmail', result.data.user.email);
+
+            // Redirect the user to the appropriate page
             window.location.href = result.data.redirect;
-        } catch (err) {
-            if (err.response && err.response.data) {
-                // Set the errors from the backend response
-                const errorMessages = err.response.data.errors || [{ msg: 'Something went wrong. Please try again later.' }];
-                setErrors(errorMessages);
-            } else {
-                setErrors([{ msg: 'Something went wrong. Please try again later.' }]);
-                console.error('Error:', err);
-            }
+        } else {
+            setErrors([{ msg: 'Login failed. Please try again.' }]);
         }
-    };
+    } catch (err) {
+        if (err.response && err.response.data) {
+            const errorMessages = err.response.data.errors || [{ msg: 'Something went wrong. Please try again later.' }];
+            setErrors(errorMessages);
+        } else {
+            setErrors([{ msg: 'Something went wrong. Please try again later.' }]);
+            console.error('Error:', err);
+        }
+    }
+};
+
 
     return (
         <div>

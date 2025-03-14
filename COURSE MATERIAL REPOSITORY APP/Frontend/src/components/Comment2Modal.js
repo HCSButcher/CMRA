@@ -33,24 +33,34 @@ const Comment2Modal = () => {
        background-color: #080710;
         }
         form {
+        align-items:center;
            background-color: rgba(255, 255, 255, 0.13);
+           justify-content:center;
+           width:70%, auto;
+           margin-top:20px;
           }
         h1, h2 {
-    color: #444
+        margin-top: 80px;
+    color: #f1f1f1;
 
     }
-    table {
-    padding :10px;
+    table {    
+    width:100%;
+    border-collapse: collapse;
+    text-align: center;
+   
     }
     th, td{
-    text-align:center;
-    padding: 8px;
+    border: 1px solid white;
+    text-align:left;
+    padding: 15px;
+    
     }
               `}
           </style>
 
+         <h2>Comments</h2>
           <form>
-              <h2>Comments</h2>
               <table>
                   <thead>
                       <tr>
