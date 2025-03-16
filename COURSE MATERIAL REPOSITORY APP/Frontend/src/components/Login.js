@@ -1,40 +1,47 @@
 import { useState } from "react"
 import axios from "axios";
 import LoginCSS from './Login.module.css';
-const Login = () => {
-   
-      
+import { useNavigate } from "react-router-dom";
+
+
+const Login = () => {   
+    
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState([]);
 
-const handleSubmit = async (e) => { 
+
+const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors([]);
 
     try {
-        const result = await axios.post('http://localhost:3001/login', { email, password });
+        const result = await axios.post("http://localhost:3001/login", { email, password }, { withCredentials: true });
 
         if (result.data.token) {
-            // Store the token and user email in localStorage
-            localStorage.setItem('token', result.data.token);
-            localStorage.setItem('userEmail', result.data.user.email);
+            // ✅ Ensure old token is cleared before setting new one
+            localStorage.removeItem("token");
+            localStorage.setItem("token", result.data.token);
+            localStorage.setItem("userEmail", result.data.user.email);
+            localStorage.setItem("userRole", result.data.user.role);
 
-            // Redirect the user to the appropriate page
-            window.location.href = result.data.redirect;
+            // ✅ Use React Router for navigation
+            navigate(result.data.redirect);
         } else {
-            setErrors([{ msg: 'Login failed. Please try again.' }]);
+            setErrors([{ msg: "Login failed. Please try again." }]);
         }
     } catch (err) {
         if (err.response && err.response.data) {
-            const errorMessages = err.response.data.errors || [{ msg: 'Something went wrong. Please try again later.' }];
+            const errorMessages = err.response.data.errors || [{ msg: "Invalid email or password." }];
             setErrors(errorMessages);
         } else {
-            setErrors([{ msg: 'Something went wrong. Please try again later.' }]);
-            console.error('Error:', err);
+            setErrors([{ msg: "Something went wrong. Please try again later." }]);
+            console.error("Error:", err);
         }
     }
 };
+
 
 
     return (

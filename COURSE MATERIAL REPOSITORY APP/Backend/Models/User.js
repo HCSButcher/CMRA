@@ -21,7 +21,7 @@ const userSchema = new Schema({
   },
   role: {
     type: String,
-    enum: ['admin', 'student', 'lecturer', 'super-admin'], // Restrict roles
+    enum: ['admin', 'student', 'lecturer', 'Super-admin'], // Restrict roles
     required: true,
   },
   contact: {

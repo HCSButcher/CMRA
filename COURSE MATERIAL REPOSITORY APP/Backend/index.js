@@ -22,20 +22,24 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
 const compression = require('compression')
-const authenticateToken = require('./config/requireAuth.js');
+const { isAuthenticated } = require('./middleware/authMiddleware.js');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-//define super-user
-const SUPER_ADMIN_EMAIL = 'trevor254oduol@gmail.com';
+
 
 //load environment variables from .env file
 dotenv.config();
 
 //passport configuration
 require('./config/passport')(passport);
-app.use(express.json())
-app.use(cors())
+
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+}));
+
+app.use(express.json());
 
 app.use(compression())
 // Connect to MongoDB
@@ -52,11 +56,12 @@ mongoose.connect(dbURL)
       });
       
       //express session
-      app.use(session ({
-        secret: 'secret',
-        resave: false,
-        saveUninitialized: true
-      }));
+     app.use(session({
+  secret: 'secret',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // Set true if using HTTPS
+}));
       
       //connect flash
       app.use(flash());
@@ -150,55 +155,117 @@ app.post('/register', upload.single('file'), async (req, res) => {
 
 // Post for login
 
+app.post("/login", (req, res, next) => {
+  passport.authenticate("local", (err, user) => {
+    if (err) {
+      return res.status(500).json({ message: "Internal server error", error: err });
+    }
+    if (!user) {
+      return res.status(401).json({ errors: [{ msg: "Invalid email or password" }] });
+    }
 
-app.post('/login', (req, res, next) => {
-    passport.authenticate('local', (err, user) => {
-        if (err) {
-            return res.status(500).json({ message: 'Internal server error', error: err });
-        }
-        if (!user) {
-            return res.status(401).json({ errors: [{ msg: 'Invalid email or password' }] });
-        }
+    req.login(user, { session: false }, (err) => {
+      if (err) {
+        return res.status(500).json({ message: "Login failed", error: err });
+      }
 
-        req.login(user, (err) => {
-            if (err) {
-                return res.status(500).json({ message: 'Login failed', error: err });
-            }
+      // Generate short-lived Access Token
+      const token = jwt.sign(
+        { email: user.email, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "15m" } // Access token expires in 15 minutes
+      );
 
-            // Generate JWT token with user email and role
-            const token = jwt.sign(
-                { email: user.email, role: user.role }, 
-                'your_jwt_secret', 
-                { expiresIn: '1h' }
-            );
+      // Generate long-lived Refresh Token
+      const refreshToken = jwt.sign(
+        { email: user.email },
+        process.env.REFRESH_TOKEN_SECRET,
+        { expiresIn: "7d" } // Refresh token expires in 7 days
+      );
 
-            // Determine redirect URL based on role
-            let redirectUrl;
-            if (user.email === process.env.SUPER_ADMIN_EMAIL) {
-                redirectUrl = '/admin';
-            } else if (user.role === 'admin') {
-                redirectUrl = '/admin';
-            } else if (user.role === 'student') {
-                redirectUrl = '/student';
-            } else {
-                redirectUrl = '/lecturer';
-            }
+      // Set Refresh Token in HTTP-Only Cookie
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
 
-            return res.json({ 
-                message: 'Login successful', 
-                redirect: redirectUrl, 
-                token,   // Send token for authentication
-                user: { email: user.email, role: user.role }
-            });
-        });
-    })(req, res, next);
+      // Define redirect URL based on role
+      let redirectUrl = "/login"; // Default in case of an unexpected role
+      if (user.email === process.env.SUPER_ADMIN_EMAIL || user.role === "admin") {
+        redirectUrl = "/admin";
+      } else if (user.role === "student") {
+        redirectUrl = "/student";
+      } else if (user.role === "lecturer") {
+        redirectUrl = "/lecturer";
+      }
+
+      // Send response
+      return res.status(200).json({
+        message: "Login successful",
+        redirect: redirectUrl,
+        token, // Send short-lived access token
+        user: { email: user.email, role: user.role },
+      });
+    });
+  })(req, res, next);
 });
 
 
+
+// login authentication
+app.get("/auth/user", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token
+    if (!token) {
+      return res.status(401).json({ message: "No token provided" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findOne({ email: decoded.email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ email: user.email, role: user.role });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ message: "Server error" }); // Always return JSON
+  }
+});
+
+//auth refresh
+app.post("/auth/refresh", (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) return res.status(401).json({ message: "Unauthorized" });
+
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+    if (err) return res.status(403).json({ message: "Invalid refresh token" });
+
+    const newAccessToken = jwt.sign(
+      { email: decoded.email, role: decoded.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    return res.json({ token: newAccessToken });
+  });
+});
+
+
+
 //get request for logout
-app.get('/logout', (req, res) => {
-    res.clearCookie('connect.sid'); // Clear session cookie (if using express-session)
-    res.json({ message: 'Logout successful' });
+app.get("/logout", (req, res) => {
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+  });
+
+  
+  return res.status(200).json({ message: "Logged out successfully" });
 });
 
 
@@ -293,26 +360,36 @@ app.post('/resetpassword/:token', async (req, res) => {
 });
 
 //get students
-app.get('/getStudents', async (req, res) => {
-  try {
-    // Fetch students with the role of "student" and only specific fields
-    const students = await User.find({ role: 'student' }, 'name  email profilePicture');
-    res.json(students);
-  } catch (error) {
-    console.error('Error fetching students:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
+app.get('/getStudents', isAuthenticated, async (req, res) => {
+    try {
+        const students = await User.find(
+            { role: 'student' },
+            'name email profilePicture'
+        );
+
+        if (!students || students.length === 0) {
+            return res.status(404).json({ message: 'No students found' });
+        }
+        res.json(students);
+    } catch (error) {
+        console.error('Error fetching students:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
+
 //get all students info
-app.get('/getAllStudents', async (req, res) => {
-  try {
-    // Fetch students with the role of "student" and only specific fields
-    const students = await User.find({ role: 'student' });
-    res.json(students);
-  } catch (error) {
-    console.error('Error fetching students:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
+app.get('/getAllStudents', isAuthenticated, async (req, res) => {
+    try {
+        const students = await User.find({ role: 'student' });
+        
+        if (!students || student.length === 0) {
+            return res.status(404).json({ message: 'No student found' });
+        }
+        res.json(students);
+    } catch (error) {
+        console.error('Error fetching students:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 //student delete
@@ -320,7 +397,7 @@ app.delete('/getStudents/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const deletedStudents = await User.findByIdAndDelete(id);
-        if (deletedStudents) {
+        if (!deletedStudents) {
             return res.status(400).json({ message: 'Student not found' });
         }
         res.status(200).json({ message: 'Student deleted successfully' });
@@ -332,15 +409,20 @@ app.delete('/getStudents/:id', async (req, res) => {
 
 
  //fetch lecturers
-app.get('/getLecturers', async (req, res) => {
-  try {
-  
-    const lecturers = await User.find({role:'lecturer'});
-    res.json(lecturers);
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
+app.get('/getLecturers', isAuthenticated, async (req, res) => {
+    try {
+        const lecturers = await User.find(
+            { role: 'lecturer' },
+            'name email profilePicture'
+        );
+        if (!lecturers.length) {
+            return res.status(404).json({ message: 'No lecturers found' });
+        }
+        res.json(lecturers);
+    } catch (error) {
+        console.error('Error fetching lecturers:', error)
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 //lecturer delete
@@ -348,7 +430,7 @@ app.delete('/getLecturers/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const deletedLecturer = await User.findByIdAndDelete(id);
-        if (deletedLecturer) {
+        if (!deletedLecturer) {
             return res.status(400).json({ message: 'Lecturer not found' });
         }
         res.status(200).json({ message: 'Lecturer deleted successfully' });
@@ -359,47 +441,43 @@ app.delete('/getLecturers/:id', async (req, res) => {
 });
 
 //student count
-app.get('/countStudents', async (req, res) => {
-  try {
-   
-    const studentCount = await User.countDocuments({ role: 'student' });  
-
-    res.status(200).json({ count: studentCount });
-  } catch (error) {
-    console.error('Error counting students', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-//lecturer count
-app.get('/countLecturers', async (req, res) => {
-  try {
-    const lecturerCount = await User.countDocuments({ role: 'lecturer' });
-    res.status(200).json({ count: lecturerCount });
-  } catch (error) {
-    console.error('Error counting lecturers', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// school count
-app.get('/countSchool', async (req, res) => {
+app.get('/countStudents', isAuthenticated, async (req, res) => {
     try {
-        const schoolCount = await UnitStage.distinct('school'); // Gets unique school names
-        res.status(200).json({ count: schoolCount.length }); // Counts unique schools
+        const studentCount = await User.countDocuments({ role: 'student' });
+        res.status(200).json({ count: studentCount });
     } catch (error) {
-        console.error('Error counting schools:', error);
+        console.error('Error counting students', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
 
+//lecturer count
+app.get('/countLecturers', isAuthenticated, async (req, res) => {
+    try {
+        const lecturerCount = await User.countDocuments({ role: 'lecturer' });
+        res.status(200).json({ count: lecturerCount });
+    } catch (error) {
+        console.error('Error counting lecturers', error)
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+// school count
+app.get('/countSchool', isAuthenticated, async (req, res) => {
+    try {
+        const schoolCount = await UnitStage.distinct('school');
+        res.status(200).json({ count: schoolCount.length });
+    } catch (error) {
+        console.error('Error counting schools', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
  
 //courses count
-app.get('/countCourses', async (req, res) => {
+app.get('/countCourses', isAuthenticated, async (req, res) => {
     try {
         const allCourses = await UnitStage.aggregate([
-            { $unwind: "$courseName" }, // Unwind the array
-            { $group: { _id: null, totalCourses: { $sum: 1 } } } // Count total
+            { $unwind: '$courseName' },
+            { $group: { _id: null, totalCourses: { $sum: 1 } } }
         ]);
         const courseCount = allCourses.length > 0 ? allCourses[0].totalCourses : 0;
         res.status(200).json({ count: courseCount });
@@ -423,7 +501,7 @@ app.post('/coursesReg', async (req, res) => {
 });
 
 //get request for courses
-app.get('/coursesReg', async (req, res) => {
+app.get('/coursesReg', isAuthenticated, async (req, res) => {
     try {
         const courses = await UnitStage.find();
         res.status(200).json(courses);
@@ -511,13 +589,13 @@ app.post('/updates', async (req, res) => {
 });
 
 // Get request for update
-app.get('/updates', async (req, res) => {
+app.get('/updates', isAuthenticated, async (req, res) => {
     try {
         const updates = await Update.find();
-     res.json(updates)
+        res.status(200).json({ updates });
     } catch (error) {
         console.error('Error fetching updates:', error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -552,12 +630,12 @@ app.post('/stages', async (req, res) => {
 
 
 //get request for stages
-app.get('/stages', async (req, res) => {
+app.get('/stages', isAuthenticated, async (req, res) => {
     try {
         const stages = await UnitStage.find();
         res.status(200).json(stages);
     } catch (error) {
-        console.error('Error fetching stages:', error);
+        console.error('Error fetching stages', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -602,17 +680,17 @@ app.post('/sRegistrations', async (req, res) => {
 
 
 //get request for student  course registration
-app.get('/sRegistrations', async (req, res) => {
+app.get('/sRegistrations', isAuthenticated, async (req, res) => {
     try {
         const sRegistrations = await SRegistration.find();
-        const formattedSRegistrations = sRegistrations.map((sRegistration) => {
+        const formattedRegistrations = sRegistrations.map((sRegistration) => {
             const sRegistrationObj = sRegistration.toObject();
             if (sRegistrationObj.sDate) {
                 sRegistrationObj.sDate = new Date(sRegistrationObj.sDate).toISOString().split('T')[0];
             }
             return sRegistrationObj;
         });
-        return res.status(200).json(formattedSRegistrations);
+        return res.status(200).json(formattedRegistrations);
     } catch (error) {
         console.error('Error fetching registrations:', error);
         res.status(500).json({ message: 'Server error' });
@@ -641,7 +719,6 @@ app.delete('/sRegistrations/:id/:unit', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
-
 
 
 //course registration post request
@@ -688,22 +765,22 @@ app.post('/courses', async (req, res) => {
 
 
 //course registration get request
-app.get('/courses', async(req, res) =>{
+app.get('/courses', isAuthenticated, async (req, res) => {
     try {
         const courseRegistrations = await CourseRegistration.find();
-        const formattedCourseRegistrations = courseRegistrations.map((courseRegistration)=> {
+        const formattedCourseRegistrations = courseRegistrations.map((courseRegistration) => {
             const courseRegistrationObj = courseRegistration.toObject();
-            if(courseRegistrationObj.date) {
+            if (courseRegistrationObj.date) {
                 courseRegistrationObj.date = new Date(courseRegistrationObj.date).toISOString().split('T')[0];
             }
             return courseRegistrationObj;
-        })
+        });
         return res.status(200).json(formattedCourseRegistrations);
     } catch (error) {
-        console.error('Error fetching course Registration:', error);
-        res.status(500).json({message: 'Server error'});
+        console.error('Error fetching course registrations:', error);
+        res.status(500).json({ message: 'Server error' });
     }
-})
+});
 
 //handle course registration delete
 app.delete('/courses/:id', async(req, res) => {
@@ -760,21 +837,20 @@ app.post('/announcements', async (req, res) => {
 });
 
 // Announcement GET request
-app.get('/announcements', async (req, res) => {
-    try {      
+app.get('/announcements', isAuthenticated, async (req, res) => {
+    try {
         const announcements = await Announcement.find();
-        const formattedAnnouncements = announcements.map((announcement)=> {
+        const formattedAnnouncements = announcements.map((announcement) => {
             const announcementObj = announcement.toObject();
-            if(announcementObj.date) {
+            if (announcementObj.date) {
                 announcementObj.date = new Date(announcementObj.date).toISOString().split('T')[0];
-               
             }
             return announcementObj;
-        })
-        return res.status(200).json(formattedAnnouncements); // Return announcements array to the client
+        });
+        return res.status(200).json(formattedAnnouncements);
     } catch (error) {
         console.error('Error fetching announcements:', error);
-        res.status(500).json({message: 'Server error'});
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -843,116 +919,103 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 });
 
 //handle material get request
-app.get('/materials', async (req, res) => {
-  try {
-    const { search, recent } = req.query;
+app.get('/materials', isAuthenticated, async (req, res) => {
+    try {
+        const { search, recent } = req.query;
 
-    // Ensure search is a string if provided
-    if (search && typeof search !== 'string') {
-      return res.status(400).send('Search term must be a string');
-    }
-
-    // Build query to filter based on search term if provided
-    const query = search
-      ? {
-          $or: [
-            { unit: { $regex: search, $options: 'i' } },
-            { unitName: { $regex: search, $options: 'i' } }
-          ]
+        if (search && typeof search !== 'string') {
+            return res.status(200).json({ message: 'Search term must be a string' });
         }
-      : {};  // If no search term, we don't filter by unit or unitName
-
-    // Add sorting by uploadDate in descending order if `recent` is set
-    const sort = recent === 'true' ? { uploadDate: -1 } : {};  // Default is no sorting
-
-    // Query the database with optional search and sorting
-    const materials = await Material.find(query).sort(sort);
-
-    res.json(materials);
-  } catch (error) {
-    console.error('Error fetching materials:', error);
-    res.status(500).send('Server error');
-  }
+        const query = search
+            ? {
+                $or: [
+                    { unit: { $regex: search, $options: 'i' } },
+                    { unitName: { $regex: search, $options: 'i' } },
+                ],
+            }
+            : {};
+        const sort = recent === 'true' ? { uploadDate: -1 } : {};
+        const materials = await Material.find(query).sort(sort);
+        res.status(200).json(materials);
+    } catch (error) {
+        console.error('Error fetching materials', error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 //handling downloads
-app.get('/download/:unitId/:fileName', async (req, res) => {
-  try {
-    const { unitId, fileName } = req.params;
+app.get('/download/:unitId/:fileName', isAuthenticated, async (req, res) => {
+    try {
+        const { unitId, fileName } = req.params;
+        const material = await Material.findOne({ unit: unitId });
+        if (!material) {
+            return res.status(404).json({ message: 'Material not found' });
+        }
+        const file = material.filePath.find((f) => f.fileName === fileName);
+        if (!file) {
+            return res.status(404).json({ message: 'File not found in database' });
+        }
 
-    // Find the material in the database
-    const material = await Material.findOne({ unit: unitId });
-    if (!material) {
-      return res.status(404).send('Material not found');
+        const filePath = path.resolve(file.filePath);
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ message: 'File not found on server' });
+        }
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}" `);
+        res.setHeader('content-Type', 'application/octet-stream');
+
+        res.sendFile(filePath);
+    } catch (error) {
+        console.error('Error downloading file:', error);
+        res.status(500).json({ message: 'Server error' });
     }
-
-    // Find the specific filePath for the fileName
-    const file = material.filePath.find((f) => f.unitName === fileName);
-    if (!file) {
-      return res.status(404).send('File not found');
-    }
-
-    // Construct the full file path
-    const filePath = path.resolve(file.filePath);
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).send('File not found on server');
-    }
-
-    // Set the headers for direct download
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-    res.setHeader('Content-Type', 'application/octet-stream');
-
-    // Send the file for download
-    res.sendFile(filePath);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
-  }
 });
 
 
 // Fetch individual notes for a unit
-app.get('/notes/:unitId', async (req, res) => {
-  try {
-    const { unitId } = req.params;
-    const materials = await Material.find({ unit: unitId });
+app.get('/notes/:unitId', isAuthenticated, async (req, res) => {
+    try {
+        const { unitId } = req.params;
+        const materials = await Material.find({ unit: unitId });
 
-    if (!materials || materials.length === 0) {
-      return res.status(404).json({ message: 'No notes found for this unit.' });
+        if (!materials || materials.length === 0) {
+            return res.status(404).json({ message: 'No notes found for this unit.' });
+        }
+        res.status(200).json({ notes: materials });
+    } catch (error) {
+        console.error('Error fetching notes:', error);
+        res.status(500).json({ message: 'Server error' });
     }
-
-    res.json({ notes: materials });
-  } catch (error) {
-    console.error('Error fetching notes:', error);
-    res.status(500).json({ message: 'Server error.' });
-  }
 });
 
 // Download material file
-app.get('/download/:filePath', async (req, res) => {
-  try {
-    const { filePath } = req.params;
-    const decodedPath = decodeURIComponent(filePath); // Handle encoded paths
+app.get('/download/:filePath', isAuthenticated, async (req, res) => {
+    try {
+        const { filePath } = req.params;
+        const decodedPath = decodedURIComponent(filePath);
 
-    const resolvedPath = path.resolve(decodedPath);
+        const allowedDirectory = path.resolve(__dirname, '../uploads');
+        const resolvedPath = path.join(allowedDirectory, decodedPath);
 
-    if (!fs.existsSync(resolvedPath)) {
-      return res.status(404).json({ message: 'File not found on server' });
+        if (!resolvedPath.startsWith(allowedDirectory)) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+        
+        if (!fs.existsSync(resolvedPath)) {
+            return res.status(404).json({ message: 'File not found on server' });
+        }
+
+        res.setHeader(
+            'Content-Disposition',
+            `attachment; filename ="${path.basename(resolvedPath)}" `
+        );
+        res.setHeader('Content-Type', 'application/octet-stream');
+
+        res.sendFile(resolvedPath);
+    } catch (error) {
+        console.error('Error in download router:', error);
+        res.status(500).json({ message: 'Server error.' });
     }
-
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename="${path.basename(resolvedPath)}"`
-    );
-    res.setHeader('Content-Type', 'application/octet-stream');
-
-    res.sendFile(resolvedPath);
-  } catch (error) {
-    console.error('Error in download route:', error);
-    res.status(500).json({ message: 'Server error.' });
-  }
 });
-
 
 //post request for comments
 app.post('/comments', async(req, res) => {
@@ -978,13 +1041,13 @@ app.post('/comments', async(req, res) => {
 });
 
 //get request for comments
-app.get('/comments', async (req, res) => {
+app.get('/comments', isAuthenticated, async (req, res) => {
     try {
-        const comments = await Comment.find(); // Fetch all comments
-        res.json(comments);
+        const comments = await Comment.find();
+        res.status(200).json(comments);
     } catch (error) {
         console.error('Error fetching comments:', error);
-        res.status(500).json({ error: 'Server error' }); // More structured response
+        res.status(500).json({ error: 'Server error' });
     }
 });
 

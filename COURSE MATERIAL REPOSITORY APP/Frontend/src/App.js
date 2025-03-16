@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import {ProtectedRoute} from './components/ProtectedRoute'
+import ProtectedRoute from './components/ProtectedRoute';
 import Login from './components/Login';
 import Reset from './components/Reset';
 import Alert from './hooks/Alert';
@@ -31,24 +31,30 @@ import Comment2Modal from './components/Comment2Modal';
 
 
 const App = () => {
-  const [messages, setMessages] = useState({
-    errors: [],
-    success_msg: '',
-    error_msg: '',
-  });
+ const [messages, setMessages] = useState({
+  errors: [],
+  success_msg: '',
+  error_msg: '',
+});
 
-  useEffect(() => {
-    fetch('/api/messages')
-      .then((response) => response.json())
-      .then((data) => {
-        setMessages({
-          errors: data.errors || [],
-          success_msg: data.success_msg || '',
-          error_msg: data.error_msg || '',
-        });
-      })
-      .catch((error) => console.error('Error fetching messages:', error));
-  }, []);
+useEffect(() => {
+  fetch('/api/messages', { credentials: 'include' }) // Ensures cookies/session are sent
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Failed to fetch messages');
+      }
+      return response.json();
+    })
+    .then((data) => {
+      setMessages({
+        errors: data.errors || [],
+        success_msg: data.success_msg || '',
+        error_msg: data.error_msg || '',
+      });
+    })
+    .catch((error) => console.error('Error fetching messages:', error));
+}, []);
+
 
   return (
     <div>
@@ -68,16 +74,16 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Signup />} />
-          <Route element ={<ProtectedRoute allowedRoles= {['admin, super-admin']} />} >
-            <Route path="/admin" element={<Admin />} />
-          </Route>
-          <Route element ={<ProtectedRoute allowedRoles = {['student, admin, super-admin']} />} >
+          <Route element = {<ProtectedRoute allowedRoles = {['Admin', 'Super-admin']} /> }> 
+              <Route path="/admin" element={<Admin />} />
+            </Route>  
+          <Route element = {<ProtectedRoute allowedRoles = {['student', 'Admin', 'Super-admin']} /> }> 
             <Route path="/student" element={<Student />} />
-          </Route>
-          <Route path="/resetPassword" element={<ResetPassword />} />
-          <Route element ={<ProtectedRoute allowedRoles = {['lecturer, admin, super-admin']} />} >
+         </Route>
+          <Route element = {<ProtectedRoute allowedRoles = {['lecturer', 'Admin', 'Super-admin']} /> }> 
             <Route path="/lecturer" element={<Lecturer />} />
-          </Route>
+         </Route>
+          <Route path="/resetPassword" element={<ResetPassword />} />
           <Route path="/reset" element={<Reset />} />
           <Route path="/materials" element={<Materials />} />
           <Route path="/upload" element={<UploadMaterials />} />
@@ -97,7 +103,7 @@ const App = () => {
           <Route path="/comment2Modal" element={<Comment2Modal />} />
           <Route path="/viewModal" element={<ViewModal />} />             
           <Route path="/unit/:unitId" element={<RepoDisplay />} />     
-          <route path = '*' element = {<login /> } />
+          <Route path = '*' element = {<login /> } />
          
           </Routes>
           </AuthProvider>

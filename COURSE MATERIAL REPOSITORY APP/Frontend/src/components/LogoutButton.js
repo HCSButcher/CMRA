@@ -1,47 +1,62 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 const LogoutButton = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const { logout } = useAuth(); // Using logout function from AuthContext
 
-    const handleLogout = async () => {
-        try {
-            await fetch('http://localhost:3001/logout', { 
-                method: 'GET', 
-                credentials: 'include' 
-            });
+  const handleLogout = async () => {
+    try {
+        const response = await fetch("http://localhost:3001/logout", { 
+            method: "GET", 
+            credentials: "include",  // ✅ Ensure cookies are included in request
+        });
 
-            // Clear stored authentication data
-            localStorage.removeItem('token');
-            localStorage.removeItem('userEmail');
-
-            // Redirect user to login page
-            navigate('/login');
-        } catch (error) {
-            console.error('Error during logout:', error);
+        if (!response.ok) {
+            throw new Error(`Logout failed: ${response.statusText}`);
         }
-    };
-    return (
-        <>
-            <style>
-                {`
-                 
-               .btn-1 {
-                 background-color:#f05462;
-                 width:50px;
-                 height:60px; 
-              text-align: center;           
-                }
-                 
-                 button:hover {
-                  background-color:white;
-                 }
-                `}
 
-    </style>
-        <button className ='btn-1' onClick={handleLogout} >Log out </button>
-        </>
-    )
-}
+        // ✅ Ensure local storage is cleared
+        localStorage.removeItem("token");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userRole");
 
-export default LogoutButton
+        // ✅ Redirect user to login page
+        navigate("/login");
+    } catch (error) {
+        console.error("Error during logout:", error);
+    }
+};
+
+  return (
+    <>
+      <style>
+        {`
+          .btn-1 {
+            background-color: #f05462;
+            width: 80px;
+            height: 40px; 
+            text-align: center;  
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease-in-out;
+          }
+
+          .btn-1:hover {
+            background-color: white;
+            color: #f05462;
+            border: 1px solid #f05462;
+          }
+        `}
+      </style>
+      <button className="btn-1" onClick={handleLogout}>Log out</button>
+    </>
+  );
+};
+
+export default LogoutButton;
