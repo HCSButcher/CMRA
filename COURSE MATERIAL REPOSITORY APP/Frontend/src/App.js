@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import {ProtectedRoute} from './components/ProtectedRoute'
 import Login from './components/Login';
 import Reset from './components/Reset';
 import Alert from './hooks/Alert';
@@ -61,14 +63,21 @@ const App = () => {
       <Alert type="warning" messages={messages.errors} />
 
       <BrowserRouter>
+        <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Signup />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/student" element={<Student />} />
+          <Route element ={<ProtectedRoute allowedRoles= {['admin, super-admin']} />} >
+            <Route path="/admin" element={<Admin />} />
+          </Route>
+          <Route element ={<ProtectedRoute allowedRoles = {['student, admin, super-admin']} />} >
+            <Route path="/student" element={<Student />} />
+          </Route>
           <Route path="/resetPassword" element={<ResetPassword />} />
-          <Route path="/lecturer" element={<Lecturer />} />
+          <Route element ={<ProtectedRoute allowedRoles = {['lecturer, admin, super-admin']} />} >
+            <Route path="/lecturer" element={<Lecturer />} />
+          </Route>
           <Route path="/reset" element={<Reset />} />
           <Route path="/materials" element={<Materials />} />
           <Route path="/upload" element={<UploadMaterials />} />
@@ -87,9 +96,11 @@ const App = () => {
           <Route path="/repository" element={<Repository />} />
           <Route path="/comment2Modal" element={<Comment2Modal />} />
           <Route path="/viewModal" element={<ViewModal />} />             
-          <Route path="/unit/:unitId" element={<RepoDisplay />} />        
+          <Route path="/unit/:unitId" element={<RepoDisplay />} />     
+          <route path = '*' element = {<login /> } />
          
-        </Routes>
+          </Routes>
+          </AuthProvider>
       </BrowserRouter>
     </div>
   );
