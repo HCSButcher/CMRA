@@ -1,46 +1,43 @@
-import { useState } from "react"
+import { useState } from "react";
 import axios from "axios";
-import LoginCSS from './Login.module.css';
+import LoginCSS from "./Login.module.css";
 import { useNavigate } from "react-router-dom";
-
-
-const Login = () => {   
-    
+import { useAuth } from '../context/AuthContext';
+const Login = () => {
     const navigate = useNavigate();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const { login } = useAuth();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
 
-
 const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrors([]);
+        e.preventDefault();
+        setErrors([]);
 
-    try {
-        const result = await axios.post("http://localhost:3001/login", { email, password }, { withCredentials: true });
+        try {
+            const result = await axios.post("http://localhost:3001/login", { email, password }, { withCredentials: true });
 
-        if (result.data.token) {
-            // ✅ Ensure old token is cleared before setting new one
-            localStorage.removeItem("token");
-            localStorage.setItem("token", result.data.token);
-            localStorage.setItem("userEmail", result.data.user.email);
-            localStorage.setItem("userRole", result.data.user.role);
+            console.log("🔹 Login Response:", result.data);
 
-            // ✅ Use React Router for navigation
-            navigate(result.data.redirect);
-        } else {
-            setErrors([{ msg: "Login failed. Please try again." }]);
+            if (result.data.token) {
+                await login(result.data.user, result.data.token); // Use login() from context
+                console.log("✅ User logged in and set in context");
+
+                setTimeout(() => {
+                    navigate(result.data.redirect);
+                }, 100);
+            } else {
+                setErrors([{ msg: "Login failed. Please try again." }]);
+            }
+        } catch (err) {
+            if (err.response && err.response.data) {
+                setErrors(err.response.data.errors || [{ msg: "Invalid email or password." }]);
+            } else {
+                setErrors([{ msg: "Something went wrong. Please try again later." }]);
+            }
         }
-    } catch (err) {
-        if (err.response && err.response.data) {
-            const errorMessages = err.response.data.errors || [{ msg: "Invalid email or password." }];
-            setErrors(errorMessages);
-        } else {
-            setErrors([{ msg: "Something went wrong. Please try again later." }]);
-            console.error("Error:", err);
-        }
-    }
-};
+    };
+
 
 
 
@@ -49,42 +46,40 @@ const handleSubmit = async (e) => {
             <style>
                 {`
                 body {
-  background-color: #080710;
-}
-  h1, h2, footer, p {
-  color: #ffffff;
-}
-
-h1 {
-  text-align: center;
-  font-weight: 500;
-}
-  button {
-  margin-top: 30px;
-  width: 100%;
-  background-color: #ffffff;
-  color: #080710;
-  padding: 15px 0;
-  font-size: 18px;
-  font-weight: 600;
-  border-radius: 5px;
-  cursor: pointer;
-}
-  input {
-  display: block;
-  height: 50px;
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.07);
-  border-radius: 3px;
-  padding: 0 10px;
-  margin-top: 8px;
-  font-size: 14px;
-  font-weight: 300;
-}
-
-::placeholder {
-  color: #e5e5e5;
-}
+                    background-color: #080710;
+                }
+                h1, h2, footer, p {
+                    color: #ffffff;
+                }
+                h1 {
+                    text-align: center;
+                    font-weight: 500;
+                }
+                button {
+                    margin-top: 30px;
+                    width: 100%;
+                    background-color: #ffffff;
+                    color: #080710;
+                    padding: 15px 0;
+                    font-size: 18px;
+                    font-weight: 600;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+                input {
+                    display: block;
+                    height: 50px;
+                    width: 100%;
+                    background-color: rgba(255, 255, 255, 0.07);
+                    border-radius: 3px;
+                    padding: 0 10px;
+                    margin-top: 8px;
+                    font-size: 14px;
+                    font-weight: 300;
+                }
+                ::placeholder {
+                    color: #e5e5e5;
+                }
                 `}
             </style>
             <div className={LoginCSS.background}>
@@ -96,7 +91,6 @@ h1 {
             <form onSubmit={handleSubmit}>
                 <div className={LoginCSS.form_group}>
                     <h2>Log in to your account</h2>
-                   
                     <label htmlFor="email">Email</label>
                     <input 
                         type="text"

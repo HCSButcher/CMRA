@@ -5,6 +5,7 @@ import Login from './components/Login';
 import Reset from './components/Reset';
 import Alert from './hooks/Alert';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Signup from './components/Signup';
 import Admin from './components/Admin';
 import Materials from './components/Materials';
@@ -29,60 +30,56 @@ import LecturerModal from './components/LecturerModal';
 import StudentsModal from './components/StudentsModal';
 import Comment2Modal from './components/Comment2Modal';
 
-
 const App = () => {
- const [messages, setMessages] = useState({
-  errors: [],
-  success_msg: '',
-  error_msg: '',
-});
+  const [messages, setMessages] = useState({
+    errors: [],
+    success_msg: '',
+    error_msg: '',
+  });
 
-useEffect(() => {
-  fetch('/api/messages', { credentials: 'include' }) // Ensures cookies/session are sent
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Failed to fetch messages');
-      }
-      return response.json();
-    })
-    .then((data) => {
-      setMessages({
-        errors: data.errors || [],
-        success_msg: data.success_msg || '',
-        error_msg: data.error_msg || '',
-      });
-    })
-    .catch((error) => console.error('Error fetching messages:', error));
-}, []);
-
+  useEffect(() => {
+    fetch('/api/messages', { credentials: 'include' }) // Ensures cookies/session are sent
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch messages');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setMessages({
+          errors: data.errors || [],
+          success_msg: data.success_msg || '',
+          error_msg: data.error_msg || '',
+        });
+      })
+      .catch((error) => console.error('Error fetching messages:', error));
+  }, []);
 
   return (
-    <div>
-      <Alert
-        type="success"
-        messages={messages.success_msg ? [messages.success_msg] : []}
-      />
-      <Alert
-        type="danger"
-        messages={messages.error_msg ? [messages.error_msg] : []}
-      />
-      <Alert type="warning" messages={messages.errors} />
-
-      <BrowserRouter>
-        <AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <TokenRedirect /> {/* ✅ Fix token check inside a proper component */}
+        <Alert type="success" messages={messages.success_msg ? [messages.success_msg] : []} />
+        <Alert type="danger" messages={messages.error_msg ? [messages.error_msg] : []} />
+        <Alert type="warning" messages={messages.errors} />
+        
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Signup />} />
-          <Route element = {<ProtectedRoute allowedRoles = {['Admin', 'Super-admin']} /> }> 
-              <Route path="/admin" element={<Admin />} />
-            </Route>  
-          <Route element = {<ProtectedRoute allowedRoles = {['student', 'Admin', 'Super-admin']} /> }> 
+          
+          <Route element={<ProtectedRoute allowedRoles={['Admin', 'Super-admin']} />}>
+            <Route path="/admin" element={<Admin />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['student', 'Admin', 'Super-admin']} />}>
             <Route path="/student" element={<Student />} />
-         </Route>
-          <Route element = {<ProtectedRoute allowedRoles = {['lecturer', 'Admin', 'Super-admin']} /> }> 
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['lecturer', 'Admin', 'Super-admin']} />}>
             <Route path="/lecturer" element={<Lecturer />} />
-         </Route>
+          </Route>
+
           <Route path="/resetPassword" element={<ResetPassword />} />
           <Route path="/reset" element={<Reset />} />
           <Route path="/materials" element={<Materials />} />
@@ -101,15 +98,28 @@ useEffect(() => {
           <Route path="/students" element={<StudentsModal />} />
           <Route path="/repository" element={<Repository />} />
           <Route path="/comment2Modal" element={<Comment2Modal />} />
-          <Route path="/viewModal" element={<ViewModal />} />             
-          <Route path="/unit/:unitId" element={<RepoDisplay />} />     
-          <Route path = '*' element = {<login /> } />
-         
-          </Routes>
-          </AuthProvider>
-      </BrowserRouter>
-    </div>
+          <Route path="/viewModal" element={<ViewModal />} />
+          <Route path="/unit/:unitId" element={<RepoDisplay />} />
+          
+          <Route path="*" element={<Login />} /> {/* ✅ Fixed incorrect syntax */}
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
+};
+
+// ✅ Move token check to a separate component inside BrowserRouter
+const TokenRedirect = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  return null;
 };
 
 export default App;

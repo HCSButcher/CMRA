@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
 const AuthContext = createContext();
@@ -7,9 +7,9 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     let token = localStorage.getItem("token");
+
     if (!token) {
       setUser(null);
       setLoading(false);
@@ -28,20 +28,15 @@ export const AuthProvider = ({ children }) => {
 
       setUser(res.data);
     } catch (err) {
-      console.error("Error fetching user:", err);
-
       if (err.response?.status === 401) {
-        console.log("Token expired, trying refresh...");
-
         try {
           const refreshRes = await axios.post("http://localhost:3001/auth/refresh", {}, { withCredentials: true });
 
           if (refreshRes.data?.token) {
             localStorage.setItem("token", refreshRes.data.token);
-            return fetchUser(); // Retry fetching user with new token
+            return fetchUser();
           }
-        } catch (refreshError) {
-          console.error("Refresh token failed:", refreshError);
+        } catch {
           localStorage.removeItem("token");
         }
       }
@@ -50,33 +45,31 @@ export const AuthProvider = ({ children }) => {
     }
 
     setLoading(false);
-  };
+  }, []);
 
-  fetchUser();
-}, []);
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
-
-  const login = (userData, token) => {
-    setUser(userData);
+  const login = async (userData, token) => {
     localStorage.setItem("token", token);
+    setUser(null);
+
+    try {
+      await fetchUser();
+    } catch {}
   };
 
   const logout = async () => {
     try {
-        await axios.get("http://localhost:3001/logout", { withCredentials: true });
+      await axios.get("http://localhost:3001/logout", { withCredentials: true });
 
-        
-        setUser(null);
-        localStorage.removeItem("token");
-        localStorage.removeItem("userEmail");
-        localStorage.removeItem("userRole");
-
-        console.log("Logout successful");
-    } catch (error) {
-        console.error("Logout error:", error);
-    }
+      setUser(null);
+      localStorage.removeItem("token");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("userRole");
+    } catch {}
   };
-  
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>

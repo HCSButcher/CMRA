@@ -23,6 +23,7 @@ const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
 const compression = require('compression')
 const { isAuthenticated } = require('./middleware/authMiddleware.js');
+const { authorizeRoles } = require('./middleware/authMiddleware.js');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
@@ -34,10 +35,12 @@ dotenv.config();
 //passport configuration
 require('./config/passport')(passport);
 
-app.use(cors({
+app.use(
+    cors({
     origin: 'http://localhost:3000',
     credentials: true,
-}));
+    })
+);
 
 app.use(express.json());
 
@@ -213,7 +216,6 @@ app.post("/login", (req, res, next) => {
 });
 
 
-
 // login authentication
 app.get("/auth/user", async (req, res) => {
   try {
@@ -360,7 +362,7 @@ app.post('/resetpassword/:token', async (req, res) => {
 });
 
 //get students
-app.get('/getStudents', isAuthenticated, async (req, res) => {
+app.get('/getStudents', isAuthenticated, authorizeRoles("Super-admin", "admin", "lecturer"), async (req, res) => {
     try {
         const students = await User.find(
             { role: 'student' },
@@ -370,6 +372,7 @@ app.get('/getStudents', isAuthenticated, async (req, res) => {
         if (!students || students.length === 0) {
             return res.status(404).json({ message: 'No students found' });
         }
+        
         res.json(students);
     } catch (error) {
         console.error('Error fetching students:', error);
@@ -377,20 +380,23 @@ app.get('/getStudents', isAuthenticated, async (req, res) => {
     }
 });
 
+
 //get all students info
-app.get('/getAllStudents', isAuthenticated, async (req, res) => {
+app.get('/getAllStudents', isAuthenticated, authorizeRoles("Super-admin", "admin", "lecturer"), async (req, res) => {
     try {
         const students = await User.find({ role: 'student' });
-        
-        if (!students || student.length === 0) {
-            return res.status(404).json({ message: 'No student found' });
+
+        if (!students || students.length === 0) {
+            return res.status(404).json({ message: 'No students found' });
         }
+
         res.json(students);
     } catch (error) {
         console.error('Error fetching students:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
+
 
 //student delete
 app.delete('/getStudents/:id', async (req, res) => {
@@ -441,18 +447,19 @@ app.delete('/getLecturers/:id', async (req, res) => {
 });
 
 //student count
-app.get('/countStudents', isAuthenticated, async (req, res) => {
+app.get('/countStudents', isAuthenticated, authorizeRoles("Super-admin", "admin"), async (req, res) => {
     try {
         const studentCount = await User.countDocuments({ role: 'student' });
         res.status(200).json({ count: studentCount });
     } catch (error) {
-        console.error('Error counting students', error);
+        console.error('Error counting students:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
 
+
 //lecturer count
-app.get('/countLecturers', isAuthenticated, async (req, res) => {
+app.get('/countLecturers', isAuthenticated, authorizeRoles("Super-admin", "admin"), async (req, res) => {
     try {
         const lecturerCount = await User.countDocuments({ role: 'lecturer' });
         res.status(200).json({ count: lecturerCount });
@@ -462,7 +469,7 @@ app.get('/countLecturers', isAuthenticated, async (req, res) => {
     }
 });
 // school count
-app.get('/countSchool', isAuthenticated, async (req, res) => {
+app.get('/countSchool', isAuthenticated, authorizeRoles("Super-admin", "admin"), async (req, res) => {
     try {
         const schoolCount = await UnitStage.distinct('school');
         res.status(200).json({ count: schoolCount.length });
@@ -473,7 +480,7 @@ app.get('/countSchool', isAuthenticated, async (req, res) => {
 });
  
 //courses count
-app.get('/countCourses', isAuthenticated, async (req, res) => {
+app.get('/countCourses', isAuthenticated, authorizeRoles("Super-admin", "admin"), async (req, res) => {
     try {
         const allCourses = await UnitStage.aggregate([
             { $unwind: '$courseName' },
