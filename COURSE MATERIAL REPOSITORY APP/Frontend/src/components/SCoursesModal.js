@@ -11,11 +11,23 @@ const SCoursesModal = () => {
     const [errors, setErrors] = useState([]);
 
     useEffect(() => {
-        axios.get('http://localhost:3001/stages')
-            .then(response => {
-                setStages(response.data);  // Set stages from the fetched data
-            })
-            .catch(error => console.error('Error fetching stages:', error));
+        const getStages = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get('http://localhost:3001/stages', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (Array.isArray(response.data)) {
+                    setStages(response.data);
+                } else {
+                    console.error('Unexpected response format:', response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching stages:', error);
+            }
+        };
+        getStages();
     }, []);
 
     // Update available units when a new stage is selected

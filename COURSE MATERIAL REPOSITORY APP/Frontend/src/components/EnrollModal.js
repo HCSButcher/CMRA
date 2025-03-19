@@ -18,18 +18,36 @@ const EnrollModal = () => {
   const [isSearchActive, setIsSearchActive] = useState(false); // State to check if search is active
 
   // Fetch students from the backend when the component loads
-  useEffect(() => {
-    axios
-      .get('http://localhost:3001/getStudents') // API call to fetch students
-      .then((response) => {
-        const fetchedStudents = response.data;
-        setStudents(fetchedStudents); // Populate all students
-        setFilteredStudents(fetchedStudents); // Initialize filtered students
-      })
-      .catch((error) => {
-        console.error('Error fetching students:', error);
-      });
-  }, []);
+useEffect(() => {
+    const fetchStudents = async () => {
+        try {
+            const token = localStorage.getItem("token"); // Get token from localStorage
+            if (!token) {
+                console.warn("No token found. User might not be authenticated.");
+                return;
+            }
+
+            const response = await axios.get('http://localhost:3001/getStudents', {
+                headers: { Authorization: `Bearer ${token}` } // Sending token
+            });
+
+            console.log("Response from server:", response.data);
+
+            if (Array.isArray(response.data)) {
+                setStudents(response.data); // Populate all students
+                setFilteredStudents(response.data); // Initialize filtered students
+            } else {
+                console.error("Unexpected response format:", response.data);
+            }
+        } catch (error) {
+            console.error('Error fetching students:', error.response ? error.response.data : error.message);
+        }
+    };
+
+    fetchStudents();
+}, []);
+
+
 
   // Handle search input and filter students based on the search term
   const handleSearchChange = (e) => {

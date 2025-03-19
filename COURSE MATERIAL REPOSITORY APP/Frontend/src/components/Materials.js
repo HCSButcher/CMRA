@@ -3,17 +3,26 @@ import './Materials.css';
 import axios from 'axios';
 
 const Materials = () => { 
-   const [materials, setMaterials] = useState([]);
-
-   useEffect(() => {
-       axios.get('http://localhost:3001/materials')
-       .then(response => {
-           setMaterials(response.data);
-       })
-       .catch(error => {
-           console.error('Error fetching materials:', error);        
-       });               
-   }, []);
+//fetch materials
+   const [materials, setMaterials] = useState([]);    
+    useEffect(() => {
+        const fetchMaterials = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios('http://localhost:3001/materials', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (Array.isArray(response.data)) {
+                    setMaterials(response.data);
+                } else {
+                    console.error('Unexpected response format:', response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching materials:', error);
+            }
+        };
+        fetchMaterials();
+    }, []);
     
    return (
        <div className="file-details">

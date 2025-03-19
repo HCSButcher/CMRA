@@ -7,32 +7,43 @@ const RepoDisplay = () => {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
 
-  useEffect(() => {
+ useEffect(() => {
     const fetchNotes = async () => {
-      try {
-        const response = await fetch(`http://localhost:3001/notes/${unitId}`);
-        if (!response.ok) {
-          console.error('Response status:', response.status);
-          throw new Error('Failed to fetch notes');
-        }
-        const data = await response.json();
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.warn("No token found. User might not be authenticated.");
+                return;
+            }
 
-        console.log('API Response Data:', data); // Debugging API response
+            const response = await fetch(`http://localhost:3001/notes/${unitId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
 
-        if (data && data.notes && data.notes.length > 0) {
-          setNotes(data.notes[0].filePath); // Access `filePath` array for the unit
-          setName(data.notes[0].unit || ''); // Set the unit name
-        } else {
-          setError('No notes available for this unit.');
+            console.log("Response Status:", response.status);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch notes. Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("API Response Data:", data);
+
+            if (data && Array.isArray(data.notes) && data.notes.length > 0) {
+                setNotes(data.notes[0].filePath);
+                setName(data.notes[0].unit || '');
+            } else {
+                console.warn("No notes found for this unit.");
+                setError("No notes available for this unit.");
+            }
+        } catch (err) {
+            console.error("Error fetching notes:", err);
+            setError("Unable to fetch notes for this unit.");
         }
-      } catch (err) {
-        console.error('Error fetching notes:', err);
-        setError('Unable to fetch notes for this unit.');
-      }
     };
 
     fetchNotes();
-  }, [unitId]);
+}, [unitId]);
+
 
   const handleDownload = (filePath) => {
     try {

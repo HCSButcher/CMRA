@@ -15,6 +15,25 @@ const ViewUnitsModal = () => {
       });
   }, []);
 
+  useEffect(() => {
+    const getUnits = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3001/sRegistrations', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (Array.isArray(response.data)) {
+          setUnits(response.data);
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching units:', error);
+      }
+    };
+    getUnits();
+  }, []);
+
 //registration delete
 const dropUnit = (registrationId, unit) => {
   axios.delete(`http://localhost:3001/sRegistrations/${registrationId}/${unit}`)

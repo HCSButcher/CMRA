@@ -7,18 +7,37 @@ const LecturerModal = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchActive, setIsSearchActive] = useState(false);
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:3001/getLecturers")
-      .then((response) => {
-        const fetchedLecturers = response.data;
-        setLecturers(fetchedLecturers);
-        setFilteredLecturers(fetchedLecturers);
-      })
-      .catch((error) => {
-        console.error("Error fetching lecturers:", error);
-      });
-  }, []);
+useEffect(() => {
+    const fetchLecturers = async () => {
+        try {
+            const token = localStorage.getItem("token"); 
+            if (!token) {
+                console.warn("No token found. User might not be authenticated.");
+                return;
+            }
+
+            const response = await axios.get("http://localhost:3001/getLecturers", {
+                headers: { Authorization: `Bearer ${token}` } 
+            });
+
+            console.log("Response from server:", response.data);
+
+            if (Array.isArray(response.data)) {
+                setLecturers(response.data); 
+                setFilteredLecturers(response.data); 
+            } else {
+                console.error("Unexpected response format:", response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching lecturers:", error.response ? error.response.data : error.message);
+        }
+    };
+
+    fetchLecturers();
+}, []);
+
+
+
 
   const handleSearchChange = (e) => {
     const searchValue = e.target.value.toLowerCase();

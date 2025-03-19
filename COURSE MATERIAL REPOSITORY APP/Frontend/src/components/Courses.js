@@ -20,18 +20,30 @@ const Courses = () => {
         setCourseName(courseName.filter((_, i) => i !== index));
     };
 
-    const handleSaveCourses = async () => {
-       
-        if (!school || courseName.length === 0) return;
-        try {
-            await axios.post('http://localhost:3001/coursesReg', { school, courseName });
-            setSchool('');
-            setCourseName([]);
-            alert('School and Courses saved successfully!');
-        } catch (error) {
-            console.error('Error saving school and courses', error);
-        }
-    };
+  const handleSaveCourses = async () => {
+    if (!school || courseName.length === 0) {
+        console.warn("School or Course Name is empty. Please provide values.");
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem("token");
+        const response = await axios.post(
+            'http://localhost:3001/coursesReg', 
+            { school, courseName }, 
+            { headers: { Authorization: `Bearer ${token}` } } // Sending token
+        );
+
+        console.log("Response from server:", response.data);
+
+        setSchool('');
+        setCourseName([]);
+        alert('School and Courses saved successfully!');
+    } catch (error) {
+        console.error('Error saving school and courses:', error.response ? error.response.data : error.message);
+    }
+};
+
 
       //courseManagement modal
   const [showCourseManagement, setShowCourseMAnagement] = useState(false);

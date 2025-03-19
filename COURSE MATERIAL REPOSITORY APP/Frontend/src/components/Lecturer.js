@@ -57,47 +57,90 @@ const CloseUpdateModal = () => setShowUpdateModal(false);
   const CloseComment2Modal = () => setShowComment2Modal(false);
 
 //registration courses fetch
-useEffect (() =>{
-  axios.get('http://localhost:3001/courses')
-  .then (response => {
-    setRegistrations(response.data);
-  })
-  .catch(error => {
-    console.error('error fetching data:', error);
-  });
-}, []);
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3001/courses', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (Array.isArray(response.data)) {
+          setRegistrations(response.data);
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching lecturers:', error);
+      }
+    };
+    fetchCourses();
+  }, []);
 
 //material fetch
-  useEffect (()=> {
-    axios.get('http://localhost:3001/materials')
-    .then (response =>{ 
-      setMaterials(response.data);
-    })
-    .catch(error => {
-      console.error('error fetching data:', error);
-    });
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3001/materials', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (Array.isArray(response.data)) {
+          setMaterials(response.data);
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching Materials:', error);
+      }
+    };
+    fetchMaterials();
   }, []);
 
 	//update fetch
-  useEffect (()=> {
-    axios.get('http://localhost:3001/updates')
-    .then (response =>{ 
-      setUpdates(response.data);
-    })
-    .catch(error => {
-      console.error('error fetching data:', error);
-    });
-  }, []);
+useEffect(() => {
+    const fetchUpdates = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3001/updates', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        console.log("API Response Data:", response.data); // Log response for debugging
+
+        // Ensure the response contains an 'updates' array
+        if (response.data && Array.isArray(response.data.updates)) {
+          setUpdates(response.data.updates);
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching updates:', error);
+      }
+    };
+    fetchUpdates();
+}, []);
+
+
 
   //announcement fetch
-  useEffect  (() => {
-    axios.get('http://localhost:3001/announcements')
-    .then (response => {
-      setAnnouncements(response.data);
-    })
-    .catch(error => {
-      console.error('error fetching data:', error);
-    });
+
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3001/announcements', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (Array.isArray(response.data)) {
+          setAnnouncements(response.data);
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching announcements', error);
+      }
+    };
+    fetchAnnouncements();
   }, []);
 
 //handle announcement delete
@@ -130,11 +173,13 @@ const regDelete = (id) => {
 //handle upload delete
 const uploadDelete = (id) => {
   axios.delete(`http://localhost:3001/materials/${id}`)
-  .then (() => {
-    setMaterials(materials.filter(material =>material._id !==id))
-  })
-  .catch (error => console.error('Error deleting uploads', error))
-}
+    .then(() => {
+      setMaterials(prevMaterials => prevMaterials.filter(material => material._id !== id));
+      console.log(`Upload with ID: ${id} deleted successfully.`);
+    })
+    .catch(error => console.error('Error deleting upload:', error));
+};
+
 
   return (
     <div>  
@@ -160,7 +205,7 @@ const uploadDelete = (id) => {
        
         <li onClick={() =>handleNavigate('/enroll')} > <img src ='http://localhost:3000/teachers.png' alt =''/> &nbsp; <span>Course Management</span></li>
         <li onClick={openComment2Modal }  > <img src ='http://localhost:3000/students.png' alt =''/> &nbsp; <span>Student Interaction</span></li>        
-        <li > <img src ='http://localhost:3000/schools.png' alt =''/> &nbsp; <span>Library</span></li>
+        <li > <a style={{color:'white'}} href ="https://kabarak.ac.ke/library" target = "_blank" rel = "noopener noreferrer" >  <img src ='http://localhost:3000/schools.png' alt =''/> &nbsp;<br /> <span>Library</span></a></li>
         <li  onClick={openUploadModal}> <img src ='http://localhost:3000/download.png' alt =''/> &nbsp;<span>Upload Materials</span> </li>        
       </ul>      
   </div>

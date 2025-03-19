@@ -415,21 +415,20 @@ app.delete('/getStudents/:id', async (req, res) => {
 
 
  //fetch lecturers
-app.get('/getLecturers', isAuthenticated, async (req, res) => {
+app.get('/getLecturers', isAuthenticated, authorizeRoles("Super-admin", "admin"), async (req, res) => {
     try {
         const lecturers = await User.find(
             { role: 'lecturer' },
-            'name email profilePicture'
+            'name email contact profilePicture'  
         );
-        if (!lecturers.length) {
-            return res.status(404).json({ message: 'No lecturers found' });
-        }
-        res.json(lecturers);
+
+        res.status(200).json(lecturers);  
     } catch (error) {
-        console.error('Error fetching lecturers:', error)
+        console.error('Error fetching lecturers:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
+
 
 //lecturer delete
 app.delete('/getLecturers/:id', async (req, res) => {
@@ -464,17 +463,18 @@ app.get('/countLecturers', isAuthenticated, authorizeRoles("Super-admin", "admin
         const lecturerCount = await User.countDocuments({ role: 'lecturer' });
         res.status(200).json({ count: lecturerCount });
     } catch (error) {
-        console.error('Error counting lecturers', error)
+        console.error('Error counting lecturers:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
+
 // school count
 app.get('/countSchool', isAuthenticated, authorizeRoles("Super-admin", "admin"), async (req, res) => {
     try {
-        const schoolCount = await UnitStage.distinct('school');
+        const schoolCount = await UnitStage.distinct('school'); // Get distinct school names
         res.status(200).json({ count: schoolCount.length });
     } catch (error) {
-        console.error('Error counting schools', error);
+        console.error('Error counting schools:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -949,6 +949,28 @@ app.get('/materials', isAuthenticated, async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+//recent upload delete
+app.delete('/materials/:id', async (req, res) => {
+    const { id } = req.params;
+    
+    if (!id || id.length < 10) { 
+        return res.status(400).json({ message: 'Invalid or missing ID' });
+    }
+
+    try {
+        const deletedMaterial = await Material.findByIdAndDelete(id);
+        if (!deletedMaterial) {
+            return res.status(404).json({ message: 'Material not found' });
+        }
+        res.status(200).json({ message: 'Material deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting material:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
 
 //handling downloads
 app.get('/download/:unitId/:fileName', isAuthenticated, async (req, res) => {

@@ -88,7 +88,7 @@ const AnnouncementModal = () => {
                         onChange={(e) => setAnnouncements(e.target.value)}
                     />                     
                 </div>
-                <button type="submit"> Send</button>
+                <button className="btn" type="submit"> Send</button>
             </form>
             {errors.length > 0 && (
                 <ul>

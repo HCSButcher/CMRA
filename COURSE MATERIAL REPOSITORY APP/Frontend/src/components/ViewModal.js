@@ -17,15 +17,25 @@ const ViewModal = () => {
     setShowViewModal(true); // Reopen the first modal
   };
 
+
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/materials")
-      .then((response) => {
-        setUnits(response.data);
-      })
-      .catch((error) => {
-        console.log("Error fetching materials:", error);
-      });
+    const getUnits = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3001/materials', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (Array.isArray(response.data)) {
+          setUnits(response.data);
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching units:', error);
+      }
+    };
+    getUnits();
   }, []);
 
   return (

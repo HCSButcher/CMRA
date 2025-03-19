@@ -7,21 +7,31 @@ const Updates = () => {
     const [errors, setErrors] = useState([]);
    
   
-const handleSubmit= (e) =>{
-    e.preventDefault(); 
-    axios.post('http://localhost:3001/updates', {unit, unitName})
-    .then(result => {
-        console.log(result);
-       window.location.href = result.data.redirect;
-    })
-    .catch(err =>{
-        if(err.response) {                
-                setErrors(err.response.data.errors)
-        } else {                
-                console.error('error:', err);
-        }
-    }); 
+const handleSubmit = (e) => {
+    e.preventDefault();
+
+    axios.post('http://localhost:3001/updates', { unit, unitName })
+        .then(result => {
+            console.log("Submission successful:", result);
+            
+            setUnit("");
+            setUnitName("");
+            setErrors([]);
+            
+            if (result.data.redirect) {
+                window.location.href = result.data.redirect;
+            }
+        })
+        .catch(err => {
+            if (err.response) {                
+                setErrors(err.response.data.errors);
+                console.error("Validation errors:", err.response.data.errors);
+            } else {                
+                console.error("Error submitting form:", err);
+            }
+        });
 };
+
     return (
     <div>
         <style>
@@ -72,7 +82,7 @@ const handleSubmit= (e) =>{
                         onChange={(e)=> setUnitName(e.target.value)}
                         />                        
                 </div>
-                <button type='submit'>Add</button>
+                <button className ='btn'  type='submit'>Add</button>
         </form>
         {errors.length >0 && (
                 <ul>

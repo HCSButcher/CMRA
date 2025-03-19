@@ -41,27 +41,47 @@ const openSignupModal = () => setShowSignupModal(true);
   useEffect(() => {
     const fetchLecturers = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/getLecturers');
-        setLecturers(response.data);
+        const token = localStorage.getItem("token"); 
+        const response = await axios.get('http://localhost:3001/getLecturers', {
+          headers: { Authorization: `Bearer ${token}` } 
+        });
+
+        if (Array.isArray(response.data)) {
+          setLecturers(response.data);
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
       } catch (error) {
         console.error('Error fetching lecturers:', error);
       }
     };
+    
     fetchLecturers();
-  }, []);
+}, []);
+
 
   //fetch students
-  useEffect(() => {
-    axios
-      .get('http://localhost:3001/getStudents') 
-      .then((response) => {
-        const fetchedStudents = response.data;
-        setStudents(fetchedStudents);        
-      })
-      .catch((error) => {
-        console.error('Error fetching students:', error);
-      });
-  }, []);
+ useEffect(() => {
+    const fetchStudents = async () => {
+        try {
+            const token = localStorage.getItem("token"); // Retrieve the token
+            const response = await axios.get('http://localhost:3001/getStudents', {
+                headers: { Authorization: `Bearer ${token}` } // Send token in headers
+            });
+
+            if (Array.isArray(response.data)) {
+                setStudents(response.data);
+            } else {
+                console.error('Unexpected response format:', response.data);
+            }
+        } catch (error) {
+            console.error('Error fetching students:', error);
+        }
+    };
+
+    fetchStudents();
+}, []);
+
 
  // Lecturer delete
 const LecturerDelete = (id) => {
@@ -84,54 +104,83 @@ const StudentDelete = (id) => {
 };
 
   //student count
-  const [studentCount, setStudentCount] = useState(0);
-  useEffect(() => {
-    axios.get('http://localhost:3001/countStudents')
-      .then(response => {
-        setStudentCount(response.data.count);
-      })
-      .catch(error => {
-        console.error('Error fetching student count', error);
-      });
-  }, []);
+ const [studentCount, setStudentCount] = useState(0);
+
+useEffect(() => {
+  const token = localStorage.getItem("token"); // Get token from localStorage
+
+  axios
+    .get("http://localhost:3001/countStudents", {
+      headers: {
+        Authorization: `Bearer ${token}`, // Add Authorization header
+      },
+    })
+    .then((response) => {
+      setStudentCount(response.data.count);
+    })
+    .catch((error) => {
+      console.error("Error fetching student count", error);
+    });
+}, []);
 
   //lecturer count
 const [lecturerCount, setLecturerCount] = useState(0);
 
 useEffect(() => {
-  axios.get('http://localhost:3001/countLecturers')
-    .then(response => {
+  const token = localStorage.getItem("token"); // Get token from localStorage
+
+  axios
+    .get("http://localhost:3001/countLecturers", {
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach the Authorization token
+      },
+    })
+    .then((response) => {
       setLecturerCount(response.data.count);
     })
-    .catch(error => {
-      console.error('Error fetching lecturer count:', error);
+    .catch((error) => {
+      console.error("Error fetching lecturer count:", error);
     });
 }, []);
   
   //school count
-  const [schoolCount, setSchoolCount] = useState(0);
-  useEffect(() => {
-    axios.get('http://localhost:3001/countSchool')
-      .then(response => {
-        setSchoolCount(response.data.count);
-      })
-      .catch(error => {
-        console.error('Error fetching school count', error);
-      });
-  }, []);
+ const [schoolCount, setSchoolCount] = useState(0);
+useEffect(() => {
+  const token = localStorage.getItem("token"); // Get token from localStorage
+
+  axios
+    .get("http://localhost:3001/countSchool", {
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach the Authorization token
+      },
+    })
+    .then((response) => {
+      setSchoolCount(response.data.count);
+    })
+    .catch((error) => {
+      console.error("Error fetching school count:", error);
+    });
+}, []);
 
   //courses count
-  const [courseCount, setCourseCount] = useState(0);
-  useEffect(() => {
-    axios.get('http://localhost:3001/countCourses')
-      .then(response => {
-        setCourseCount(response.data.count);
-      })
-      .catch(error => {
-        console.error('Error fetching courses count', error);
-      });
-  }, []);
-  
+const [courseCount, setCourseCount] = useState(0);
+
+useEffect(() => {
+  const token = localStorage.getItem("token"); // Get stored token
+
+  axios
+    .get("http://localhost:3001/countCourses", {
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach auth token
+      },
+    })
+    .then((response) => {
+      setCourseCount(response.data.count);
+    })
+    .catch((error) => {
+      console.error("Error fetching courses count:", error);
+    });
+}, []);
 
 
   return (

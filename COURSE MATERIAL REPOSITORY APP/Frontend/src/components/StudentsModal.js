@@ -7,18 +7,40 @@ const StudentsModal = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchActive, setIsSearchActive] = useState(false);
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:3001/getAllStudents")
-      .then((response) => {
-        const fetchedStudents = response.data;
-        setStudents(fetchedStudents);
-        setFilteredStudents(fetchedStudents);
-      })
-      .catch((error) => {
-        console.error("Error fetching students:", error);
-      });
-  }, []);
+ useEffect(() => {
+    const fetchStudents = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.warn("No token found. User might not be authenticated.");
+                return;
+            }
+
+            const response = await axios.get("http://localhost:3001/getAllStudents", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            console.log("Response Status:", response.status);
+            console.log("API Response Data:", response.data);
+
+            if (Array.isArray(response.data)) {
+                setStudents(response.data);
+                setFilteredStudents(response.data);
+            } else {
+                console.error("Unexpected response format:", response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching students:", error);
+            if (error.response) {
+                console.error("Server Response:", error.response.data);
+            }
+        }
+    };
+
+    fetchStudents();
+}, []);
+
+
 
   const handleSearchChange = (e) => {
     const searchValue = e.target.value.toLowerCase();

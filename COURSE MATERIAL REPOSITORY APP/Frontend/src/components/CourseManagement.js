@@ -18,6 +18,36 @@ const CourseManagement = () => {
             });
     }, []);
 
+useEffect(() => {
+    const fetchCourses = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.warn("No token found. User might not be authenticated.");
+                return;
+            }
+
+            const response = await axios.get("http://localhost:3001/courseReg", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            console.log("Response from server:", response.data);
+
+            if (Array.isArray(response.data)) {
+                setCourses(response.data);
+                setFilteredCourses(response.data);
+            } else {
+                console.error("Unexpected response format:", response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching CoursesReg:", error.response ? error.response.data : error.message);
+        }
+    };
+
+    fetchCourses();
+}, []);
+
+
     // Handle search
     const handleSearchChange = (e) => {
         const searchValue = e.target.value.toLowerCase();

@@ -51,49 +51,86 @@ const commentDelete = (id) => {
 }
 
 //sRegistration fetch
-useEffect (() => {
-  axios.get('http://localhost:3001/sRegistrations')
-  .then( response =>{
-    setSRegistrations(response.data)
-  })
-  .catch (error => {
-    console.error('Error fetching data', error)
-  })
-}, []);
-
+  useEffect(() => {
+    const fetchSRegistrations = async () => {
+      try {     
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3001/sRegistrations', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (Array.isArray(response.data)) {
+          setSRegistrations(response.data);
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching sRegistrations', error);
+      }
+    };
+    fetchSRegistrations();
+  }, []);
 
   //materials fetch
   useEffect(() => {
-    axios.get('http://localhost:3001/materials?recent=true')
-  .then(response => {
-    setMaterials(response.data);
-  })
-  .catch(error => {
-    console.error('Error fetching materials:', error);
-  });
+    const fetchMaterials = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3001/materials?recent=true', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
 
+        if (Array.isArray(response.data)) {
+          setMaterials(response.data);
+        } else {
+          console.error('Unexpected response format', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching materials', error);
+      }
+    };
+    fetchMaterials();
   }, []);
 
   //announcement fetch
-  useEffect  (() => {
-    axios.get('http://localhost:3001/announcements')
-    .then (response => {
-      setAnnouncements(response.data);
-    })
-    .catch(error => {
-      console.error('error fetching data:', error);
-    })
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3001/announcements', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (Array.isArray(response.data)) {
+          setAnnouncements(response.data);
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching Announcements', error);
+      }
+    };
+    fetchAnnouncements();
   }, []);
 
   //comments fetch
-  useEffect (() => {
-    axios.get('http://localhost:3001/comments')
-    .then(response => {
-      setComments(response.data);
-    })
-    .catch(error => {
-      console.error('Error fetching data', error)
-    })
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3001/comments', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (Array.isArray(response.data)) {
+          setComments(response.data);
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
+    };
+    fetchComments();
   }, []);
 
   return (

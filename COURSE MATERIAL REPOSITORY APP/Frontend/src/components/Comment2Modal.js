@@ -7,13 +7,23 @@ const Comment2Modal = () => {
 
     //comments fetch
     useEffect(() => {
-        axios.get('http://localhost:3001/comments')
-            .then(response => {
-                setComments(response.data);
-            })
-            .catch(error => {
-                console.error('Error fetching data', error)
-            })
+        const fetchComments = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get('http:localhost:3001/comments', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (Array.isArray(response.data)) {
+                    setComments(response.data);
+                } else {
+                    console.error('Unexpected response format:', response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching comments', error);
+            }
+        };
+        fetchComments();
     }, []);
 
     //handle comment delete

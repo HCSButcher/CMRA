@@ -9,30 +9,50 @@ const Repository = () => {
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
-      console.log('Search query is empty, not fetching.');
-      return; // Exit if search query is empty
+        console.log('Search query is empty, not fetching.');
+        return; 
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/materials?search=${searchQuery}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+        const token = localStorage.getItem("token");
+        if (!token) {
+            console.warn("No token found. User might not be authenticated.");
+            return;
+        }
 
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const data = await response.json();
-        const filteredResults = data.filter((material) =>
-          material.unit.includes(searchQuery) || material.unitName.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-        setSearchResults(filteredResults);
-      } else {
-        throw new Error('Invalid response format. Expected JSON.');
-      }
+        const response = await fetch(`http://localhost:3001/materials?search=${searchQuery}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        console.log("Response Status:", response.status);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            const data = await response.json();
+            console.log("API Response Data:", data);
+
+            if (Array.isArray(data)) {
+                const filteredResults = data.filter((material) =>
+                    material.unit.includes(searchQuery) || 
+                    material.unitName.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+
+                console.log("Filtered Search Results:", filteredResults);
+                setSearchResults(filteredResults);
+            } else {
+                throw new Error("Invalid response format. Expected an array.");
+            }
+        } else {
+            throw new Error("Invalid response format. Expected JSON.");
+        }
     } catch (error) {
-      console.error('Error fetching materials:', error);
+        console.error("Error fetching materials:", error);
     }
-  };
+};
+
 
   const handleCourseEnter = (unitId) => {
     navigate(`/unit/${encodeURIComponent(unitId)}`);
