@@ -7,40 +7,38 @@ const StudentsModal = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchActive, setIsSearchActive] = useState(false);
 
- useEffect(() => {
+  useEffect(() => {
     const fetchStudents = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                console.warn("No token found. User might not be authenticated.");
-                return;
-            }
-
-            const response = await axios.get("http://localhost:3001/getAllStudents", {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            console.log("Response Status:", response.status);
-            console.log("API Response Data:", response.data);
-
-            if (Array.isArray(response.data)) {
-                setStudents(response.data);
-                setFilteredStudents(response.data);
-            } else {
-                console.error("Unexpected response format:", response.data);
-            }
-        } catch (error) {
-            console.error("Error fetching students:", error);
-            if (error.response) {
-                console.error("Server Response:", error.response.data);
-            }
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.warn("No token found. User might not be authenticated.");
+          return;
         }
+
+        const response = await axios.get("http://localhost:3001/getAllStudents", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        console.log("Response Status:", response.status);
+        console.log("API Response Data:", response.data);
+
+        if (Array.isArray(response.data)) {
+          setStudents(response.data);
+          setFilteredStudents(response.data);
+        } else {
+          console.error("Unexpected response format:", response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching students:", error);
+        if (error.response) {
+          console.error("Server Response:", error.response.data);
+        }
+      }
     };
 
     fetchStudents();
-}, []);
-
-
+  }, []);
 
   const handleSearchChange = (e) => {
     const searchValue = e.target.value.toLowerCase();
@@ -123,6 +121,7 @@ const StudentsModal = () => {
               <th>Email</th>
               <th>Registration Number</th>
               <th>Course</th>
+              <th>School</th> {/* ✅ Added "School" Column */}
               <th>Contact</th>
               <th>Action</th>
             </tr>
@@ -130,7 +129,7 @@ const StudentsModal = () => {
           <tbody>
             {filteredStudents.length === 0 && isSearchActive ? (
               <tr>
-                <td colSpan="7">No students found</td>
+                <td colSpan="8">No students found</td> {/* Updated colspan */}
               </tr>
             ) : (
               filteredStudents.map((student) => (
@@ -155,6 +154,7 @@ const StudentsModal = () => {
                   <td>{student.email}</td>
                   <td>{student.registrationNumber}</td>
                   <td>{student.course}</td>
+                  <td>{student.school || "N/A"}</td> {/* ✅ Added School Data */}
                   <td>{student.contact}</td>
                   <td>
                     <button

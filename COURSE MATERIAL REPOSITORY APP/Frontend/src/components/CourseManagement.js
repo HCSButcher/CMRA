@@ -2,10 +2,14 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 const CourseManagement = () => {
+
     const [courses, setCourses] = useState([]);
     const [filteredCourses, setFilteredCourses] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isSearchActive, setIsSearchActive] = useState(false);
+
+
+
 
     useEffect(() => {
         axios.get('http://localhost:3001/coursesReg')

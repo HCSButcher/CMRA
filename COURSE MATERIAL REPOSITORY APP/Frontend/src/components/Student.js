@@ -264,11 +264,13 @@ const commentDelete = (id) => {
           </ul>
         </div>
         <table>
-          <thead>
+                <thead>
+                  <tr>                    
             <th>Action</th>
             <th>Stage</th>           
             <th>Unit taken</th>
             <th>Reg Date</th>
+                  </tr>
           </thead>
           <tbody>
                   {sRegistrations && sRegistrations.length > 0 ? (
@@ -300,10 +302,12 @@ const commentDelete = (id) => {
                 
         </div>
         <table>
-          <thead>
+                <thead>
+                  <tr>
             <th>Unit</th>
             <th>Date</th>
             <th>option</th>
+                  </tr>
           </thead>
           <tbody>
                   {materials && materials.length > 0 ? (

@@ -38,6 +38,11 @@ const userSchema = new Schema({
     required: false,
     default: '', // Default to an empty string
   },
+  school: {
+    type: String,
+    required: false,
+    default: '',
+  },
   registrationNumber: {
     type: String,
     required: false,

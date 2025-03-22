@@ -1,13 +1,17 @@
 import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import CourseManagement from './CourseManagement';
-
 const Courses = () => {
+
+    const navigate = useNavigate();
+    const handleNavigate = (path) => {
+        navigate(path);
+    };
+
     const [school, setSchool] = useState('');
     const [courseName, setCourseName] = useState([]);
     const [newCourse, setNewCourse] = useState('');
-  
- 
 
     const handleAddCourse = () => {
         if (newCourse.trim()) {
@@ -145,6 +149,7 @@ const Courses = () => {
                 <h2>Course Management</h2>
                 <ul>
                 <li className="btn" onClick={openCourseManagement}> Course Management</li>
+                <li className="btn" onClick={() =>handleNavigate('/stages')}>stage & units</li>
                 </ul>
                     <label htmlFor="school">School</label>
                 <select
@@ -196,7 +201,8 @@ const Courses = () => {
                             <CourseManagement closeModal={closeCourseManagement} />
                         </div>
                     </div>
-                ) }
+                )}               
+             
             </form>
         </div>
     );

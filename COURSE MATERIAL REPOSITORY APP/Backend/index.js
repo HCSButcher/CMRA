@@ -623,73 +623,118 @@ app.delete('/updates/:id', async(req, res) => {
 
 //post request for stages
 app.post('/stages', async (req, res) => {
-    const { stage, units } = req.body;
+    const { school, stage, units } = req.body;
+
+    if (!school || !stage || !units || units.length === 0) {
+        return res.status(400).json({ message: 'School, stage, and at least one unit are required' });
+    }
 
     try {
-        const newStage = new UnitStage({ stage, units });
+        const newStage = new UnitStage({ school, stage, units });
         await newStage.save();
-        res.status(201).json({ message: 'Stage and units saved successfully!' });
+        res.status(201).json({ message: 'School, stage, and units saved successfully!' });
     } catch (error) {
-        console.error('Error saving stage and units:', error);
+        console.error('Error saving school, stage, and units:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
+
 
 
 //get request for stages
 app.get('/stages', isAuthenticated, async (req, res) => {
     try {
-        const stages = await UnitStage.find();
+        const { school } = req.query; // ✅ Get school from frontend request
+
+        if (!school) {
+            return res.status(400).json({ message: "School is required" });
+        }
+
+        console.log(`📢 Fetching stages for school: ${school}`); // Debugging log
+
+        // ✅ Find all stages in UnitStage schema where the school matches
+        const stages = await UnitStage.find({ school });
+
+        if (!stages.length) {
+            return res.status(404).json({ message: "No stages found for this school" });
+        }
+
         res.status(200).json(stages);
     } catch (error) {
-        console.error('Error fetching stages', error);
-        res.status(500).json({ message: 'Server error' });
+        console.error("❌ Error fetching stages:", error);
+        res.status(500).json({ message: "Server error" });
     }
 });
 
+
+//get units for specific school and stage 
+app.get('/units', isAuthenticated, async (req, res) => {
+    try {
+        const { school, stage } = req.query;
+
+        if (!school || !stage) {
+            return res.status(400).json({ message: "School and Stage are required" });
+        }
+
+        console.log(`📢 Fetching units for: School - "${school.trim()}", Stage - "${stage.trim()}"`);
+
+        // ✅ Find the corresponding stage in the UnitStage schema
+        const unitStage = await UnitStage.findOne({
+            school: { $regex: `^${school.trim()}$`, $options: "i" }, // Case-insensitive match
+            stage: { $regex: `^${stage.trim()}$`, $options: "i" }    // Case-insensitive match
+        });
+
+        if (!unitStage) {
+            console.warn(`⚠️ No matching entry found for School: "${school.trim()}", Stage: "${stage.trim()}"`);
+            return res.status(200).json([]); // ✅ Return empty array instead of error
+        }
+
+        console.log(`✅ Found Units for ${stage}:`, unitStage.units);
+
+        return res.status(200).json(unitStage.units);
+    } catch (error) {
+        console.error("❌ Error fetching units:", error);
+        return res.status(500).json({ message: "Server error" });
+    }
+});
+
+
 //post request for student course registration
 app.post('/sRegistrations', async (req, res) => {
-    const { stage, sDate, units, unitsTaken } = req.body;
-
-    // Validate the input
-    if (!stage || !sDate || !Array.isArray(units) || units.length === 0) {
-        return res.status(400).json({ message: 'Invalid input data. Please provide stage, date, and units.' });
-    }
-
     try {
-        // Create the new registration
-        const sRegistration = new SRegistration({
+        console.log("📥 Incoming Request Body:", req.body); // ✅ Log received data
+
+        const { school, stage, sDate, unitsTaken, units } = req.body;
+
+        if (!school || !stage || !sDate || !units || units.length === 0) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        // ✅ Save registration details without an email field
+        const newRegistration = new SRegistration({
+            school,
             stage,
             sDate,
+            unitsTaken,
             units,
-            unitsTaken
         });
 
-        // Save the registration to the database
-        await sRegistration.save();
-
-        // Respond with success message
-        res.status(201).json({
-            message: 'Registration successful!',
-            registration: {
-                stage,
-                sDate,
-                unitsTaken,                
-                units
-            }
-        });
-
+        await newRegistration.save();
+        res.status(201).json({ message: 'Registration successful' });
     } catch (error) {
-        console.error('Error saving registration', error);
-        res.status(500).json({ message: 'Server error, please try again later.' });
+        console.error('❌ Error saving registration:', error);
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
 
 //get request for student  course registration
-app.get('/sRegistrations', isAuthenticated, async (req, res) => {
+app.get('/sRegistrations', async (req, res) => {
     try {
+        // ✅ Fetch all registrations (not filtered by email)
         const sRegistrations = await SRegistration.find();
+
+        // ✅ Format the date before sending the response
         const formattedRegistrations = sRegistrations.map((sRegistration) => {
             const sRegistrationObj = sRegistration.toObject();
             if (sRegistrationObj.sDate) {
@@ -697,12 +742,15 @@ app.get('/sRegistrations', isAuthenticated, async (req, res) => {
             }
             return sRegistrationObj;
         });
+
         return res.status(200).json(formattedRegistrations);
     } catch (error) {
-        console.error('Error fetching registrations:', error);
-        res.status(500).json({ message: 'Server error' });
+        console.error("❌ Error fetching registrations:", error);
+        res.status(500).json({ message: "Server error" });
     }
 });
+
+
 
 //handle dop unit
 app.delete('/sRegistrations/:id/:unit', async (req, res) => {
@@ -925,8 +973,30 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   }
 });
 
+
+
+//recent upload delete
+app.delete('/materials/:id', async (req, res) => {
+    const { id } = req.params;
+    
+    if (!id || id.length < 10) { 
+        return res.status(400).json({ message: 'Invalid or missing ID' });
+    }
+
+    try {
+        const deletedMaterial = await Material.findByIdAndDelete(id);
+        if (!deletedMaterial) {
+            return res.status(404).json({ message: 'Material not found' });
+        }
+        res.status(200).json({ message: 'Material deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting material:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 //handle material get request
-app.get('/materials', isAuthenticated, async (req, res) => {
+app.get('/materials', isAuthenticated,authorizeRoles("Super-admin", "admin", "lecturer"), async (req, res) => {
     try {
         const { search, recent } = req.query;
 
@@ -950,22 +1020,28 @@ app.get('/materials', isAuthenticated, async (req, res) => {
     }
 });
 
-//recent upload delete
-app.delete('/materials/:id', async (req, res) => {
-    const { id } = req.params;
-    
-    if (!id || id.length < 10) { 
-        return res.status(400).json({ message: 'Invalid or missing ID' });
-    }
-
+// Fetch individual notes for a unit
+app.get('/notes/:unitName', async (req, res) => {
     try {
-        const deletedMaterial = await Material.findByIdAndDelete(id);
-        if (!deletedMaterial) {
-            return res.status(404).json({ message: 'Material not found' });
+        const token = req.headers.authorization; // Check token
+        console.log("📢 Received Token:", token);
+
+        if (!token) {
+            return res.status(401).json({ message: "Unauthorized - No token provided" });
         }
-        res.status(200).json({ message: 'Material deleted successfully' });
+
+        const { unitName } = req.params;
+        console.log("📢 Fetching notes for unit:", unitName);
+
+        const materials = await Material.find({ unit: unitName });
+
+        if (!materials || materials.length === 0) {
+            return res.status(404).json({ message: 'No notes found for this unit.' });
+        }
+
+        res.status(200).json(materials);
     } catch (error) {
-        console.error('Error deleting material:', error);
+        console.error('❌ Server Error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -973,78 +1049,37 @@ app.delete('/materials/:id', async (req, res) => {
 
 
 //handling downloads
-app.get('/download/:unitId/:fileName', isAuthenticated, async (req, res) => {
+app.get('/download/:unitName/:fileName', isAuthenticated, async (req, res) => {
     try {
-        const { unitId, fileName } = req.params;
-        const material = await Material.findOne({ unit: unitId });
-        if (!material) {
-            return res.status(404).json({ message: 'Material not found' });
-        }
-        const file = material.filePath.find((f) => f.fileName === fileName);
-        if (!file) {
-            return res.status(404).json({ message: 'File not found in database' });
+        const { fileName } = req.params; // Remove unitName since it's not used in the file path
+
+        // Decode the file name
+        const decodedFileName = decodeURIComponent(fileName);
+
+        // Construct the actual file path (without unitName)
+        const filePath = path.join(__dirname, "uploads", decodedFileName);
+
+        console.log(`📢 Looking for file at: ${filePath}`);
+
+        // Check if the file exists
+        if (!fs.existsSync(filePath)) {
+            console.error(`❌ File not found: ${filePath}`);
+            return res.status(404).json({ message: "File not found on server" });
         }
 
-        const filePath = path.resolve(file.filePath);
-        if (!fs.existsSync(filePath)) {
-            return res.status(404).json({ message: 'File not found on server' });
-        }
-        res.setHeader('Content-Disposition', `attachment; filename="${fileName}" `);
-        res.setHeader('content-Type', 'application/octet-stream');
+        // Set headers and send the file
+        res.setHeader('Content-Disposition', `attachment; filename="${decodedFileName}"`);
+        res.setHeader('Content-Type', 'application/octet-stream');
 
         res.sendFile(filePath);
     } catch (error) {
-        console.error('Error downloading file:', error);
-        res.status(500).json({ message: 'Server error' });
+        console.error("❌ Error downloading file:", error);
+        res.status(500).json({ message: "Server error" });
     }
 });
 
 
-// Fetch individual notes for a unit
-app.get('/notes/:unitId', isAuthenticated, async (req, res) => {
-    try {
-        const { unitId } = req.params;
-        const materials = await Material.find({ unit: unitId });
 
-        if (!materials || materials.length === 0) {
-            return res.status(404).json({ message: 'No notes found for this unit.' });
-        }
-        res.status(200).json({ notes: materials });
-    } catch (error) {
-        console.error('Error fetching notes:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
-
-// Download material file
-app.get('/download/:filePath', isAuthenticated, async (req, res) => {
-    try {
-        const { filePath } = req.params;
-        const decodedPath = decodedURIComponent(filePath);
-
-        const allowedDirectory = path.resolve(__dirname, '../uploads');
-        const resolvedPath = path.join(allowedDirectory, decodedPath);
-
-        if (!resolvedPath.startsWith(allowedDirectory)) {
-            return res.status(403).json({ message: 'Access denied' });
-        }
-        
-        if (!fs.existsSync(resolvedPath)) {
-            return res.status(404).json({ message: 'File not found on server' });
-        }
-
-        res.setHeader(
-            'Content-Disposition',
-            `attachment; filename ="${path.basename(resolvedPath)}" `
-        );
-        res.setHeader('Content-Type', 'application/octet-stream');
-
-        res.sendFile(resolvedPath);
-    } catch (error) {
-        console.error('Error in download router:', error);
-        res.status(500).json({ message: 'Server error.' });
-    }
-});
 
 //post request for comments
 app.post('/comments', async(req, res) => {
@@ -1100,25 +1135,65 @@ app.delete('/comments/:id', async(req, res) => {
 //post request for enrollment
 app.post('/enrollStudent', async (req, res) => {
   try {
-    const { email, registrationNumber, course } = req.body;
+    let { email, registrationNumber, course, school } = req.body;
 
-    // Find the student by email and update their registration number and course
-    const updatedStudent = await User.findOneAndUpdate(
-      { email },
-      { $set: { registrationNumber, course } }, // Update/add fields
-      { new: true } // Return the updated document
-    );
+    if (!email || !registrationNumber || !course || !school) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
 
-    if (!updatedStudent) {
+    email = email.toLowerCase(); // Ensure consistency
+
+    // Check if student exists
+    const student = await User.findOne({ email });
+
+    if (!student) {
+      console.error(`❌ Student with email ${email} not found`);
       return res.status(404).json({ message: 'Student not found' });
     }
 
-    res.json({ message: 'Student enrolled successfully', student: updatedStudent });
+    console.log(`✅ Student found:`, student); // Debugging
+
+    // Check if school is missing
+    if (!student.school) {
+      console.error(`❌ Student ${email} does not have a school assigned`);
+    }
+
+    // Update details
+    student.registrationNumber = registrationNumber;
+    student.course = course;
+    student.school = school;
+
+    await student.save(); // Save changes
+
+    console.log(`✅ Updated student:`, student); // Debugging
+    res.json({ message: 'Student enrolled successfully', student });
   } catch (error) {
-    console.error('Error enrolling student:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('❌ Error enrolling student:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+//student plus email 
+app.get('/students/:email', async (req, res) => {
+    try {
+        const email = req.params.email.toLowerCase(); // Ensure case insensitivity
+        const student = await User.findOne({ email });
+
+        if (!student) {
+            return res.status(404).json({ message: "Student not found" });
+        }
+
+        if (!student.school || student.school.trim() === "") {
+            return res.status(400).json({ message: "School is required" });
+        }
+
+        res.json({ school: student.school });
+    } catch (error) {
+        console.error("❌ Error fetching student:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
 
 //handling wrong routes
 app.use((req, res)=>{

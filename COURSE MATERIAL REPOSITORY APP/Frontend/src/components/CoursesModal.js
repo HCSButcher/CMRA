@@ -1,168 +1,168 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const CoursesModal = ({ refreshTable }) => {
+const CoursesModal = ({ refreshTable, studentEmail }) => {
     const [stage, setStage] = useState('');
     const [regDate, setRegDate] = useState('');
-    const [schoolUnits, setSchoolUnits] = useState([{ school: '', units: '' }]);
+    const [schoolUnits, setSchoolUnits] = useState([]);
     const [errors, setErrors] = useState([]);
+    const [stages, setStages] = useState([]);
+    const [studentSchool, setStudentSchool] = useState('');
 
-    const handleSchoolUnitsChange = (index, field, value) => {
-        const updatedSchoolUnits = schoolUnits.map((item, i) =>
-            i === index ? { ...item, [field]: value } : item
-        );
-        setSchoolUnits(updatedSchoolUnits);
-    };
+    // ✅ Fetch student's school using email
+    useEffect(() => {
+        if (!studentEmail) {
+            console.error("❌ Student email is missing. Cannot fetch school.");
+            return;
+        }
 
-    const addSchoolUnitField = () => {
-        setSchoolUnits([...schoolUnits, { school: '', units: '' }]);
-    };
+        const fetchStudentSchool = async () => {
+            try {
+                console.log("📢 Fetching school for:", studentEmail);
+                const response = await axios.get(`http://localhost:3001/students/${studentEmail}`);
+                
+                const school = response.data?.school;
+                
+                if (!school || school.trim() === "") {
+                    console.error("❌ School is empty or not found.");
+                    return;
+                }
 
-    const removeSchoolUnitField = (index) => {
-        setSchoolUnits(schoolUnits.filter((_, i) => i !== index));
-    };
+                console.log("✅ Fetched school:", school);
+                setStudentSchool(school);
+            } catch (error) {
+                console.error("❌ Error fetching student school:", error.response?.data || error.message);
+            }
+        };
 
+        fetchStudentSchool();
+    }, [studentEmail]);
+
+    // ✅ Fetch stages when studentSchool is available
+    useEffect(() => {
+        if (!studentSchool) return; // Ensure school is available
+
+        const fetchStages = async () => {
+            try {
+                console.log(`🔍 Fetching stages for school: ${studentSchool}`);
+                const response = await axios.get(`http://localhost:3001/stages?school=${encodeURIComponent(studentSchool)}`);
+                setStages(response.data);
+                console.log("✅ Stages fetched:", response.data);
+            } catch (error) {
+                console.error("❌ Error fetching stages:", error.response?.data || error.message);
+            }
+        };
+
+        fetchStages();
+    }, [studentSchool]);
+
+    // ✅ Fetch units for the selected stage & school
+    useEffect(() => {
+        if (!stage || !studentSchool) return;
+
+        const fetchUnits = async () => {
+            try {
+                console.log(`📢 Fetching units for: School=${studentSchool}, Stage=${stage}`);
+                const response = await axios.get(
+                    `http://localhost:3001/units?school=${encodeURIComponent(studentSchool)}&stage=${encodeURIComponent(stage)}`
+                );
+                setSchoolUnits(response.data);
+                console.log("✅ Units fetched:", response.data);
+            } catch (error) {
+                console.error("❌ Error fetching units:", error.response?.data || error.message);
+            }
+        };
+
+        fetchUnits();
+    }, [stage, studentSchool]);
+
+    // ✅ Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const data = {
-            stage,
-            regDate,
-            schoolUnits,
-        };
+        if (!stage || !regDate || schoolUnits.length === 0) {
+            console.error("❌ Missing required fields.");
+            setErrors([{ msg: "All fields must be filled." }]);
+            return;
+        }
+
+        const data = { stage, regDate, school: studentSchool, units: schoolUnits };
 
         try {
-            await axios.post('http://localhost:3001/courses', data);
+            console.log("📤 Submitting course registration:", data);
+            await axios.post('http://localhost:3001/courses', data, {
+                headers: { 'Content-Type': 'application/json' }
+            });
             setStage('');
             setRegDate('');
-            setSchoolUnits([{ school: '', units: '' }]);
+            setSchoolUnits([]);
             setErrors([]);
-            refreshTable(); // Refresh the table to show the new entry
+            refreshTable();
         } catch (error) {
-            if (error.response && error.response.data.errors) {
+            if (error.response?.data?.errors) {
                 setErrors(error.response.data.errors);
             } else {
-                console.error('Error adding course registration:', error);
+                console.error("❌ Error adding course registration:", error.response?.data || error.message);
             }
         }
     };
 
     return (
-        <div className='form-container'>
-        <style>
-            {`
-
-            .form-row, .school-unit-row {
-                        display: flex;
-                        align-items: center;
-                        gap: 15px;
-                        margin-bottom: 10px;
-            }
-                        .school-unit-item {
-                        display: flex;
-                        flex-direction: column;
-                    }
-             
-
-            input[type="text"], input[type="date"], input[type="number"] {
-                        padding: 8px;
-                        margin-top: 5px;
-                        border: 1px solid #ccc;
-                        border-radius: 5px;
-                        width: 100%;
-                    }
-                         button {
-                        margin-top: 10px;
-                        padding: 8px 15px;
-                        background-color: rgba(255, 255, 255, 0.13);
-                        color: white;
-                        border: none;
-                        border-radius: 5px;
-                        cursor: pointer;
-                    }
-
-                    button:hover {
-                        background-color: #0056b3;
-                    }
-             
-              body {
-                        background-color: #080710;
-                    }
-                        textarea{
-                        background-color: rgba(255, 255, 255, 0.13);
-
-                        }
-                    form {
-                        min-height: 700px;
-                        width: 400px;
-                        background-color: rgba(255, 255, 255, 0.13);
-                        position: absolute;
-                        transform: translate(-50%, -50%);
-                        top: 50%;
-                        left: 50%;
-                        border-radius: 10px;
-                        backdrop-filter: blur(10px);
-                        border: 2px solid rgba(255, 255, 255, 0.1);
-                        box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
-                        padding: 50px 35px;
-                    }
-            
-            `}
-        </style>
-        <div className="background-1">
-                <div className="shape"></div>
-                <div className="shape"></div>
-            </div>
+        <div className="form-container">
+            <style>
+                {`
+                .form-row, .school-unit-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    margin-bottom: 10px;
+                }
+                select, input[type="text"], input[type="date"] {
+                    padding: 8px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    width: 100%;
+                }
+                button {
+                    margin-top: 10px;
+                    padding: 8px 15px;
+                    background-color: rgba(255, 255, 255, 0.13);
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+                button:hover {
+                    background-color: #0056b3;
+                }
+                `}
+            </style>
             <form onSubmit={handleSubmit}>
                 <h2>Register New Course</h2>
                 <div className="form-row">
                     <label htmlFor="stage">Stage</label>
-                    <input
-                        type="text"
-                        id="stage"
-                        value={stage}
-                        onChange={(e) => setStage(e.target.value)}
-                        placeholder="e.g., Y1S1"
-                    />
+                    <select id="stage" value={stage} onChange={(e) => setStage(e.target.value)}>
+                        <option value="">Select Stage</option>
+                        {stages.map((s, index) => (
+                            <option key={index} value={s.stage}>{s.stage}</option>
+                        ))}
+                    </select>
                 </div>
                 <div className="form-row">
                     <label htmlFor="regDate">Registration Date</label>
-                    <input
-                        type="date"
-                        id="regDate"
-                        value={regDate}
-                        onChange={(e) => setRegDate(e.target.value)}
-                    />
+                    <input type="date" id="regDate" value={regDate} onChange={(e) => setRegDate(e.target.value)} />
                 </div>
-
-                {schoolUnits.map((item, index) => (
-                    <div key={index} className="school-unit-row">
-                        <div className="school-unit-item">
-                            <label>School</label>
-                            <input
-                                type="text"
-                                value={item.school}
-                                onChange={(e) => handleSchoolUnitsChange(index, 'school', e.target.value)}
-                                placeholder="School name"
-                            />
+                <h3>Units for Selected Stage</h3>
+                {schoolUnits.length > 0 ? (
+                    schoolUnits.map((unit, index) => (
+                        <div key={index} className="school-unit-row">
+                            <input type="text" value={unit.name} readOnly />
                         </div>
-                        <div className="school-unit-item">
-                            <label>Units Taken</label>
-                            <input
-                                type="number"
-                                value={item.units}
-                                onChange={(e) => handleSchoolUnitsChange(index, 'units', e.target.value)}
-                                placeholder="Units taken"
-                            />
-                        </div>
-                        {schoolUnits.length > 1 && (
-                            <button type="button" onClick={() => removeSchoolUnitField(index)}>Remove</button>
-                        )}
-                    </div>
-                ))}
-                <button type="button" onClick={addSchoolUnitField}>Add School</button>
-                <button type="submit">Add Registration</button>
-
+                    ))
+                ) : (
+                    <p>No units found for this stage.</p>
+                )}
+                <button type="submit">Register</button>
                 {errors.length > 0 && (
                     <ul style={{ color: 'red' }}>
                         {errors.map((error, index) => (

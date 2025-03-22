@@ -99,7 +99,7 @@ const App = () => {
           <Route path="/repository" element={<Repository />} />
           <Route path="/comment2Modal" element={<Comment2Modal />} />
           <Route path="/viewModal" element={<ViewModal />} />
-          <Route path="/unit/:unitId" element={<RepoDisplay />} />
+          <Route path="/notes/:unitName" element={<RepoDisplay />} />
           
           <Route path="*" element={<Login />} /> {/* ✅ Fixed incorrect syntax */}
         </Routes>
