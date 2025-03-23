@@ -1,176 +1,189 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState } from "react";
+import axios from "axios";
 
-const CoursesModal = ({ refreshTable, studentEmail }) => {
+const CoursesModal = ({ refreshTable }) => {
     const [stage, setStage] = useState('');
     const [regDate, setRegDate] = useState('');
     const [schoolUnits, setSchoolUnits] = useState([]);
-    const [errors, setErrors] = useState([]);
-    const [stages, setStages] = useState([]);
-    const [studentSchool, setStudentSchool] = useState('');
+    const [newSchool, setNewSchool] = useState('');
+    const [newUnits, setNewUnits] = useState('');
 
-    // ✅ Fetch student's school using email
-    useEffect(() => {
-        if (!studentEmail) {
-            console.error("❌ Student email is missing. Cannot fetch school.");
-            return;
+    const handleAddSchool = () => {
+        if (newSchool.trim() && newUnits.trim()) {
+            setSchoolUnits([...schoolUnits, { school: newSchool, units: newUnits }]);
+            setNewSchool('');
+            setNewUnits('');
         }
+    };
 
-        const fetchStudentSchool = async () => {
-            try {
-                console.log("📢 Fetching school for:", studentEmail);
-                const response = await axios.get(`http://localhost:3001/students/${studentEmail}`);
-                
-                const school = response.data?.school;
-                
-                if (!school || school.trim() === "") {
-                    console.error("❌ School is empty or not found.");
-                    return;
-                }
+    const handleRemoveSchool = (index) => {
+        setSchoolUnits(schoolUnits.filter((_, i) => i !== index));
+    };
 
-                console.log("✅ Fetched school:", school);
-                setStudentSchool(school);
-            } catch (error) {
-                console.error("❌ Error fetching student school:", error.response?.data || error.message);
-            }
-        };
-
-        fetchStudentSchool();
-    }, [studentEmail]);
-
-    // ✅ Fetch stages when studentSchool is available
-    useEffect(() => {
-        if (!studentSchool) return; // Ensure school is available
-
-        const fetchStages = async () => {
-            try {
-                console.log(`🔍 Fetching stages for school: ${studentSchool}`);
-                const response = await axios.get(`http://localhost:3001/stages?school=${encodeURIComponent(studentSchool)}`);
-                setStages(response.data);
-                console.log("✅ Stages fetched:", response.data);
-            } catch (error) {
-                console.error("❌ Error fetching stages:", error.response?.data || error.message);
-            }
-        };
-
-        fetchStages();
-    }, [studentSchool]);
-
-    // ✅ Fetch units for the selected stage & school
-    useEffect(() => {
-        if (!stage || !studentSchool) return;
-
-        const fetchUnits = async () => {
-            try {
-                console.log(`📢 Fetching units for: School=${studentSchool}, Stage=${stage}`);
-                const response = await axios.get(
-                    `http://localhost:3001/units?school=${encodeURIComponent(studentSchool)}&stage=${encodeURIComponent(stage)}`
-                );
-                setSchoolUnits(response.data);
-                console.log("✅ Units fetched:", response.data);
-            } catch (error) {
-                console.error("❌ Error fetching units:", error.response?.data || error.message);
-            }
-        };
-
-        fetchUnits();
-    }, [stage, studentSchool]);
-
-    // ✅ Handle form submission
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!stage || !regDate || schoolUnits.length === 0) {
-            console.error("❌ Missing required fields.");
-            setErrors([{ msg: "All fields must be filled." }]);
-            return;
-        }
-
-        const data = { stage, regDate, school: studentSchool, units: schoolUnits };
+    const handleSaveCourse = async () => {
+        if (!stage || !regDate || schoolUnits.length === 0) return;
 
         try {
-            console.log("📤 Submitting course registration:", data);
-            await axios.post('http://localhost:3001/courses', data, {
-                headers: { 'Content-Type': 'application/json' }
-            });
+            await axios.post('http://localhost:3001/courses', { stage, regDate, schoolUnits });
             setStage('');
             setRegDate('');
             setSchoolUnits([]);
-            setErrors([]);
+            alert('Course registration saved successfully!');
             refreshTable();
         } catch (error) {
-            if (error.response?.data?.errors) {
-                setErrors(error.response.data.errors);
-            } else {
-                console.error("❌ Error adding course registration:", error.response?.data || error.message);
-            }
+            console.error('Error saving course registration:', error);
         }
     };
 
     return (
-        <div className="form-container">
+        <div>
             <style>
                 {`
-                .form-row, .school-unit-row {
-                    display: flex;
-                    align-items: center;
-                    gap: 15px;
-                    margin-bottom: 10px;
+                body {
+                    background-color: #080710;
                 }
-                select, input[type="text"], input[type="date"] {
-                    padding: 8px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    width: 100%;
-                }
-                button {
-                    margin-top: 10px;
-                    padding: 8px 15px;
+
+                form {
+                    height: auto;
+                    width: auto;
+                    min-width: 360px;
                     background-color: rgba(255, 255, 255, 0.13);
+                    position: absolute;
+                    transform: translate(-50%, -50%);
+                    top: 40%;
+                    left: 50%;
+                    border-radius: 10px;
+                    backdrop-filter: blur(10px);
+                    border: 2px solid rgba(255, 255, 255, 0.1);
+                    box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
+                    padding: 50px 35px;
+                }
+
+                select, input {
+                    width: 100%;
+                    padding: 10px;
+                    border-radius: 5px;
+                    border: 1px solid white;
+                    background-color: black;
+                    color: white;
+                    margin-bottom: 10px;
+                    font-size: 16px;
+                }
+
+                /* ✅ Ensuring the date picker is visible */
+                input[type="date"] {
+                    background-color: black;
+                    color: white;
+                    cursor: pointer;
+                    font-size: 16px;
+                }
+
+                button {
+                    width: 100%;
+                    padding: 10px;
+                    background-color: rgba(255, 255, 255, 0.2);
                     color: white;
                     border: none;
                     border-radius: 5px;
                     cursor: pointer;
+                    transition: 0.3s ease;
+                    margin-top: 10px;
                 }
+
                 button:hover {
-                    background-color: #0056b3;
+                    background-color: rgba(255, 255, 255, 0.4);
+                }
+
+                ul {
+                    list-style-type: none;
+                    padding: 0;
+                }
+
+                ul li {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    background-color: rgba(255, 255, 255, 0.2);
+                    padding: 5px 10px;
+                    margin-top: 5px;
+                    border-radius: 5px;
+                }
+
+                ul li button {
+                    background-color: red;
+                    color: white;
+                    padding: 5px 10px;
+                    border: none;
+                    cursor: pointer;
+                    border-radius: 5px;
+                }
+
+                ul li button:hover {
+                    background-color: darkred;
                 }
                 `}
             </style>
-            <form onSubmit={handleSubmit}>
-                <h2>Register New Course</h2>
-                <div className="form-row">
+
+            <div className="background-1">
+                <form onSubmit={(e) => e.preventDefault()}>
                     <label htmlFor="stage">Stage</label>
-                    <select id="stage" value={stage} onChange={(e) => setStage(e.target.value)}>
-                        <option value="">Select Stage</option>
-                        {stages.map((s, index) => (
-                            <option key={index} value={s.stage}>{s.stage}</option>
-                        ))}
+                    <select
+                        name="stage"
+                        id="stage"
+                        value={stage}
+                        onChange={(e) => setStage(e.target.value)}
+                    >
+                        <option value="">Select a Stage</option>
+                        <option value="Y1 SEM 1">Y1 SEM 1</option>
+                        <option value="Y1 SEM 2">Y1 SEM 2</option>
+                        <option value="Y2 SEM 1">Y2 SEM 1</option>
+                        <option value="Y2 SEM 2">Y2 SEM 2</option>
+                        <option value="Y3 SEM 1">Y3 SEM 1</option>
+                        <option value="Y3 SEM 2">Y3 SEM 2</option>
+                        <option value="Y4 SEM 1">Y4 SEM 1</option>
+                        <option value="Y4 SEM 2">Y4 SEM 2</option>
                     </select>
-                </div>
-                <div className="form-row">
+
+                    {/* ✅ Registration Date Picker */}
                     <label htmlFor="regDate">Registration Date</label>
-                    <input type="date" id="regDate" value={regDate} onChange={(e) => setRegDate(e.target.value)} />
-                </div>
-                <h3>Units for Selected Stage</h3>
-                {schoolUnits.length > 0 ? (
-                    schoolUnits.map((unit, index) => (
-                        <div key={index} className="school-unit-row">
-                            <input type="text" value={unit.name} readOnly />
-                        </div>
-                    ))
-                ) : (
-                    <p>No units found for this stage.</p>
-                )}
-                <button type="submit">Register</button>
-                {errors.length > 0 && (
-                    <ul style={{ color: 'red' }}>
-                        {errors.map((error, index) => (
-                            <li key={index}>{error.msg}</li>
+                    <input 
+                        type="date" 
+                        id="regDate" 
+                        value={regDate} 
+                        onChange={(e) => setRegDate(e.target.value)} 
+                    />
+
+                    <label htmlFor="school">School</label>
+                    <input 
+                        type="text" 
+                        id="school" 
+                        value={newSchool} 
+                        onChange={(e) => setNewSchool(e.target.value)}
+                        placeholder="Enter school name"
+                    />
+
+                    <label htmlFor="units">Units Taken</label>
+                    <input 
+                        type="text" 
+                        id="units" 
+                        value={newUnits} 
+                        onChange={(e) => setNewUnits(e.target.value)}
+                        placeholder="Enter number of units"
+                    />
+                    <button type="button" onClick={handleAddSchool}>+ Add School</button>
+
+                    <ul>
+                        {schoolUnits.map((item, index) => (
+                            <li key={index}>
+                                {item.school} - {item.units} units
+                                <button type="button" onClick={() => handleRemoveSchool(index)}>Remove</button>
+                            </li>
                         ))}
                     </ul>
-                )}
-            </form>
+
+                    <button type="button" onClick={handleSaveCourse}>Save Course Registration</button>
+                </form>
+            </div>
         </div>
     );
 };

@@ -279,7 +279,22 @@ app.get("/logout", (req, res) => {
       errors: req.flash('errors') || [],           // Empty array for errors
     };
     res.json(messages);
-  });
+   });
+  
+   app.post('/api/refresh-token', async (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) return res.status(401).json({ message: "Unauthorized" });
+
+    try {
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+        const newAccessToken = jwt.sign({ id: decoded.id }, process.env.ACCESS_SECRET, { expiresIn: '15m' });
+
+        res.json({ accessToken: newAccessToken });
+    } catch (error) {
+        res.status(403).json({ message: "Invalid refresh token" });
+    }
+});
+
 
 // Post request for password reset
 app.post('/reset', async (req, res) => {
@@ -1021,15 +1036,8 @@ app.get('/materials', isAuthenticated,authorizeRoles("Super-admin", "admin", "le
 });
 
 // Fetch individual notes for a unit
-app.get('/notes/:unitName', async (req, res) => {
+app.get('/notes/:unitName', isAuthenticated, async (req, res) => {
     try {
-        const token = req.headers.authorization; // Check token
-        console.log("📢 Received Token:", token);
-
-        if (!token) {
-            return res.status(401).json({ message: "Unauthorized - No token provided" });
-        }
-
         const { unitName } = req.params;
         console.log("📢 Fetching notes for unit:", unitName);
 
@@ -1045,7 +1053,6 @@ app.get('/notes/:unitName', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
-
 
 
 //handling downloads
@@ -1077,9 +1084,6 @@ app.get('/download/:unitName/:fileName', isAuthenticated, async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
-
-
-
 
 //post request for comments
 app.post('/comments', async(req, res) => {

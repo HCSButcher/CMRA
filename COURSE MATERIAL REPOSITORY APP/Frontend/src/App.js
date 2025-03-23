@@ -29,6 +29,7 @@ import CourseManagement from './components/CourseManagement';
 import LecturerModal from './components/LecturerModal';
 import StudentsModal from './components/StudentsModal';
 import Comment2Modal from './components/Comment2Modal';
+import axios from 'axios';
 
 const App = () => {
   const [messages, setMessages] = useState({
@@ -37,37 +38,92 @@ const App = () => {
     error_msg: '',
   });
 
-  useEffect(() => {
-    fetch('/api/messages', { credentials: 'include' }) // Ensures cookies/session are sent
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Failed to fetch messages');
+  // ✅ Function to refresh token
+  const refreshAccessToken = async () => {
+    try {
+      const response = await fetch('/api/refresh-token', { method: 'POST', credentials: 'include' });
+
+      if (!response.ok) {
+        console.error("Failed to refresh token");
+        return false;
+      }
+
+      const data = await response.json();
+      localStorage.setItem("token", data.accessToken); // Store new token
+      return true;
+    } catch (error) {
+      console.error("Error refreshing token:", error);
+      return false;
+    }
+  };
+
+  // ✅ Axios Global Interceptor for Token Refresh
+  axios.interceptors.response.use(
+    (response) => response, // Return response normally if successful
+    async (error) => {
+      if (error.response && error.response.status === 401) {
+        console.warn("🚨 Token expired! Attempting refresh...");
+
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          console.log("🔄 Token refreshed! Retrying request...");
+          error.config.headers['Authorization'] = `Bearer ${localStorage.getItem("token")}`;
+          return axios(error.config); // Retry failed request
         }
-        return response.json();
-      })
-      .then((data) => {
+      }
+      return Promise.reject(error); // If refresh fails, reject request
+    }
+  );
+
+  // ✅ Fetch Messages with Token Refresh Handling
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        let response = await fetch('/api/messages', { credentials: 'include' });
+
+        // If unauthorized, attempt to refresh the token
+        if (response.status === 401) {
+          const refreshResponse = await fetch('/api/refresh-token', { method: 'POST', credentials: 'include' });
+
+          if (!refreshResponse.ok) {
+            throw new Error('Failed to refresh token');
+          }
+
+          // Retry fetching messages after refreshing token
+          response = await fetch('/api/messages', { credentials: 'include' });
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch messages after refreshing token');
+          }
+        }
+
+        const data = await response.json();
         setMessages({
           errors: data.errors || [],
           success_msg: data.success_msg || '',
           error_msg: data.error_msg || '',
         });
-      })
-      .catch((error) => console.error('Error fetching messages:', error));
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+      }
+    };
+
+    fetchMessages();
   }, []);
 
   return (
     <BrowserRouter>
       <AuthProvider>
-        <TokenRedirect /> {/* ✅ Fix token check inside a proper component */}
+        <TokenRedirect /> {/* ✅ Moved inside BrowserRouter */}
         <Alert type="success" messages={messages.success_msg ? [messages.success_msg] : []} />
         <Alert type="danger" messages={messages.error_msg ? [messages.error_msg] : []} />
         <Alert type="warning" messages={messages.errors} />
-        
+
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Signup />} />
-          
+
           <Route element={<ProtectedRoute allowedRoles={['Admin', 'Super-admin']} />}>
             <Route path="/admin" element={<Admin />} />
           </Route>
@@ -89,7 +145,6 @@ const App = () => {
           <Route path="/courses" element={<CoursesModal />} />
           <Route path="/comments" element={<CommentModal />} />
           <Route path="/stages" element={<Stage />} />
-          <Route path="/courses" element={<Courses />} />
           <Route path="/courseManagement" element={<CourseManagement />} />
           <Route path="/sRegistrations" element={<SCoursesModal />} />
           <Route path="/viewUnits" element={<ViewUnitsModal />} />
@@ -100,7 +155,7 @@ const App = () => {
           <Route path="/comment2Modal" element={<Comment2Modal />} />
           <Route path="/viewModal" element={<ViewModal />} />
           <Route path="/notes/:unitName" element={<RepoDisplay />} />
-          
+
           <Route path="*" element={<Login />} /> {/* ✅ Fixed incorrect syntax */}
         </Routes>
       </AuthProvider>
@@ -108,7 +163,7 @@ const App = () => {
   );
 };
 
-// ✅ Move token check to a separate component inside BrowserRouter
+// ✅ Moved Token Check to a Separate Component
 const TokenRedirect = () => {
   const navigate = useNavigate();
 

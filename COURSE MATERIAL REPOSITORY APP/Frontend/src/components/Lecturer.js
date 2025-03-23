@@ -306,7 +306,8 @@ const uploadDelete = (id) => {
         <div className="titles-5">
           <h2> Course Registration List</h2>
           <ul>
-            <li className='btn' onClick={ openCoursesModal}> Add</li>
+          <li className='btn' onClick={() => navigate('/courses')}> Add</li>
+
           </ul>
         </div>
         <table>
@@ -324,8 +325,7 @@ const uploadDelete = (id) => {
                     registrations.map((registration) => (
                       <tr key={registration._id}>
                         <td>
-                          <ul>
-                            <li className='btn'> View units</li>
+                          <ul>                            
                             <li className='btn' onClick={() => regDelete(registration._id)}> Delete</li>
                           </ul>
                         </td>

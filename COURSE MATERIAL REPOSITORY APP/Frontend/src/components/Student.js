@@ -36,9 +36,11 @@ const openCommentModal = () =>setCommentModal(true);
 const CloseCommentModal = () =>setCommentModal(false);
 
   
-  const handleCourseView = (unitId) => {
-    navigate(`/unit/${encodeURIComponent(unitId)}`);
-  };
+const handleCourseViewDelete = (unitToDelete) => {
+  setMaterials((prevMaterials) => prevMaterials.filter((material) => material.unit !== unitToDelete));
+};
+
+
 
 //handle comment delete
 const commentDelete = (id) => {
@@ -71,25 +73,28 @@ const commentDelete = (id) => {
   }, []);
 
   //materials fetch
-  useEffect(() => {
-    const fetchMaterials = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3001/materials?recent=true', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+useEffect(() => {
+  const fetchMaterials = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-        if (Array.isArray(response.data)) {
-          setMaterials(response.data);
-        } else {
-          console.error('Unexpected response format', response.data);
-        }
-      } catch (error) {
-        console.error('Error fetching materials', error);
+      // Don't send an authorization header if there's no token
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const response = await axios.get('http://localhost:3001/materials?recent=true', { headers });
+
+      if (Array.isArray(response.data)) {
+        setMaterials(response.data);
+      } else {
+        console.error('Unexpected response format', response.data);
       }
-    };
-    fetchMaterials();
-  }, []);
+    } catch (error) {
+      console.error('Error fetching materials', error);
+    }
+  };
+  fetchMaterials();
+}, []);
+
 
   //announcement fetch
   useEffect(() => {
@@ -316,7 +321,7 @@ const commentDelete = (id) => {
                         <td> {material.unit} </td>
                         <td>{new Date(material.uploadDate).toLocaleDateString()} </td>
                         <td>
-                          <a onClick={() =>handleCourseView (material.unit)} className='btn' > View</a>
+                          <a onClick={() =>handleCourseViewDelete (material.unit)} className='btn' > Delete</a>
                         </td>
                       </tr>
                     ))
