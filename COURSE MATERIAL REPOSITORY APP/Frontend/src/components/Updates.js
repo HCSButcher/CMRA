@@ -3,6 +3,7 @@ import axios from 'axios'
 
 const Updates = () => {
     const [unit, setUnit] = useState('');
+    const [email, setEmail] = useState('');
     const [unitName, setUnitName] = useState('');
     const [errors, setErrors] = useState([]);
    
@@ -10,27 +11,35 @@ const Updates = () => {
 const handleSubmit = (e) => {
     e.preventDefault();
 
-    axios.post('http://localhost:3001/updates', { unit, unitName })
-        .then(result => {
-            console.log("Submission successful:", result);
-            
-            setUnit("");
-            setUnitName("");
-            setErrors([]);
-            
-            if (result.data.redirect) {
-                window.location.href = result.data.redirect;
-            }
-        })
-        .catch(err => {
-            if (err.response) {                
-                setErrors(err.response.data.errors);
-                console.error("Validation errors:", err.response.data.errors);
-            } else {                
-                console.error("Error submitting form:", err);
-            }
-        });
+    const token = localStorage.getItem('token'); // Ensure token is stored in localStorage
+
+    axios.post('http://localhost:3001/updates', 
+        { unit, unitName, email }, // Ensure email is sent
+        { headers: { Authorization: `Bearer ${token}` } } // Send token
+    )
+    .then(result => {
+        console.log("Submission successful:", result);
+        
+        setUnit("");
+        setEmail("");
+        setUnitName("");
+        setErrors([]);
+        
+        if (result.data.redirect) {
+            window.location.href = result.data.redirect;
+        }
+    })
+    .catch(err => {
+        if (err.response) {                
+            setErrors(err.response.data.errors);
+            console.error("Validation errors:", err.response.data.errors);
+        } else {                
+            console.error("Error submitting form:", err);
+        }
+    });
 };
+
+
 
     return (
     <div>
@@ -40,7 +49,7 @@ const handleSubmit = (e) => {
                         background-color: #080710;
                     }
                     form {
-                        height: 300px;
+                        height: auto;
                         width: 320px;
                         background-color: rgba(255, 255, 255, 0.13);
                         position: absolute;
@@ -62,6 +71,16 @@ const handleSubmit = (e) => {
         <form onSubmit={handleSubmit}>
                 <h2>Updates</h2>
                 <div className="form-group">
+                        <label htmlFor="email"></label>
+                        <input
+                        type='email'
+                        id='email'
+                        placeholder='Enter email'
+                        name='email'
+                        value={email}
+                        onChange={(e)=> setEmail(e.target.value)}
+                    />
+                    
                         <label htmlFor="unit"></label>
                         <input
                         type='text'
@@ -72,7 +91,7 @@ const handleSubmit = (e) => {
                         onChange={(e)=> setUnit(e.target.value)}
                         />
 
-                        <label htmlFor="unit"></label>
+                        <label htmlFor="unitName"></label>
                         <input
                         type='text'
                         id='unitName'

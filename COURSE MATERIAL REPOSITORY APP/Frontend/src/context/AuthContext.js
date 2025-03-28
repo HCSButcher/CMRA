@@ -1,39 +1,60 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem("token"));
+    const [loading, setLoading] = useState(true); // Prevents premature redirect
 
     useEffect(() => {
-        const storedToken = localStorage.getItem("token");
-        const storedUser = localStorage.getItem("userEmail");
-        const storedRole = localStorage.getItem("userRole");
+        const verifyToken = async () => {
+            const storedToken = localStorage.getItem("token");
+            if (!storedToken) {
+                console.log("🚨 No token found, logging out...");
+                setLoading(false);
+                return logout();
+            }
 
-        console.log("🔍 Checking LocalStorage:", { storedToken, storedUser, storedRole });
+            try {
+                console.log("🔹 Verifying token with backend...");
+                const response = await axios.get("http://localhost:3001/auth/verify", {
+                    headers: { Authorization: `Bearer ${storedToken}` }
+                });
 
-        if (storedToken && storedUser && storedRole) {
-            setToken(storedToken);
-            setUser({ email: storedUser, role: storedRole });
-        }
+                console.log("✅ Token verified:", response.data);
+                setUser(response.data.user);
+                setToken(storedToken);
+            } catch (error) {
+                console.error("❌ Token verification failed, logging out...");
+                logout();
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        verifyToken();
     }, []);
 
     const login = (userData, authToken) => {
+        console.log("✅ Logging in...");
         setUser(userData);
         setToken(authToken);
+        localStorage.setItem("token", authToken);
     };
 
     const logout = () => {
-        console.log("🔴 Logging out user...");
+        console.log("🔹 Logging out...");
         setUser(null);
         setToken(null);
-        localStorage.clear();
+        localStorage.removeItem("token");
+        setLoading(false);
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout }}>
-            {children}
+        <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+            {!loading && children} {/* Prevents rendering until auth check completes */}
         </AuthContext.Provider>
     );
 };

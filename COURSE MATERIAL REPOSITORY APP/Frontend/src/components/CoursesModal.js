@@ -4,6 +4,7 @@ import axios from "axios";
 const CoursesModal = ({ refreshTable }) => {
     const [stage, setStage] = useState('');
     const [regDate, setRegDate] = useState('');
+    const [email, setEmail] = useState(''); // Added email field
     const [schoolUnits, setSchoolUnits] = useState([]);
     const [newSchool, setNewSchool] = useState('');
     const [newUnits, setNewUnits] = useState('');
@@ -21,17 +22,40 @@ const CoursesModal = ({ refreshTable }) => {
     };
 
     const handleSaveCourse = async () => {
-        if (!stage || !regDate || schoolUnits.length === 0) return;
+        if (!stage || !regDate || !email || schoolUnits.length === 0) {
+            alert("Please fill in all fields.");
+            return;
+        }
 
         try {
-            await axios.post('http://localhost:3001/courses', { stage, regDate, schoolUnits });
+            const token = localStorage.getItem("token"); // Retrieve the token
+
+            if (!token) {
+                alert("Unauthorized: No token found. Please log in again.");
+                return;
+            }
+
+            await axios.post(
+                "http://localhost:3001/courses",
+                { stage, regDate, email, schoolUnits }, // Include email
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Ensure token is sent
+                    },
+                }
+            );
+
             setStage('');
             setRegDate('');
+            setEmail('');
             setSchoolUnits([]);
-            alert('Course registration saved successfully!');
+            alert("Course registration saved successfully!");
             refreshTable();
         } catch (error) {
-            console.error('Error saving course registration:', error);
+            console.error("Error saving course registration:", error);
+            if (error.response && error.response.status === 401) {
+                alert("Unauthorized: Your session may have expired. Please log in again.");
+            }
         }
     };
 
@@ -70,7 +94,6 @@ const CoursesModal = ({ refreshTable }) => {
                     font-size: 16px;
                 }
 
-                /* ✅ Ensuring the date picker is visible */
                 input[type="date"] {
                     background-color: black;
                     color: white;
@@ -126,6 +149,15 @@ const CoursesModal = ({ refreshTable }) => {
 
             <div className="background-1">
                 <form onSubmit={(e) => e.preventDefault()}>
+                    <label htmlFor="email">Lecturer Email</label>
+                    <input
+                        type="email"
+                        id="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter lecturer email"
+                    />
+
                     <label htmlFor="stage">Stage</label>
                     <select
                         name="stage"
@@ -144,7 +176,6 @@ const CoursesModal = ({ refreshTable }) => {
                         <option value="Y4 SEM 2">Y4 SEM 2</option>
                     </select>
 
-                    {/* ✅ Registration Date Picker */}
                     <label htmlFor="regDate">Registration Date</label>
                     <input 
                         type="date" 

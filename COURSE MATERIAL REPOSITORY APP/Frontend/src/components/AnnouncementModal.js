@@ -1,40 +1,57 @@
-import { useState } from "react"
-import axios from 'axios'
+import { useState } from "react";
+import axios from "axios";
+
 const AnnouncementModal = () => {
-    const [unit, setUnit] = useState('')
-    const [date, setDate] = useState('')
-    const [announcements, setAnnouncements]= useState('')
-    const [errors, setErrors]= useState([]);
+    const [unit, setUnit] = useState("");
+    const [email, setEmail] = useState("");
+    const [date, setDate] = useState("");
+    const [announcements, setAnnouncements] = useState("");
+    const [errors, setErrors] = useState([]);
 
-    const handleSubmit = (e) =>{
-        e.preventDefault();             
-        axios.post ('http://localhost:3001/announcements', {unit, date, announcements})
-        .then (result =>{
-            console.log(result);
-          
-        })
-        .catch (err =>{
-            if(err.response ) {                
-                setErrors(err.response.data.errors);
-            } else {               
-                console.error('Error:', err);
-            }
-        });
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         
-    };
-  return (
-    <div>
-      <style>
-                {`
-                    body {
-                        background-color: #080710;
-                    }
-                        textarea{
-                        background-color: rgba(255, 255, 255, 0.13);
+        const token = localStorage.getItem("token");
+        if (!token) {
+            console.error("❌ No token found. User may not be authenticated.");
+            return setErrors([{ msg: "Authentication error. Please log in again." }]);
+        }
 
-                        }
+        try {
+            const response = await axios.post(
+                "http://localhost:3001/announcements",
+                { unit, email, date, announcements },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            console.log("✅ Announcement added successfully:", response.data);
+
+            // Clear form fields
+            setUnit("");
+            setEmail("");
+            setDate("");
+            setAnnouncements("");
+            setErrors([]); // Clear any previous errors
+
+        } catch (err) {
+            console.error("❌ Error submitting announcement:", err);
+
+            if (err.response && err.response.data.errors) {
+                setErrors(err.response.data.errors);
+            } else {
+                setErrors([{ msg: "An unexpected error occurred. Please try again." }]);
+            }
+        }
+    };
+
+    return (
+        <div>
+            <style>
+                {`
+                    body { background-color: #080710; }
+                    textarea { background-color: rgba(255, 255, 255, 0.13); }
                     form {
-                        height: 500px;
+                        height: auto;
                         width: 360px;
                         background-color: rgba(255, 255, 255, 0.13);
                         position: absolute;
@@ -56,7 +73,18 @@ const AnnouncementModal = () => {
             <form onSubmit={handleSubmit}>
                 <h2>Announcements</h2>
                 <div className="form-group">
-                <label htmlFor="unit">Unit</label>
+                    <label htmlFor="email">Email</label>
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Enter email"
+                        autoComplete="off"
+                        name="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    <label htmlFor="unit">Unit</label>
                     <input
                         type="text"
                         id="unit"
@@ -65,40 +93,42 @@ const AnnouncementModal = () => {
                         name="unit"
                         value={unit}
                         onChange={(e) => setUnit(e.target.value)}
+                        required
                     />
-                <label htmlFor="uploadDate">Date</label>
+                    <label htmlFor="date">Date</label>
                     <input
                         type="date"
                         id="date"
                         autoComplete="off"
-                        name="uploadDate"
+                        name="date"
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
+                        required
                     />
-
-                    <label htmlFor="unit">Announcement</label>
+                    <label htmlFor="announcements">Announcement</label>
                     <textarea  
-                        rows='4'
-                        cols='40'                                        
+                        rows="4"
+                        cols="40"
                         id="announcements"
                         placeholder="Enter announcement"
                         autoComplete="off"
                         name="announcements"
                         value={announcements}
                         onChange={(e) => setAnnouncements(e.target.value)}
+                        required
                     />                     
                 </div>
-                <button className="btn" type="submit"> Send</button>
+                <button className="btn" type="submit">Send</button>
             </form>
             {errors.length > 0 && (
                 <ul>
                     {errors.map((error, index) => (
-                        <li key={index} style={{color: 'red'}}>{error.msg}  </li>
+                        <li key={index} style={{color: 'red'}}>{error.msg}</li>
                     ))}
                 </ul>
             )}           
-    </div>
-  )
-}
+        </div>
+    );
+};
 
-export default AnnouncementModal
+export default AnnouncementModal;

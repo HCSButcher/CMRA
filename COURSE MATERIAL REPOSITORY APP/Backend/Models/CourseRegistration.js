@@ -7,7 +7,14 @@ stage: {
 },
 regDate: {
     type: Date,
-},
+    },
+    email: {
+        type: String,
+        required: true,
+        match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email address'],        
+        lowercase: true,
+    },
+
 schoolUnits: [{
     school: String,
     units: Number,

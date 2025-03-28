@@ -30,7 +30,6 @@ import CourseManagement from './components/CourseManagement';
 import LecturerModal from './components/LecturerModal';
 import StudentsModal from './components/StudentsModal';
 import Comment2Modal from './components/Comment2Modal';
-import axios from 'axios';
 
 const App = () => {
   const [messages, setMessages] = useState({
@@ -39,63 +38,14 @@ const App = () => {
     error_msg: '',
   });
 
-  // ✅ Function to refresh token
-  const refreshAccessToken = async () => {
-    try {
-      const response = await fetch('/api/refresh-token', { method: 'POST', credentials: 'include' });
-
-      if (!response.ok) {
-        console.error("Failed to refresh token");
-        return false;
-      }
-
-      const data = await response.json();
-      localStorage.setItem("token", data.accessToken); // Store new token
-      return true;
-    } catch (error) {
-      console.error("Error refreshing token:", error);
-      return false;
-    }
-  };
-
-  // ✅ Axios Global Interceptor for Token Refresh
-  axios.interceptors.response.use(
-    (response) => response, // Return response normally if successful
-    async (error) => {
-      if (error.response && error.response.status === 401) {
-        console.warn("🚨 Token expired! Attempting refresh...");
-
-        const refreshed = await refreshAccessToken();
-        if (refreshed) {
-          console.log("🔄 Token refreshed! Retrying request...");
-          error.config.headers['Authorization'] = `Bearer ${localStorage.getItem("token")}`;
-          return axios(error.config); // Retry failed request
-        }
-      }
-      return Promise.reject(error); // If refresh fails, reject request
-    }
-  );
-
-  // ✅ Fetch Messages with Token Refresh Handling
+  // ✅ Fetch Messages Without Token Refresh
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        let response = await fetch('/api/messages', { credentials: 'include' });
+        const response = await fetch('/api/messages', { credentials: 'include' });
 
-        // If unauthorized, attempt to refresh the token
-        if (response.status === 401) {
-          const refreshResponse = await fetch('/api/refresh-token', { method: 'POST', credentials: 'include' });
-
-          if (!refreshResponse.ok) {
-            throw new Error('Failed to refresh token');
-          }
-
-          // Retry fetching messages after refreshing token
-          response = await fetch('/api/messages', { credentials: 'include' });
-
-          if (!response.ok) {
-            throw new Error('Failed to fetch messages after refreshing token');
-          }
+        if (!response.ok) {
+          throw new Error('Failed to fetch messages');
         }
 
         const data = await response.json();

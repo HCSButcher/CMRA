@@ -69,91 +69,111 @@ const CloseUpdateModal = () => setShowUpdateModal(false);
   const CloseComment2Modal = () => setShowComment2Modal(false);
 
 //registration courses fetch
-  useEffect(() => {
+useEffect(() => {
     const fetchCourses = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3001/courses', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (Array.isArray(response.data)) {
-          setRegistrations(response.data);
-        } else {
-          console.error('Unexpected response format:', response.data);
+        try {
+            const token = localStorage.getItem('token');
+            const email = localStorage.getItem('email');  // Get logged-in lecturer's email
+
+            const response = await axios.get(`http://localhost:3001/courses?email=${email}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (Array.isArray(response.data)) {
+                setRegistrations(response.data);
+            } else {
+                console.error('Unexpected response format:', response.data);
+            }
+        } catch (error) {
+            console.error('Error fetching lecturers:', error);
         }
-      } catch (error) {
-        console.error('Error fetching lecturers:', error);
-      }
     };
     fetchCourses();
-  }, []);
+}, []);
+
 
 //material fetch
-  useEffect(() => {
+useEffect(() => {
     const fetchMaterials = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3001/materials', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (Array.isArray(response.data)) {
-          setMaterials(response.data);
-        } else {
-          console.error('Unexpected response format:', response.data);
+        try {
+            const token = localStorage.getItem('token');
+            const email = localStorage.getItem('email'); 
+
+            const response = await axios.get(`http://localhost:3001/materials?email=${email}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (Array.isArray(response.data)) {
+                setMaterials(response.data);
+            } else {
+                console.error('Unexpected response format:', response.data);
+            }
+        } catch (error) {
+            console.error('Error fetching materials:', error);
         }
-      } catch (error) {
-        console.error('Error fetching Materials:', error);
-      }
     };
     fetchMaterials();
-  }, []);
+}, []);
+
 
 	//update fetch
 useEffect(() => {
     const fetchUpdates = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3001/updates', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        try {
+            const token = localStorage.getItem('token');
+            const email = localStorage.getItem('email'); 
 
-        console.log("API Response Data:", response.data); // Log response for debugging
+            const response = await axios.get(`http://localhost:3001/updates?email=${email}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
 
-        // Ensure the response contains an 'updates' array
-        if (response.data && Array.isArray(response.data.updates)) {
-          setUpdates(response.data.updates);
-        } else {
-          console.error('Unexpected response format:', response.data);
+            if (response.data && Array.isArray(response.data.updates)) {
+                setUpdates(response.data.updates);
+            } else {
+                console.error('Unexpected response format:', response.data);
+            }
+        } catch (error) {
+            console.error('Error fetching updates:', error);
         }
-      } catch (error) {
-        console.error('Error fetching updates:', error);
-      }
     };
     fetchUpdates();
 }, []);
 
 
-
   //announcement fetch
 
-  useEffect(() => {
+useEffect(() => {
     const fetchAnnouncements = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3001/announcements', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (Array.isArray(response.data)) {
-          setAnnouncements(response.data);
-        } else {
-          console.error('Unexpected response format:', response.data);
+        try {
+            const token = localStorage.getItem('token');
+            const email = localStorage.getItem('email'); 
+
+            if (!token || !email) {
+                console.error("❌ Missing token or email in localStorage");
+                return;
+            }
+
+            const response = await axios.get(`http://localhost:3001/announcements?email=${email}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            console.log("📌 API Response:", response.data); // Debugging log
+
+            if (response.data && Array.isArray(response.data.announcements)) {
+                setAnnouncements(response.data.announcements);
+                console.log("📢 Announcements updated:", response.data.announcements);
+            } else {
+                console.error("❌ Unexpected response format:", response.data);
+            }
+        } catch (error) {
+            console.error("❌ Error fetching announcements:", error);
         }
-      } catch (error) {
-        console.error('Error fetching announcements', error);
-      }
     };
+
     fetchAnnouncements();
-  }, []);
+}, []);
+
+
 
 //handle announcement delete
 const handleDelete = (id) =>{

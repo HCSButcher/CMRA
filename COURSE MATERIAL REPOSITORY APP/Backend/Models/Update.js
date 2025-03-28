@@ -9,7 +9,14 @@ const userSchema = new Schema ({
 
    unitName: {
     type:String
-   },
+  },
+   
+     email: {
+        type: String,
+        required: true,
+        match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email address'],        
+        lowercase: true,
+    },
 
   
 })
