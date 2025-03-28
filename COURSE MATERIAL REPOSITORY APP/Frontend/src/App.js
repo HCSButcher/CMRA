@@ -12,7 +12,6 @@ import Materials from './components/Materials';
 import UploadMaterials from './components/UploadMaterials';
 import Student from './components/Student';
 import Lecturer from './components/Lecturer';
-import ResetPassword from './components/ResetPassword';
 import Updates from './components/Updates';
 import AnnouncementModal from './components/AnnouncementModal';
 import CoursesModal from './components/CoursesModal';
@@ -25,6 +24,8 @@ import RepoDisplay from './components/RepoDisplay';
 import ViewModal from './components/ViewModal';
 import EnrollModal from './components/EnrollModal';
 import Courses from './components/Courses';
+import Lecturer2Modal from './components/Lecturer2Modal';
+import Student2Modal from './components/Student2Modal';
 import CourseManagement from './components/CourseManagement';
 import LecturerModal from './components/LecturerModal';
 import StudentsModal from './components/StudentsModal';
@@ -124,28 +125,31 @@ const App = () => {
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Signup />} />
 
-          <Route element={<ProtectedRoute allowedRoles={['Admin', 'Super-admin']} />}>
+          <Route element={<ProtectedRoute allowedRoles={['admin', 'Super-admin']} />}>
             <Route path="/admin" element={<Admin />} />
           </Route>
 
-          <Route element={<ProtectedRoute allowedRoles={['student', 'Admin', 'Super-admin']} />}>
+          <Route element={<ProtectedRoute allowedRoles={['student', 'admin', 'Super-admin']} />}>
             <Route path="/student" element={<Student />} />
           </Route>
 
-          <Route element={<ProtectedRoute allowedRoles={['lecturer', 'Admin', 'Super-admin']} />}>
+          <Route element={<ProtectedRoute allowedRoles={['lecturer', 'admin', 'Super-admin']} />}>
             <Route path="/lecturer" element={<Lecturer />} />
           </Route>
 
-          <Route path="/resetPassword" element={<ResetPassword />} />
-          <Route path="/reset" element={<Reset />} />
+          <Route path="/reset" element={<Reset />} />                
           <Route path="/materials" element={<Materials />} />
           <Route path="/upload" element={<UploadMaterials />} />
+          <Route path="/lecturer/:email" element={<Lecturer />} />
+          <Route path="/student/:email" element={<Student />} />
           <Route path="/updates" element={<Updates />} />
           <Route path="/announcements" element={<AnnouncementModal />} />
           <Route path="/courses" element={<CoursesModal />} />
           <Route path="/comments" element={<CommentModal />} />
           <Route path="/stages" element={<Stage />} />
           <Route path="/courseManagement" element={<CourseManagement />} />
+          <Route path="/lecturer2Modal" element={<Lecturer2Modal />} />
+          <Route path="/student2Modal" element={<Student2Modal />} />
           <Route path="/sRegistrations" element={<SCoursesModal />} />
           <Route path="/viewUnits" element={<ViewUnitsModal />} />
           <Route path="/enroll" element={<EnrollModal />} />

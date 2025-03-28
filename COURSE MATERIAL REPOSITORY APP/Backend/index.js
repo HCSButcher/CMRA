@@ -216,6 +216,7 @@ app.post("/login", (req, res, next) => {
 });
 
 
+
 // login authentication
 app.get("/auth/user", async (req, res) => {
   try {
@@ -297,84 +298,45 @@ app.get("/logout", (req, res) => {
 
 
 // Post request for password reset
-app.post('/reset', async (req, res) => {
-    console.log('Received reset request:', req.body);
-    try {
-        const { email } = req.body;
-        const token = crypto.randomBytes(20).toString('hex');
+app.post("/reset", async (req, res) => {
+    console.log("📩 Received password reset request:", req.body);
 
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ errors: [{ msg: "Email and new password are required." }] });
+        }
+
+        // ✅ Find user by email
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).json({ errors: [{ msg: 'No account with that email address exists.' }] });
+            console.log("❌ No account found for email:", email);
+            return res.status(404).json({ errors: [{ msg: "No account with that email exists." }] });
         }
 
-        user.resetPasswordToken = token;
-        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-        await user.save();
+        // ✅ Hash new password and update
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await User.updateOne({ email }, { $set: { password: hashedPassword } });
 
-        const resetUrl = `http://${req.headers.host}/reset/${token}`;
-        const mailOptions = {
-            to: user.email,
-            from: process.env.EMAIL_USER, // Replace with your actual email
-            subject: 'Password Reset',
-            html: `You are receiving this because you (or someone else) have requested the reset of the password for your account.<br><br>
-            Please click on the following link, or paste this into your browser to complete the process:<br><br>
-            <a href="${resetUrl}">Reset Your Password</a><br><br>
-            If you did not request this, please ignore this email and your password will remain unchanged.<br>`,
-        };
+        console.log("✅ Password updated successfully for:", user.email);
 
-        await transporter.sendMail(mailOptions);
-        return res.json({ message: `An e-mail has been sent to ${user.email} with further instructions.` });
-    } catch (err) {
-        console.error(err); // Log the error for debugging
-        return res.status(500).json({ errors: [{ msg: 'An error occurred. Please try again later.' }] });
-    }
-});
-
-app.post('/resetpassword/:token', async (req, res) => {
-    try {
-        const { password, password2 } = req.body;
-
-        // Check if passwords match
-        if (password !== password2) {
-            return res.status(400).json({ errors: [{ msg: 'Passwords do not match.' }] });
-        }
-
-        // Find user with valid token
-        const user = await User.findOne({
-            resetPasswordToken: req.params.token,
-            resetPasswordExpires: { $gt: Date.now() },
+        // ✅ Clear the refresh token from cookies
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "Strict",
         });
 
-        if (!user) {
-            return res.status(400).json({ errors: [{ msg: 'Password reset token is invalid or has expired.' }] });
-        }
+        return res.json({ message: "✅ Password reset successful! Redirecting to login..." });
 
-        // Hash the new password
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(password, salt);
-
-        // Clear reset token fields
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpires = undefined;
-        await user.save();
-
-        // Send confirmation email
-        const mailOptions = {
-            to: user.email,
-            from: process.env.SMTP_USER,
-            subject: 'Your password has been changed',
-            text: `Hello,\n\nThis is a confirmation that the password for your account ${user.email} has just been changed.\n`
-        };
-
-        await transporter.sendMail(mailOptions);
-
-        return res.json({ message: 'Success! Your password has been changed.' });
     } catch (err) {
-        console.error('Reset Password Error:', err);
-        return res.status(500).json({ errors: [{ msg: 'An error occurred. Please try again later.' }] });
+        console.error("❌ Error resetting password:", err);
+        return res.status(500).json({ errors: [{ msg: "An error occurred. Please try again later." }] });
     }
 });
+
+
 
 //get students
 app.get('/getStudents', isAuthenticated, authorizeRoles("Super-admin", "admin", "lecturer"), async (req, res) => {
@@ -833,6 +795,25 @@ app.post('/courses', async (req, res) => {
     }
 });
 
+//find lecturer
+app.get("/find", isAuthenticated , async (req, res) => {
+    const { email } = req.query;
+
+    if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+    }
+
+    try {
+        const lecturer = await User.findOne({ email });
+        if (!lecturer) {
+            return res.status(404).json({ message: "Lecturer not found" });
+        }
+
+        res.json(lecturer);
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+});
 
 //course registration get request
 app.get('/courses', isAuthenticated, async (req, res) => {
@@ -1178,22 +1159,54 @@ app.post('/enrollStudent', async (req, res) => {
 });
 
 //student plus email 
-app.get('/students/:email', async (req, res) => {
+app.get('/student/:email', async (req, res) => {
     try {
-        const email = req.params.email.toLowerCase(); // Ensure case insensitivity
+        const email = req.params.email.toLowerCase();
         const student = await User.findOne({ email });
-
         if (!student) {
-            return res.status(404).json({ message: "Student not found" });
+            return res.status(404).json({ message: 'Student not found' });
         }
-
-        if (!student.school || student.school.trim() === "") {
-            return res.status(400).json({ message: "School is required" });
+        if (student.role !== 'student') {
+            return res.status(403).json({ message: 'Access denied. User is not a student.' });
         }
-
-        res.json({ school: student.school });
+        res.json({
+            _id: student._id,
+            name: student.name,
+            email: student.email,
+            role: student.role,
+            school: student.school,
+            course: student.course
+        });
     } catch (error) {
-        console.error("❌ Error fetching student:", error);
+        console.error('Error fetching student:', error)
+        res.status(500).json({ message: 'Internal Server error' });
+    }
+});
+
+//lecturer email
+app.get('/lecturer/:email', async (req, res) => {
+    try {
+        const email = req.params.email.toLowerCase(); 
+        const lecturer = await User.findOne({ email });
+
+        if (!lecturer) {
+            return res.status(404).json({ message: "Lecturer not found" });
+        }
+
+        if (lecturer.role !== "lecturer") {
+            return res.status(403).json({ message: "Access denied. User is not a lecturer." });
+        }
+        
+        res.json({
+            _id: lecturer._id,
+            name: lecturer.name,
+            email: lecturer.email,
+            role: lecturer.role,  
+            school: lecturer.school || "N/A",
+            course: lecturer.course || "N/A"
+        });
+    } catch (error) {
+        console.error("Error fetching lecturer:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 });

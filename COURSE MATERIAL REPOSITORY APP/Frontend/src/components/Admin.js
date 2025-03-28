@@ -5,7 +5,9 @@ import { SidebarContext } from '../context/SidebarContext';
 import Signup from './Signup';
 import EnrollModal from './EnrollModal';
 import LogoutButton from './LogoutButton';
+import Student2Modal from './Student2Modal';
 import Courses from './Courses';
+import Lecturer2Modal from './Lecturer2Modal';
 import axios from 'axios';
 
 const Admin = () => {
@@ -25,7 +27,15 @@ const Admin = () => {
   const openEnrollModal = () => setShowEnrollModal(true);
   const closeEnrollModal = () => setShowEnrollModal(false);
 
+  //student2Modal 
+  const [showStudent2Modal,setShowStudent2Modal] = useState(false);
+  const openStudent2Modal = () => setShowStudent2Modal(true);
+  const CloseStudent2Modal = () => setShowStudent2Modal(false);
 
+//lecturer modal
+  const [showLecturer2Modal, setShowLecturer2Modal] = useState(false);
+  const openLecturer2Modal = () => setShowLecturer2Modal(true);
+  const CloseLecturer2Modal = () => setShowLecturer2Modal(false);
 
   //courses modal
   const [showCourses, setShowCourses] = useState(false);
@@ -205,8 +215,8 @@ useEffect(() => {
         </div>     
       <ul>       
        
-        <li onClick={() =>handleNavigate('/student')} > <img src ='http://localhost:3000/students.png' alt =''/> &nbsp; <span> Student</span></li>  
-        <li  onClick={() =>handleNavigate('/lecturer')} > <img src ='http://localhost:3000/teachers.png' alt =''/> &nbsp; <span>Lecturer</span></li>
+        <li onClick={openStudent2Modal} > <img src ='http://localhost:3000/students.png' alt =''/> &nbsp; <span> Student</span></li>  
+        <li  onClick={openLecturer2Modal} > <img src ='http://localhost:3000/teachers.png' alt =''/> &nbsp; <span>Lecturer</span></li>
         <li onClick={openCourses} > <img src ='http://localhost:3000/schools.png' alt =''/> &nbsp; <span>Courses</span></li>
          <li onClick={openSignupModal} > <img src ='http://localhost:3000/teachers.png' alt =''/> &nbsp;<span>Add Lecturer</span> </li> 
          <li onClick={openSignupModal} > <img src ='http://localhost:3000/students.png' alt =''/> &nbsp; <span>Add Student</span></li> 
@@ -357,7 +367,26 @@ useEffect(() => {
             <Courses CloseModal={CloseCourses} />
             </div>
           </div>
-  )}
+        )}
+        
+       {showLecturer2Modal && (
+    <div className="modal">
+        <div className="modal-content">
+            <span className="close" onClick={CloseLecturer2Modal}> &times; </span>
+            <Lecturer2Modal isOpen={showLecturer2Modal} onClose={CloseLecturer2Modal} />
+        </div>
+    </div>
+        )}
+        
+        {showStudent2Modal && (
+          <div className="modal">
+            <div className="modal-content">
+              <span className="close" onClick={CloseStudent2Modal} > &times; </span>
+              <Student2Modal isOpen={showStudent2Modal} onClose = {CloseStudent2Modal} />
+            </div>
+          </div>
+        )}
+
 </div>
 </div>
   )

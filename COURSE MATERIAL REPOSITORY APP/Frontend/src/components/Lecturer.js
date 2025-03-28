@@ -19,6 +19,17 @@ const Lecturer = () => {
     navigate(path);
   };
 
+  useEffect(() => {
+    const email = localStorage.getItem('email');
+    const role = localStorage.getItem('role');
+    const token = localStorage.getItem('token');
+
+    if (!email || role !== 'lecturer' || !token) {
+        navigate('/login'); 
+    }
+}, [navigate]);
+
+
 const { isSidebarOpen, toggleSidebar } = useContext(SidebarContext);
 
   const [registrations, setRegistrations] = useState([]);
@@ -30,6 +41,7 @@ const { isSidebarOpen, toggleSidebar } = useContext(SidebarContext);
   const [showAnnouncementModal, setShowAnnouncementModal]= useState(false);
   const openAnnouncementModal= () => setShowAnnouncementModal(true);
   const CloseAnnouncementModal = () => setShowAnnouncementModal(false);
+
 
   //view modal
   const [showViewModal, setShowViewModal] = useState(false);

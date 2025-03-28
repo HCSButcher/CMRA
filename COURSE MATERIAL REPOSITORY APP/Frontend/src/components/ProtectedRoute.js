@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 const ProtectedRoute = ({ allowedRoles }) => {
   const { user, loading } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>;  // ✅ Prevent redirect before check
 
   if (!user || (allowedRoles?.length && !allowedRoles.includes(user.role))) {    
     return <Navigate to="/login" replace />;

@@ -119,7 +119,7 @@ const CoursesModal = ({ refreshTable }) => {
                 }
 
                 ul li button:hover {
-                    background-color: darkred;
+                    background-color: dark-red;
                 }
                 `}
             </style>

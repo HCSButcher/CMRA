@@ -2,7 +2,8 @@ import { useState } from "react";
 import axios from "axios";
 import LoginCSS from "./Login.module.css";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "../context/AuthContext";
+
 const Login = () => {
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -11,34 +12,54 @@ const Login = () => {
     const [errors, setErrors] = useState([]);
 
 const handleSubmit = async (e) => {
-        e.preventDefault();
-        setErrors([]);
+    e.preventDefault();
+    setErrors([]);
 
-        try {
-            const result = await axios.post("http://localhost:3001/login", { email, password }, { withCredentials: true });
+    try {
+        // ✅ Ensure local session is cleared before login
+        await fetch("http://localhost:3001/logout", { 
+            method: "GET", 
+            credentials: "include" 
+        });
 
-            console.log("🔹 Login Response:", result.data);
+        localStorage.removeItem("token");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userRole");
 
-            if (result.data.token) {
-                await login(result.data.user, result.data.token); // Use login() from context
-                console.log("✅ User logged in and set in context");
+        // ✅ Send login request
+        const result = await axios.post(
+            "http://localhost:3001/login", 
+            { email, password }, 
+            { withCredentials: true }
+        );
 
-                setTimeout(() => {
-                    navigate(result.data.redirect);
-                }, 100);
-            } else {
-                setErrors([{ msg: "Login failed. Please try again." }]);
-            }
-        } catch (err) {
-            if (err.response && err.response.data) {
-                setErrors(err.response.data.errors || [{ msg: "Invalid email or password." }]);
-            } else {
-                setErrors([{ msg: "Something went wrong. Please try again later." }]);
-            }
+        console.log("🔹 Login Response:", result.data);
+
+        if (result.data.token) {
+            // ✅ Store token in BOTH context & localStorage
+            await login(result.data.user, result.data.token);
+            console.log("✅ User logged in and set in context");
+
+            localStorage.setItem("token", result.data.token);
+            localStorage.setItem("userEmail", result.data.user.email);
+            localStorage.setItem("userRole", result.data.user.role);
+
+            // ✅ Delay navigation slightly to ensure auth state updates
+            setTimeout(() => {
+                navigate(result.data.redirect);
+            }, 200); // Increased delay slightly for stability
+        } else {
+            setErrors([{ msg: "Login failed. Please try again." }]);
         }
-    };
-
-
+    } catch (err) {
+        console.error("❌ Login Error:", err);
+        if (err.response && err.response.data) {
+            setErrors(err.response.data.errors || [{ msg: "Invalid email or password." }]);
+        } else {
+            setErrors([{ msg: "Something went wrong. Please try again later." }]);
+        }
+    }
+};
 
 
     return (
@@ -116,13 +137,16 @@ const handleSubmit = async (e) => {
                     />
                 </div>
 
-                <a href="/reset">Forgot Password?</a><br />
+                <p onClick={() => navigate("/reset")} style={{ cursor: "pointer", color: "white", textDecoration: "underline" }}>
+                    Forgot Password?
+                </p>
                 <button type="submit">Login</button>
             </form>
+
             {errors.length > 0 && (
                 <ul>
                     {errors.map((error, index) => (
-                        <li key={index} style={{ color: 'red' }}>{error.msg}</li>
+                        <li key={index} style={{ color: "red" }}>{error.msg}</li>
                     ))}
                 </ul>
             )}

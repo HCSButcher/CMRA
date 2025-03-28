@@ -10,15 +10,28 @@ import { useNavigate } from 'react-router-dom';
 
 const Student = () => {
   const { isSidebarOpen, toggleSidebar } = useContext(SidebarContext);
+const navigate = useNavigate();
+  const handleNavigate = (path) => {
+    navigate(path);
+  };
+
+    useEffect(() => {
+    const email = localStorage.getItem('email');
+    const role = localStorage.getItem('role');
+    const token = localStorage.getItem('token');
+
+    if (!email || role !== 'student' || !token) {
+        navigate('/login'); 
+    }
+}, [navigate]);
+ 
+
   
 const [materials, setMaterials] = useState([]);
 const [announcements, setAnnouncements] = useState([]);
 const [comments, setComments] = useState([]);
 const [sRegistrations, setSRegistrations] = useState([]);
-  const navigate = useNavigate();
-  const handleNavigate = (path) => {
-    navigate(path);
-  };
+  
 
 //views Modal
 const [showViewUnitsModal, setViewUnitsModal] = useState(false)
@@ -163,7 +176,7 @@ useEffect(() => {
         <li > <a style={{color:'white'}} href ="https://kabarak.ac.ke/library" target = "_blank" rel = "noopener noreferrer" >  <img src ='http://localhost:3000/schools.png' alt =''/> &nbsp;<br /> <span>Library</span></a></li>
           <li > <a style={{color:'white'}}  href='https://pastpapers.kabarak.ac.ke/login?next=%2F' target='blank' rel='noopener noreferrer' >  <img src ='http://localhost:3000/schools.png' alt =''/> &nbsp; <br /> <span>Past Papers</span></a> </li>
         <li > <a style={{color:'white'}} href='https://eserver.kabarak.ac.ke/Students/' target='blank' rel='noopener noreferrer' > <img src ='http://localhost:3000/teachers.png' alt =''/> &nbsp; <br /> <span>Student Portal</span></a> </li>
-        <li onClick={() =>handleNavigate('/repository')} >  <img src ='http://localhost:3000/students.png' alt =''/> &nbsp; <span>  Repository  </span>  </li>
+        <li   onClick={() =>handleNavigate('/repository')} >  <img src ='http://localhost:3000/students.png' alt =''/> &nbsp; <span>  Repo <br />sitory  </span>  </li>
                
       
       </ul>      
