@@ -32,9 +32,7 @@ const handleSubmit = async (e) => {
             { email, password }, 
             { withCredentials: true }
         );
-
-        console.log("🔹 Login Response:", result.data);
-
+        
         if (result.data.token) {
             
             await login(result.data.user, result.data.token);

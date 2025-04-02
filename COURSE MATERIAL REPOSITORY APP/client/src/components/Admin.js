@@ -52,10 +52,9 @@ const openSignupModal = () => setShowSignupModal(true);
     const fetchLecturers = async () => {
       try {
         const token = localStorage.getItem("token"); 
-        const response = await axios.get('http://10.1.33.9910.1.33.99:3001/getLecturers', {
+        const response = await axios.get('http://10.1.33.99:3001/getLecturers', {
           headers: { Authorization: `Bearer ${token}` } 
         });
-
         if (Array.isArray(response.data)) {
           setLecturers(response.data);
         } else {

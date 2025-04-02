@@ -1,6 +1,6 @@
+import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 const Reset = () => {
     const navigate = useNavigate();
@@ -8,39 +8,39 @@ const Reset = () => {
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setErrors([]);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrors([]);
 
-        try {
-            const result = await axios.post(
-                "http://10.1.33.99:3001/reset", 
-                { email, password }, 
-                { withCredentials: true } 
-            );
+    try {
+        const result = await axios.post(
+            "http://10.1.33.99:3001/reset", 
+            { email, password }, 
+            { withCredentials: true } 
+        );
 
-            console.log("🔹 Reset Response:", result.data);
+        if (result.data.success) {
             alert(result.data.message);
 
-            
             await fetch("http://10.1.33.99:3001/logout", { 
                 method: "GET", 
                 credentials: "include" 
             });
 
-            
             localStorage.removeItem("token");
             localStorage.removeItem("userEmail");
             localStorage.removeItem("userRole");
 
-           
             navigate("/login");
-        } catch (err) {
-            const errorMsg = err.response?.data?.errors || [{ msg: "Something went wrong. Please try again later." }];
-            setErrors(errorMsg);
-            console.error("Error:", err);
+        } else {
+            setErrors([{ msg: "Something went wrong. Please try again." }]);
         }
-    };
+    } catch (err) {
+        console.error("Error:", err);
+        setErrors(err.response?.data?.errors || [{ msg: "Something went wrong. Please try again later." }]);
+    }
+};
+
 
     return (
         <div>

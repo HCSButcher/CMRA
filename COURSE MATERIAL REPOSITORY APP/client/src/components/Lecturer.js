@@ -84,27 +84,25 @@ useEffect(() => {
 
 //material fetch
 useEffect(() => {
-    const fetchMaterials = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const email = localStorage.getItem('email'); 
+  const fetchMaterials = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-            const response = await axios.get(`http://10.1.33.99/materials?email=${email}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-            if (Array.isArray(response.data)) {
-                setMaterials(response.data);
-            } else {
-                console.error('Unexpected response format:', response.data);
-            }
-        } catch (error) {
-            console.error('Error fetching materials:', error);
-        }
-    };
-    fetchMaterials();
+      const response = await axios.get('http://10.1.33.99:3001/materials?recent=true', { headers });
+
+      if (Array.isArray(response.data)) {
+        setMaterials(response.data);
+      } else {
+        console.error('Unexpected response format', response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching materials', error);
+    }
+  };
+  fetchMaterials();
 }, []);
-
 
 	//update fetch
 useEffect(() => {

@@ -88,14 +88,13 @@ useEffect(() => {
 }, []);
 
 
-  //materials fetch
+  
 useEffect(() => {
   const fetchMaterials = async () => {
     try {
       const token = localStorage.getItem("token");
 
-      // Don't send an authorization header if there's no token
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+            const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
       const response = await axios.get('http://10.1.33.99:3001/materials?recent=true', { headers });
 

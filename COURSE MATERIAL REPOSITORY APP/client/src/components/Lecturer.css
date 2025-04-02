@@ -294,52 +294,68 @@ height: 40px;
 width: 40px;
 }
 
-@media screen and (max-width: 1100px) {
-    .side-menu li {
-        font-size: 18px;
-    }
-}
-
 @media screen and (max-width: 940px) {
-    .side-menu li span{
+    .side-menu li span {
         display: none;
     }
-    .side-menu{
+
+    .side-menu {
         align-items: center;
     }
-    .side-menu li img{
+
+    .side-menu li img {
         width: 40px;
         height: 40px;
     }
+
     .side-menu li:hover {
-        border: 2px solid var(--clr-primar-light);
+        border: 2px solid var(--clr-primary-light);
         padding: 8px 38px;
+    }
+
+    .content-5 .cards-5 {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+    }
+
+    .content-5 .content-6 {
+        flex-direction: column;
     }
 }
 
 @media screen and (max-width: 536px) {
-.brand-name h1 {
-font-size: 18px;
-}
- .content-5 .cards-5 {
-    justify-content: center;
-}
-.side-menu li img {
-    width: 30px;
-    height: 30px;
-}
- .content .cards-6 .card-6 table th:nth-child(2),
- .content .cards-6 .card-6 table td:nth-child(2) {
-    display: none;
- }
- .content-5 .content-6 .lecturer-5 table th:nth-child(4),
- .content-5 .content-6 .lecturer-5 table td:nth-child(4) {
-    display: none;
- }
- .content-5 .content-6 .lecturer-5 table th:nth-child(5),
- .content-5 .content-6 .lecturer-5 table td:nth-child(5) {
-    display: none;
- }
+    .brand-name h1 {
+        font-size: 18px;
+    }
 
+    .content-5 .cards-5 {
+        justify-content: center;
+    }
 
+    .side-menu li img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .content .cards-6 .card-6 table th:nth-child(2),
+    .content .cards-6 .card-6 table td:nth-child(2),
+    .content-5 .content-6 .lecturer-5 table th:nth-child(4),
+    .content-5 .content-6 .lecturer-5 table td:nth-child(4),
+    .content-5 .content-6 .lecturer-5 table th:nth-child(5),
+    .content-5 .content-6 .lecturer-5 table td:nth-child(5) {
+        display: none;
+    }
+
+    .content-5 .content-6 .lecturer-5,
+    .content-5 .content-6 .new-student-5 {
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    .cards-5 .card-5,
+    .content-5 .cards-6 .card-6 {
+        width: 100%;
+        margin: 10px 0;
+    }
 }

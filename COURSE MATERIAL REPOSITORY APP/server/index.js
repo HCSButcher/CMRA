@@ -152,7 +152,22 @@ app.post('/register', upload.single('file'), async (req, res) => {
         });
 
         await newUser.save();
-        return res.json({ message: 'User registered successfully' });
+
+        // Send email to super admin and admins
+        const admins = await User.find({ role: { $in: ['superadmin', 'admin'] } });  // Fetch users with role 'admin' or 'superadmin'
+
+        const adminEmails = admins.map(admin => admin.email);  // Extract admin emails
+
+        const mailOptions = {
+            from: process.env.SMTP_USER,  // Your email
+            to: adminEmails,  // Array of admin emails
+            subject: 'New User Registration',
+            text: `A new user has registered.\n\nName: ${name}\nEmail: ${email}\nRole: ${role}\nContact: ${contact}\n\nPlease review the user details.`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        return res.json({ message: 'User registered successfully and notification sent to admins' });
     } catch (error) {
         console.error('Error registering user:', error);
         return res.status(500).json({ message: 'Server error' });
@@ -275,22 +290,18 @@ app.post("/auth/login", async (req, res) => {
 });
 
 
-app.get("/auth/verify", async (req, res) => {
-    console.log("🔹 Verifying token...");
-
+app.get("/auth/verify", async (req, res) => { 
     const token = req.headers.authorization?.split(" ")[1];
 
-    if (!token) {
-        console.log("🚨 No token provided.");
+    if (!token) {        
         return res.status(401).json({ message: "No token provided" });
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log("✅ Token valid:", decoded);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);        
         res.status(200).json({ user: { email: decoded.email, role: decoded.role } });
     } catch (error) {
-        console.error("❌ Invalid token:", error);
+        console.error(" Invalid token:", error);
         res.status(401).json({ message: "Invalid token" });
     }
 });
@@ -335,9 +346,7 @@ app.get("/logout", (req, res) => {
 
 
 // Post request for password reset
-app.post("/reset", async (req, res) => {
-    console.log("📩 Received password reset request:", req.body);
-
+app.post("/reset", async (req, res) => {  
     try {
         const { email, password } = req.body;
 
@@ -345,33 +354,27 @@ app.post("/reset", async (req, res) => {
             return res.status(400).json({ errors: [{ msg: "Email and new password are required." }] });
         }
 
-        // ✅ Find user by email
         const user = await User.findOne({ email });
-        if (!user) {
-            console.log("❌ No account found for email:", email);
+        if (!user) {           
             return res.status(404).json({ errors: [{ msg: "No account with that email exists." }] });
         }
 
-        // ✅ Hash new password and update
+        // Replace only the password, keep the rest of the user details unchanged
         const hashedPassword = await bcrypt.hash(password, 10);
         await User.updateOne({ email }, { $set: { password: hashedPassword } });
 
-        console.log("✅ Password updated successfully for:", user.email);
-
-        // ✅ Clear the refresh token from cookies
-        res.clearCookie("refreshToken", {
-            httpOnly: true,
-            secure: true,
-            sameSite: "Strict",
+        // Return a success message
+        return res.json({ 
+            success: true, 
+            message: "✅ Password reset successful! You can now log in with the new password." 
         });
-
-        return res.json({ message: "✅ Password reset successful! Redirecting to login..." });
 
     } catch (err) {
         console.error("❌ Error resetting password:", err);
         return res.status(500).json({ errors: [{ msg: "An error occurred. Please try again later." }] });
     }
 });
+
 
 
 
@@ -602,8 +605,7 @@ app.delete('/deleteCourse', async (req, res) => {
 
 // endpoint for update
 app.post('/updates', async (req, res) => {
-    try {
-        console.log("Incoming Request Body:", req.body); // ✅ Debug incoming data
+    try {      
 
         const { unit, email, unitName } = req.body;
         let errors = [];
@@ -611,25 +613,23 @@ app.post('/updates', async (req, res) => {
         // Validate input
         if (!unit || !unitName || !email) {
             errors.push({ msg: 'Please enter all fields' });
-            return res.status(400).json({ errors }); // ✅ Respond immediately
+            return res.status(400).json({ errors }); 
         }
 
         // Check if update already exists and delete it
         const existingUpdate = await Update.findOne({ unit });
         if (existingUpdate) {
-            await Update.deleteOne({ unit });
-            console.log('✅ Existing unit deleted successfully');
+            await Update.deleteOne({ unit });            
         }
 
         // Save new update
         const update = new Update({ unit, email, unitName });
         await update.save();
-
-        console.log("✅ New update saved successfully");
+       
         return res.status(201).json({ message: "Update added successfully", update });
 
     } catch (err) {
-        console.error('❌ Error creating update:', err);
+        console.error('Error creating update:', err);
         return res.status(500).json({ message: 'Server error' });
     }
 });
@@ -638,8 +638,7 @@ app.post('/updates', async (req, res) => {
 // Get request for update
 app.get('/updates',isAuthenticated, async (req, res) => {
     try {
-        console.log("✅ Fetching updates for user:", req.user?.email || "Unknown");
-
+       
         let query = {}; // Default: Admins see all updates
 
         // 🔹 Restrict lecturers to only their updates
@@ -647,15 +646,12 @@ app.get('/updates',isAuthenticated, async (req, res) => {
             query.email = req.user.email; // Assuming updates have an 'email' field
         }
 
-        const updates = await Update.find(query);
-
-        console.log("✅ Updates Found:", updates.length, "for", req.user?.email || "Unknown");
-
-        // ✅ Ensure the response is always an object with 'updates' key
+        const updates = await Update.find(query); 
+        
         return res.status(200).json({ updates });
 
     } catch (error) {
-        console.error("❌ Error fetching updates:", error);
+        console.error(" Error fetching updates:", error);
         return res.status(500).json({ message: "Server error" });
     }
 });
@@ -700,15 +696,13 @@ app.post('/stages', async (req, res) => {
 //get request for stages
 app.get('/stages', isAuthenticated, async (req, res) => {
     try {
-        const { school } = req.query; // ✅ Get school from frontend request
+        const { school } = req.query; 
 
         if (!school) {
             return res.status(400).json({ message: "School is required" });
         }
 
-        console.log(`📢 Fetching stages for school: ${school}`); // Debugging log
-
-        // ✅ Find all stages in UnitStage schema where the school matches
+       
         const stages = await UnitStage.find({ school });
 
         if (!stages.length) {
@@ -717,7 +711,7 @@ app.get('/stages', isAuthenticated, async (req, res) => {
 
         res.status(200).json(stages);
     } catch (error) {
-        console.error("❌ Error fetching stages:", error);
+        console.error(" Error fetching stages:", error);
         res.status(500).json({ message: "Server error" });
     }
 });
@@ -730,11 +724,8 @@ app.get('/units', isAuthenticated, async (req, res) => {
 
         if (!school || !stage) {
             return res.status(400).json({ message: "School and Stage are required" });
-        }
+        }       
 
-        console.log(`📢 Fetching units for: School - "${school.trim()}", Stage - "${stage.trim()}"`);
-
-        // ✅ Find the corresponding stage in the UnitStage schema
         const unitStage = await UnitStage.findOne({
             school: { $regex: `^${school.trim()}$`, $options: "i" }, // Case-insensitive match
             stage: { $regex: `^${stage.trim()}$`, $options: "i" }    // Case-insensitive match
@@ -745,11 +736,10 @@ app.get('/units', isAuthenticated, async (req, res) => {
             return res.status(200).json([]); // ✅ Return empty array instead of error
         }
 
-        console.log(`✅ Found Units for ${stage}:`, unitStage.units);
-
+       
         return res.status(200).json(unitStage.units);
     } catch (error) {
-        console.error("❌ Error fetching units:", error);
+        console.error(" Error fetching units:", error);
         return res.status(500).json({ message: "Server error" });
     }
 });
@@ -758,15 +748,13 @@ app.get('/units', isAuthenticated, async (req, res) => {
 //post request for student course registration
 app.post('/sRegistrations', async (req, res) => {
     try {
-        console.log("📥 Incoming Request Body:", req.body); // ✅ Log received data
-
+        
         const { school, stage, sDate, unitsTaken, email, units } = req.body;
 
         if (!school || !stage || !sDate || !units || units.length === 0) {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
-        // ✅ Save registration details without an email field
         const newRegistration = new SRegistration({
             school,
             stage,
@@ -857,15 +845,14 @@ app.post('/courses', isAuthenticated, async (req, res) => {
         const existingCourseRegistration = await CourseRegistration.findOne({ stage, email });
 
         if (existingCourseRegistration) {
-            // ✅ Merge new schoolUnits with existing ones
+            
             existingCourseRegistration.schoolUnits = [...existingCourseRegistration.schoolUnits, ...schoolUnits];
-            existingCourseRegistration.regDate = regDate; // Update the registration date
-            await existingCourseRegistration.save();
-            console.log('Existing Course Registration updated successfully');
+            existingCourseRegistration.regDate = regDate; 
+            await existingCourseRegistration.save();            
             return res.status(200).json({ msg: 'Course registration updated successfully', existingCourseRegistration });
         }
 
-        // ✅ Save a new registration if it doesn't exist
+        
         const courseRegistration = new CourseRegistration({
             stage,
             regDate,
@@ -873,8 +860,7 @@ app.post('/courses', isAuthenticated, async (req, res) => {
             email,
         });
 
-        await courseRegistration.save();
-        console.log('New course registration created successfully');
+        await courseRegistration.save();        
         return res.status(200).json({ msg: 'Course registration created successfully', courseRegistration });
     } catch (err) {
         console.error('Error creating/updating course registration:', err);
@@ -908,18 +894,16 @@ app.get("/find", isAuthenticated , async (req, res) => {
 //course registration get request
 app.get('/courses', isAuthenticated, authorizeRoles("Super-admin", "admin", "lecturer"), async (req, res) => {
     try {
-        console.log("✅ Authenticated User:", req.user.email, "Role:", req.user.role);
-
-        let query = {}; // Default: Admins see all courses
-
-        // 🔹 Restrict lecturers to only their own courses
+        
+        let query = {}; 
+        
         if (req.user.role === "lecturer") {
             query.email = req.user.email; // Filtering based on lecturer's email
         }
 
         const courseRegistrations = await CourseRegistration.find(query);
 
-        // ✅ Format date properly
+        
         const formattedCourseRegistrations = courseRegistrations.map((courseRegistration) => {
             const courseRegistrationObj = courseRegistration.toObject();
             if (courseRegistrationObj.regDate) {
@@ -927,11 +911,10 @@ app.get('/courses', isAuthenticated, authorizeRoles("Super-admin", "admin", "lec
             }
             return courseRegistrationObj;
         });
-
-        console.log("✅ Courses Found:", formattedCourseRegistrations.length, "for", req.user.email);
+        
         return res.status(200).json(formattedCourseRegistrations);
     } catch (error) {
-        console.error("❌ Error fetching course registrations:", error);
+        console.error(" Error fetching course registrations:", error);
         res.status(500).json({ message: "Server error" });
     }
 });
@@ -972,49 +955,39 @@ app.post('/announcements', isAuthenticated, async (req, res) => {
         // Check if the same unit has an existing announcement
         const existingAnnouncement = await Announcement.findOne({ unit });
         if (existingAnnouncement) {
-            await Announcement.deleteOne({ unit });
-            console.log('⚠️ Existing announcement deleted for unit:', unit);
+            await Announcement.deleteOne({ unit });            
         }
 
         // Save new announcement
         const announcement = new Announcement({ unit, email, date, announcements });
-        await announcement.save();
-        
-        console.log('✅ New announcement created successfully');
+        await announcement.save();        
+       
         return res.status(201).json({ msg: 'Announcement created successfully', announcement });
     } catch (err) {
-        console.error('❌ Error creating announcement:', err);
+        console.error(' Error creating announcement:', err);
         return res.status(500).json({ message: 'Server error' });
     }
 });
 
 // Announcement GET request
 app.get('/announcements', isAuthenticated, async (req, res) => {
-    try {
-        console.log("✅ Fetching announcements for:", req.user.email, "Role:", req.user.role);
+    try {        
 
         let query = {}; // Default: Admins & Students see all announcements
 
         if (req.user.role === "lecturer") {
-            query.email = req.user.email.toLowerCase(); // Ensure case consistency
-        }
+            query.email = req.user.email.toLowerCase();         }
 
-        const announcements = await Announcement.find(query).lean(); // Using .lean() for better performance
-
-        // Debugging: Log raw database output
-        console.log("📝 Raw Announcements from DB:", announcements);
-
-        // Format date properly
+        const announcements = await Announcement.find(query).lean();       
+        
         const formattedAnnouncements = announcements.map((announcement) => ({
             ...announcement,
             date: announcement.date ? new Date(announcement.date).toISOString().split('T')[0] : null,
-        }));
-
-        console.log("✅ Announcements Found:", formattedAnnouncements.length, "for", req.user.email);
+        }));        
         return res.status(200).json({ announcements: formattedAnnouncements });
 
     } catch (error) {
-        console.error("❌ Error fetching announcements:", error);
+        console.error(" Error fetching announcements:", error);
         return res.status(500).json({ message: "Server error" });
     }
 });
@@ -1111,9 +1084,8 @@ app.delete('/materials/:id', async (req, res) => {
 //handle material get request
 app.get('/materials', isAuthenticated, authorizeRoles("Super-admin", "admin", "lecturer", "student"), async (req, res) => {
     try {
-        console.log("✅ Authenticated User:", req.user.email, "Role:", req.user.role);
-
         const { search, recent } = req.query;
+
         if (search && typeof search !== 'string') {
             return res.status(400).json({ message: 'Search term must be a string' });
         }
@@ -1127,29 +1099,28 @@ app.get('/materials', isAuthenticated, authorizeRoles("Super-admin", "admin", "l
             }
             : {};
 
-        // 🔹 Only restrict lecturers, allow students & admins to see everything
+        
         if (req.user.role === "lecturer") {
-            query.email = req.user.email;  // 🔹 Lecturers only see their own uploads
+            query.email = req.user.email;
+           
         }
 
         const sort = recent === 'true' ? { uploadDate: -1 } : {};
-        const materials = await Material.find(query).sort(sort);
-
-        console.log("✅ Materials Found:", materials.length, "for", req.user.email);
+        const materials = await Material.find(query).sort(sort);       
         res.status(200).json(materials);
     } catch (error) {
-        console.error("❌ Error fetching materials", error);
+        console.error(" Error fetching materials:", error);
         res.status(500).json({ message: "Server error" });
     }
 });
 
 
 
+
 // Fetch individual notes for a unit
 app.get('/notes/:unitName', isAuthenticated, async (req, res) => {
     try {
-        const { unitName } = req.params;
-        console.log("📢 Fetching notes for unit:", unitName);
+        const { unitName } = req.params;        
 
         const materials = await Material.find({ unit: unitName });
 
@@ -1159,7 +1130,7 @@ app.get('/notes/:unitName', isAuthenticated, async (req, res) => {
 
         res.status(200).json(materials);
     } catch (error) {
-        console.error('❌ Server Error:', error);
+        console.error(' Server Error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -1174,9 +1145,7 @@ app.get('/download/:unitName/:fileName', isAuthenticated, async (req, res) => {
         const decodedFileName = decodeURIComponent(fileName);
 
         // Construct the actual file path (without unitName)
-        const filePath = path.join(__dirname, "uploads", decodedFileName);
-
-        console.log(`📢 Looking for file at: ${filePath}`);
+        const filePath = path.join(__dirname, "uploads", decodedFileName);       
 
         // Check if the file exists
         if (!fs.existsSync(filePath)) {
@@ -1275,15 +1244,13 @@ app.post('/enrollStudent', async (req, res) => {
     const student = await User.findOne({ email });
 
     if (!student) {
-      console.error(`❌ Student with email ${email} not found`);
+      console.error(`Student with email ${email} not found`);
       return res.status(404).json({ message: 'Student not found' });
     }
 
-    console.log(`✅ Student found:`, student); // Debugging
-
     // Check if school is missing
     if (!student.school) {
-      console.error(`❌ Student ${email} does not have a school assigned`);
+      console.error(`Student ${email} does not have a school assigned`);
     }
 
     // Update details
@@ -1293,10 +1260,24 @@ app.post('/enrollStudent', async (req, res) => {
 
     await student.save(); // Save changes
 
-    console.log(`✅ Updated student:`, student); // Debugging
-    res.json({ message: 'Student enrolled successfully', student });
+    // Send email to super admin and admins
+    const admins = await User.find({ role: { $in: ['superadmin', 'admin'] } });  // Fetch users with role 'admin' or 'superadmin'
+
+    const adminEmails = admins.map(admin => admin.email);  // Extract admin emails
+
+    const mailOptions = {
+      from: process.env.SMTP_USER,  // Your email
+      to: adminEmails,  // Array of admin emails
+      subject: 'New Student Enrollment',
+      text: `A student has been successfully enrolled.\n\nName: ${student.name}\nEmail: ${email}\nRegistration Number: ${registrationNumber}\nCourse: ${course}\nSchool: ${school}\n\nPlease review the student details.`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.json({ message: 'Student enrolled successfully and notification sent to admins', student });
+
   } catch (error) {
-    console.error('❌ Error enrolling student:', error);
+    console.error('Error enrolling student:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });

@@ -118,4 +118,45 @@ label {
             }
           }
 
+          @media only screen and (max-width: 600px) {
+    .background {
+        width: 50%; /* Reduce background size */
+        height: auto; /* Let height adjust accordingly */
+        transform: translate(-50%, -50%);
+    }
+
+    .shape {
+        width: 150px; /* Reduce size of shapes */
+        height: 150px;
+    }
+
+    h1 {
+        font-size: 24px; /* Smaller font size for smaller screens */
+        margin-bottom: 20px; /* Add some spacing between title and form */
+    }
+
+    form {
+        width: 70%;
+        padding: 20px;
+        margin: 0 auto; /* Ensure the form is centered */
+    }
+
+    .form_group {
+        margin-bottom: 20px;
+    }
+
+    input {
+        height: 45px; /* Smaller input height */
+        font-size: 16px; /* Larger font for better readability */
+    }
+
+    button {
+        padding: 12px 0; /* Reduce padding for smaller screens */
+        font-size: 16px;
+    }
+
+    p {
+        font-size: 14px; /* Adjust font size for smaller text */
+    }
+}
 

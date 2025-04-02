@@ -100,7 +100,7 @@ const UploadMaterials = () => {
                     <input
                         type="text"
                         id="name"
-                        placeholder="Enter your full name"
+                        placeholder="Enter your name of the unit"
                         autoComplete="off"
                         name="name"
                         value={name}
