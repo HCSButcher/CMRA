@@ -3,59 +3,58 @@ import { useEffect, useState } from "react";
 
 const SCoursesModal = () => {
     const [schools] = useState(["SBE", "SSET", "LAW", "PHARM", "EDUC", "SMHS", "SMPA"]);
+    const [email, setEmail] = useState('');
     const [selectedSchool, setSelectedSchool] = useState('');
     const [stages, setStages] = useState([]);
     const [selectedStage, setSelectedStage] = useState('');
-    const [availableUnits, setAvailableUnits] = useState([]); // ✅ Units from backend
+    const [availableUnits, setAvailableUnits] = useState([]); 
     const [selectedUnits, setSelectedUnits] = useState([]);
     const [sDate, setSDate] = useState('');
     const [errors, setErrors] = useState([]);
     const [unitsTaken, setUnitsTaken] = useState(0);
 
-    // ✅ Fetch Stages Function
+    // Fetch Stages Function
     const fetchStages = async (school) => {
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                console.error("❌ No auth token found.");
+                console.error("No auth token found.");
                 return;
             }
 
-            const response = await axios.get("http://localhost:3001/stages", {
+            const response = await axios.get("http://192.168.101.100t:3001/stages", {
                 params: { school }, 
                 headers: { Authorization: `Bearer ${token}` }
             });
 
             setStages(response.data);
         } catch (error) {
-            console.error("❌ Error fetching stages:", error);
+            console.error(" Error fetching stages:", error);
         }
     };
 
-    // ✅ Fetch Units Function
+    //Fetch Units Function
     const fetchUnits = async (school, stage) => {
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                console.error("❌ No auth token found.");
+                console.error(" No auth token found.");
                 return;
             }
-
-            console.log(`📢 Fetching units for School: ${school}, Stage: ${stage}`);
-
-            const response = await axios.get("http://localhost:3001/units", {
+          
+            const response = await axios.get("http://192.168.101.100:3001/units", {
                 params: { school, stage },
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            console.log(`✅ Units fetched:`, response.data);
-            setAvailableUnits(response.data); // ✅ Update available units
+            console.log(` Units fetched:`, response.data);
+            setAvailableUnits(response.data); 
         } catch (error) {
-            console.error("❌ Error fetching units:", error);
+            console.error(" Error fetching units:", error);
         }
     };
 
-    // ✅ Fetch Stages When School Changes
+    //Fetch Stages When School Changes
     useEffect(() => {
         if (selectedSchool) {
             fetchStages(selectedSchool);
@@ -64,7 +63,7 @@ const SCoursesModal = () => {
         }
     }, [selectedSchool]);
 
-    // ✅ Fetch Units When Stage Changes
+    //Fetch Units When Stage Changes
     useEffect(() => {
         if (selectedSchool && selectedStage) {
             fetchUnits(selectedSchool, selectedStage);
@@ -73,7 +72,7 @@ const SCoursesModal = () => {
         }
     }, [selectedSchool, selectedStage]);
 
-    // ✅ Handle Unit Selection (Max 8 Units)
+    //Handle Unit Selection (Max 8 Units)
     const handleUnitToggle = (unit) => {
         setSelectedUnits((prevUnits) => {
             let updatedUnits;
@@ -90,44 +89,38 @@ const SCoursesModal = () => {
         });
     };
 
-    // ✅ Handle Registration Submission
+    //Handle Registration Submission
     const handleRegister = async (e) => {
         e.preventDefault();
         setErrors([]);
 
         if (!selectedSchool || !selectedStage || !sDate || selectedUnits.length === 0) {
             setErrors([{ msg: 'All fields must be filled before submitting.' }]);
-            console.log("❌ Validation failed: One or more fields are empty.");
+            console.log(" Validation failed: One or more fields are empty.");
             return;
         }
-
-        console.log("🟢 Debugging Registration Data:");
-        console.log("School:", selectedSchool);
-        console.log("Stage:", selectedStage);
-        console.log("Date:", sDate);
-        console.log("Units Taken:", unitsTaken);
-        console.log("Selected Units:", selectedUnits);
 
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                console.error("❌ No auth token found.");
+                console.error(" No auth token found.");
                 return;
             }
 
-            await axios.post("http://localhost:3001/sRegistrations", {
+            await axios.post("http://192.168.101.100:3001/sRegistrations", {
                 school: selectedSchool,
                 stage: selectedStage,
                 sDate,
+                email,
                 unitsTaken,
                 units: selectedUnits
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            alert("✅ Registration successful!");
+            alert(" Registration successful!");
         } catch (err) {
-            console.error("❌ Error:", err);
+            console.error(" Error:", err);
         }
     };
 
@@ -174,7 +167,15 @@ const SCoursesModal = () => {
             </style>
 
             <form className="modal-container" onSubmit={handleRegister}>
-                {/* School Dropdown */}
+
+                <label htmlFor="email"></label>
+                <input type="email"
+                    id="email"
+                    placeholder="Enter email"
+                    name="email"
+                    value={email}
+                    onChange={(e) =>setEmail(e.target.value) }
+                />
                 <label>Select School</label>
                 <select className="select" value={selectedSchool} onChange={(e) => setSelectedSchool(e.target.value)}>
                     <option value="">Select a school</option>

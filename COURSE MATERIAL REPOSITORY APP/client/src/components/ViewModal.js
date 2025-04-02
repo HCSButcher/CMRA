@@ -5,16 +5,16 @@ import UploadModal from './UploadMaterials'
 const ViewModal = () => {
   const [units, setUnits] = useState([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [showViewModal, setShowViewModal] = useState(true); // Track visibility of the first modal
+  const [showViewModal, setShowViewModal] = useState(true); 
 
   const openUploadModal = () => {
-    setShowViewModal(false); // Close the first modal
-    setShowUploadModal(true); // Open the second modal
+    setShowViewModal(false); 
+    setShowUploadModal(true); 
   };
 
   const closeUploadModal = () => {
-    setShowUploadModal(false); // Close the second modal
-    setShowViewModal(true); // Reopen the first modal
+    setShowUploadModal(false); 
+    setShowViewModal(true); 
   };
 
 
@@ -22,7 +22,7 @@ const ViewModal = () => {
     const getUnits = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3001/materials', {
+        const response = await axios.get('http://192.168.101.100:3001/materials', {
           headers: { Authorization: `Bearer ${token}` }
         });
 

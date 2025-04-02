@@ -19,16 +19,6 @@ const Lecturer = () => {
     navigate(path);
   };
 
-  useEffect(() => {
-    const email = localStorage.getItem('email');
-    const role = localStorage.getItem('role');
-    const token = localStorage.getItem('token');
-
-    if (!email || role !== 'lecturer' || !token) {
-        navigate('/login'); 
-    }
-}, [navigate]);
-
 
 const { isSidebarOpen, toggleSidebar } = useContext(SidebarContext);
 
@@ -75,7 +65,7 @@ useEffect(() => {
             const token = localStorage.getItem('token');
             const email = localStorage.getItem('email');  // Get logged-in lecturer's email
 
-            const response = await axios.get(`http://localhost:3001/courses?email=${email}`, {
+            const response = await axios.get(`http://192.168.101.100:3001/courses?email=${email}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -99,7 +89,7 @@ useEffect(() => {
             const token = localStorage.getItem('token');
             const email = localStorage.getItem('email'); 
 
-            const response = await axios.get(`http://localhost:3001/materials?email=${email}`, {
+            const response = await axios.get(`http://192.168.101.100/materials?email=${email}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -123,7 +113,7 @@ useEffect(() => {
             const token = localStorage.getItem('token');
             const email = localStorage.getItem('email'); 
 
-            const response = await axios.get(`http://localhost:3001/updates?email=${email}`, {
+            const response = await axios.get(`http://192.168.101.100:3001/updates?email=${email}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -149,24 +139,24 @@ useEffect(() => {
             const email = localStorage.getItem('email'); 
 
             if (!token || !email) {
-                console.error("❌ Missing token or email in localStorage");
+                console.error(" Missing token or email in localStorage");
                 return;
             }
 
-            const response = await axios.get(`http://localhost:3001/announcements?email=${email}`, {
+            const response = await axios.get(`http://192.168.101.100:3001/announcements?email=${email}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            console.log("📌 API Response:", response.data); // Debugging log
+            
 
             if (response.data && Array.isArray(response.data.announcements)) {
                 setAnnouncements(response.data.announcements);
-                console.log("📢 Announcements updated:", response.data.announcements);
+               
             } else {
-                console.error("❌ Unexpected response format:", response.data);
+                console.error(" Unexpected response format:", response.data);
             }
         } catch (error) {
-            console.error("❌ Error fetching announcements:", error);
+            console.error(" Error fetching announcements:", error);
         }
     };
 
@@ -177,7 +167,7 @@ useEffect(() => {
 
 //handle announcement delete
 const handleDelete = (id) =>{
-  axios.delete(`http://localhost:3001/announcements/${id}`)
+  axios.delete(`http://192.168.101.100:3001/announcements/${id}`)
   .then(()=> {
     setAnnouncements(announcements.filter(announcement => announcement._id !== id));
   })
@@ -186,7 +176,7 @@ const handleDelete = (id) =>{
 
   //handle update delete
   const updateDelete = (id) => {
-    axios.delete(`http://localhost:3001/updates/${id}`)
+    axios.delete(`http://192.168.101.100:3001/updates/${id}`)
     .then(() => {
       setUpdates(updates.filter(update => update._id !== id));      
     })
@@ -195,7 +185,7 @@ const handleDelete = (id) =>{
 
 // handle course registration delete
 const regDelete = (id) => {
-  axios.delete(`http://localhost:3001/courses/${id}`)
+  axios.delete(`http://192.168.101.100:3001/courses/${id}`)
   .then (() =>{
     setRegistrations(registrations.filter(registration =>registration._id !==id));
   })
@@ -204,7 +194,7 @@ const regDelete = (id) => {
 
 //handle upload delete
 const uploadDelete = (id) => {
-  axios.delete(`http://localhost:3001/materials/${id}`)
+  axios.delete(`http://192.168.101.100:3001/materials/${id}`)
     .then(() => {
       setMaterials(prevMaterials => prevMaterials.filter(material => material._id !== id));
       console.log(`Upload with ID: ${id} deleted successfully.`);
@@ -235,24 +225,24 @@ const uploadDelete = (id) => {
         </div>     
       <ul>        
        
-        <li onClick={() =>handleNavigate('/enroll')} > <img src ='http://localhost:3000/teachers.png' alt =''/> &nbsp; <span>Course Management</span></li>
-        <li onClick={openComment2Modal }  > <img src ='http://localhost:3000/students.png' alt =''/> &nbsp; <span>Student Interaction</span></li>        
-        <li > <a style={{color:'white'}} href ="https://kabarak.ac.ke/library" target = "_blank" rel = "noopener noreferrer" >  <img src ='http://localhost:3000/schools.png' alt =''/> &nbsp;<br /> <span>Library</span></a></li>
-        <li  onClick={openUploadModal}> <img src ='http://localhost:3000/download.png' alt =''/> &nbsp;<span>Upload Materials</span> </li>        
+        <li onClick={() =>handleNavigate('/enroll')} > <img src ='http://192.168.101.100:3000/teachers.png' alt =''/> &nbsp; <span>Course Management</span></li>
+        <li onClick={openComment2Modal }  > <img src ='http://192.168.101.100:3000/students.png' alt =''/> &nbsp; <span>Student Interaction</span></li>        
+        <li > <a style={{color:'white'}} href ="https://kabarak.ac.ke/library" target = "_blank" rel = "noopener noreferrer" >  <img src ='http://192.168.101.100:3000/schools.png' alt =''/> &nbsp;<br /> <span>Library</span></a></li>
+        <li  onClick={openUploadModal}> <img src ='http://192.168.101.100:3000/download.png' alt =''/> &nbsp;<span>Upload Materials</span> </li>        
       </ul>      
   </div>
    <div className="container">
         <div className="header"> 
           <div className="reducer">
     <button onClick={toggleSidebar} className="toggle-btn">
-  <img src="http://localhost:3000/dashboard.png" alt="Toggle Sidebar" className="toggle-icon" />
+  <img src="http://192.168.101.100:3000/dashboard.png" alt="Toggle Sidebar" className="toggle-icon" />
             </button>
             </div>
   <LogoutButton />
         <div className="user">          
           
           <div className="img-case">
-          <img src ='http://localhost:3000/user.png' alt =''/>
+          <img src ='http://192.168.101.100:3000/user.png' alt =''/>
           </div>       
     </div>
   </div>

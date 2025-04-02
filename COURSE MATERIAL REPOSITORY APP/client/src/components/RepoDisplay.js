@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 const RepoDisplay = () => {
-  const { unitName } = useParams(); // ✅ Matches backend `/notes/:unitName`
+  const { unitName } = useParams(); 
   const [notes, setNotes] = useState([]);
   const [name, setName] = useState("");
   const [error, setError] = useState("");
@@ -16,27 +16,26 @@ const RepoDisplay = () => {
           return;
         }
 
-        const response = await fetch(`http://localhost:3001/notes/${unitName}`, {
+        const response = await fetch(`http://192.168.101.100:3001/notes/${unitName}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        console.log("📢 Response Status:", response.status);
+        
         if (!response.ok) {
-          throw new Error(`❌ Failed to fetch notes. Status: ${response.status}`);
+          throw new Error(` Failed to fetch notes. Status: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log("📢 API Response Data:", data);
+        console.log(" API Response Data:", data);
 
         if (data && Array.isArray(data) && data.length > 0) {
-          setNotes(data[0]?.filePath || []); // ✅ Ensure filePath is stored correctly
+          setNotes(data[0]?.filePath || []); 
           setName(data[0]?.unit || "");
         } else {
-          console.warn("❌ No notes found for this unit.");
+          console.warn(" No notes found for this unit.");
           setError("No notes available for this unit.");
         }
       } catch (err) {
-        console.error("❌ Error fetching notes:", err);
+        console.error(" Error fetching notes:", err);
         setError("Unable to fetch notes for this unit.");
       }
     };
@@ -48,15 +47,13 @@ const RepoDisplay = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        console.error("❌ No token found. User might not be authenticated.");
+        console.error(" No token found. User might not be authenticated.");
         return;
       }
 
       const encodedUnitName = encodeURIComponent(unit);
       const encodedFileName = encodeURIComponent(filePath.split("/").pop());
-      const url = `http://localhost:3001/download/${encodedUnitName}/${encodedFileName}`;
-
-      console.log("📢 Fetching file from:", url);
+      const url = `http://192.168.101.100:3001/download/${encodedUnitName}/${encodedFileName}`;     
 
       const response = await fetch(url, {
         method: "GET",
@@ -66,7 +63,7 @@ const RepoDisplay = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`❌ Download failed with status ${response.status}`);
+        throw new Error(` Download failed with status ${response.status}`);
       }
 
       const blob = await response.blob();
@@ -78,7 +75,7 @@ const RepoDisplay = () => {
       a.click();
       document.body.removeChild(a);
     } catch (error) {
-      console.error("❌ Error downloading file:", error);
+      console.error("Error downloading file:", error);
     }
   };
 
@@ -105,7 +102,7 @@ const RepoDisplay = () => {
                   display: "block",
                 }}
               >
-                {note.unitName} {/* ✅ Display unit name instead of filename */}
+                {note.unitName} 
               </button>
             </li>
           ))

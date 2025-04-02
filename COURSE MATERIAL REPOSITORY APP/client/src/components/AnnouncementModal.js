@@ -13,19 +13,18 @@ const AnnouncementModal = () => {
         
         const token = localStorage.getItem("token");
         if (!token) {
-            console.error("❌ No token found. User may not be authenticated.");
+            console.error(" No token found. User may not be authenticated.");
             return setErrors([{ msg: "Authentication error. Please log in again." }]);
         }
 
         try {
             const response = await axios.post(
-                "http://localhost:3001/announcements",
+                "http://192.168.101.100:3001/announcements",
                 { unit, email, date, announcements },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            console.log("✅ Announcement added successfully:", response.data);
-
+            
             // Clear form fields
             setUnit("");
             setEmail("");
@@ -34,7 +33,7 @@ const AnnouncementModal = () => {
             setErrors([]); // Clear any previous errors
 
         } catch (err) {
-            console.error("❌ Error submitting announcement:", err);
+            console.error(" Error submitting announcement:", err);
 
             if (err.response && err.response.data.errors) {
                 setErrors(err.response.data.errors);

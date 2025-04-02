@@ -6,7 +6,7 @@ const ViewUnitsModal = () => {
 
   // Fetch registrations
   useEffect(() => {
-    axios.get('http://localhost:3001/sRegistrations')
+    axios.get('http://192.168.101.100:3001/sRegistrations')
       .then(response => {
         setUnits(response.data);
       })
@@ -19,7 +19,7 @@ const ViewUnitsModal = () => {
     const getUnits = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3001/sRegistrations', {
+        const response = await axios.get('http://192.168.101.100:3001/sRegistrations', {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (Array.isArray(response.data)) {
@@ -36,7 +36,7 @@ const ViewUnitsModal = () => {
 
 //registration delete
 const dropUnit = (registrationId, unit) => {
-  axios.delete(`http://localhost:3001/sRegistrations/${registrationId}/${unit}`)
+  axios.delete(`http://192.168.101.100:3001/sRegistrations/${registrationId}/${unit}`)
     .then(() => {
       setUnits(units.map(u => 
         u._id === registrationId 

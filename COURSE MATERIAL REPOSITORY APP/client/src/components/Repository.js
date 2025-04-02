@@ -20,45 +20,44 @@ const Repository = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:3001/materials?search=${searchQuery}`, {
+      const response = await fetch(`http://192.168.101.100:3001/materials?search=${searchQuery}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
-      console.log("📢 Response Status:", response.status);
+      
       if (!response.ok) {
-        throw new Error(`❌ HTTP error! Status: ${response.status}`);
+        throw new Error(` HTTP error! Status: ${response.status}`);
       }
 
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
         const data = await response.json();
-        console.log("📢 API Response Data:", data);
+        console.log(" API Response Data:", data);
 
         if (Array.isArray(data)) {
           const filteredResults = data.filter((material) =>
             material.unit && material.unit.toLowerCase().includes(searchQuery.toLowerCase())
           );
 
-          console.log("📢 Filtered Search Results:", filteredResults);
+          
           setSearchResults(filteredResults);
         } else {
-          throw new Error("❌ Invalid response format. Expected an array.");
+          throw new Error(" Invalid response format. Expected an array.");
         }
       } else {
-        throw new Error("❌ Invalid response format. Expected JSON.");
+        throw new Error(" Invalid response format. Expected JSON.");
       }
     } catch (error) {
-      console.error("❌ Error fetching materials:", error);
+      console.error(" Error fetching materials:", error);
     }
   };
 
   const handleCourseEnter = (unitName) => {
     if (!unitName) {
-      console.error("❌ Cannot navigate, unitName is undefined.");
+      console.error(" Cannot navigate, unitName is undefined.");
       return;
     }
-    console.log("📢 Navigating to unit:", unitName);
-    navigate(`/notes/${encodeURIComponent(unitName)}`); // ✅ Matches backend route
+    console.log(" Navigating to unit:", unitName);
+    navigate(`/notes/${encodeURIComponent(unitName)}`); 
   };
 
   return (
@@ -75,13 +74,13 @@ const Repository = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <button onClick={handleSearch}>
-                <img src="http://localhost:3000/search.png" alt="Search" />
+                <img src="http://192.168.101.100:3000/search.png" alt="Search" />
               </button>
             </div>
             <div className="user">
-              <img src="http://localhost:3000/notifications.png" alt="" />
+              <img src="http://192.168.101.100:3000/notifications.png" alt="" />
               <div className="img-case">
-                <img src="http://localhost:3000/user.png" alt="" />
+                <img src="http://192.168.101.100:3000/user.png" alt="" />
               </div>
             </div>
           </div>

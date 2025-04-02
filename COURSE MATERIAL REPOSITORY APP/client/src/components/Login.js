@@ -16,8 +16,8 @@ const handleSubmit = async (e) => {
     setErrors([]);
 
     try {
-        // ✅ Ensure local session is cleared before login
-        await fetch("http://localhost:3001/logout", { 
+        
+        await fetch("http://192.168.101.100:3001/logout", { 
             method: "GET", 
             credentials: "include" 
         });
@@ -26,9 +26,9 @@ const handleSubmit = async (e) => {
         localStorage.removeItem("userEmail");
         localStorage.removeItem("userRole");
 
-        // ✅ Send login request
+        
         const result = await axios.post(
-            "http://localhost:3001/login", 
+            "http://192.168.101.100:3001/login", 
             { email, password }, 
             { withCredentials: true }
         );
@@ -36,15 +36,15 @@ const handleSubmit = async (e) => {
         console.log("🔹 Login Response:", result.data);
 
         if (result.data.token) {
-            // ✅ Store token in BOTH context & localStorage
+            
             await login(result.data.user, result.data.token);
-            console.log("✅ User logged in and set in context");
+            console.log("User logged in and set in context");
 
             localStorage.setItem("token", result.data.token);
             localStorage.setItem("userEmail", result.data.user.email);
             localStorage.setItem("userRole", result.data.user.role);
 
-            // ✅ Delay navigation slightly to ensure auth state updates
+            
             setTimeout(() => {
                 navigate(result.data.redirect);
             }, 200); // Increased delay slightly for stability
@@ -52,7 +52,7 @@ const handleSubmit = async (e) => {
             setErrors([{ msg: "Login failed. Please try again." }]);
         }
     } catch (err) {
-        console.error("❌ Login Error:", err);
+        console.error(" Login Error:", err);
         if (err.response && err.response.data) {
             setErrors(err.response.data.errors || [{ msg: "Invalid email or password." }]);
         } else {

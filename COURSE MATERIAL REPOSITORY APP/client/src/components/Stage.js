@@ -20,7 +20,7 @@ const handleRemoveUnit = (index) => {
 const handleSaveStage = async() => {
     if(!school || !stage || units.length === 0) return;
     try {
-        await axios.post('http://localhost:3001/stages', {school, stage, units});
+        await axios.post('http://192.168.101.100:3001/stages', {school, stage, units});
         setSchool('');
         setStage('');
         setUnits([]);

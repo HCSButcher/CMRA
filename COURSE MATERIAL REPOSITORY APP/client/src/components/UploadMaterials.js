@@ -10,7 +10,7 @@ const UploadMaterials = () => {
     const [uploadDate, setUploadDate] = useState('');
     const [file, setFile] = useState(null);
     const [errors, setErrors] = useState([]);
-    const [successMessage, setSuccessMessage] = useState(''); // To show success message
+    const [successMessage, setSuccessMessage] = useState(''); 
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -30,18 +30,18 @@ const UploadMaterials = () => {
         formData.append('unitName', unitName);
         formData.append('uploadDate', uploadDate);
 
-        axios.post('http://localhost:3001/upload', formData)
+        axios.post('http://192.168.101.100:3001/upload', formData)
             .then(result => {
                 console.log(result);
-                setSuccessMessage('File uploaded successfully!'); // Set success message
-                // Clear the form fields
+                setSuccessMessage('File uploaded successfully!'); 
+                
                 setName('');
                 setEmail('');
                 setUnit('');
                 setUnitName('');
                 setUploadDate('');
                 setFile(null);
-                setErrors([]); // Clear previous errors
+                setErrors([]); 
             })
             .catch(err => {
                 if (err.response && err.response.data) {

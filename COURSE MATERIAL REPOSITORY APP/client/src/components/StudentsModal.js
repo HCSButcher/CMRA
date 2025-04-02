@@ -59,19 +59,29 @@ const StudentsModal = () => {
     }
   };
 
-  const StudentDelete = (id) => {
-    axios
-      .delete(`http://localhost:3001/deleteStudent/${id}`)
-      .then(() => {
-        setStudents((prevStudents) =>
-          prevStudents.filter((student) => student._id !== id)
-        );
-        setFilteredStudents((prevStudents) =>
-          prevStudents.filter((student) => student._id !== id)
-        );
-      })
-      .catch((error) => console.error("Error deleting student", error));
-  };
+const StudentDelete = async (id) => {
+    try {
+        const response = await axios.delete(`http://localhost:3001/deleteStudent/${id}`);
+
+        if (response.status === 200) {
+            console.log("Student deleted successfully:", response.data);
+            setStudents((prevStudents) =>
+                prevStudents.filter((student) => student._id !== id)
+            );
+            setFilteredStudents((prevStudents) =>
+                prevStudents.filter((student) => student._id !== id)
+            );
+        } else {
+            console.error(" Unexpected response:", response);
+        }
+    } catch (error) {
+        console.error(" Error deleting student:", error);
+        if (error.response) {
+            console.error("Server Response:", error.response.data);
+        }
+    }
+};
+
 
   return (
     <div className="enroll-modal">

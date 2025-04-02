@@ -14,26 +14,26 @@ const Reset = () => {
 
         try {
             const result = await axios.post(
-                "http://localhost:3001/reset", 
+                "http://192.168.101.100:3001/reset", 
                 { email, password }, 
-                { withCredentials: true } // ✅ Ensure cookies are included
+                { withCredentials: true } 
             );
 
             console.log("🔹 Reset Response:", result.data);
             alert(result.data.message);
 
-            // ✅ Call logout to clear refreshToken cookie
-            await fetch("http://localhost:3001/logout", { 
+            
+            await fetch("http://192.168.101.100:3001/logout", { 
                 method: "GET", 
-                credentials: "include" // Ensure cookies are included
+                credentials: "include" 
             });
 
-            // ✅ Clear local storage
+            
             localStorage.removeItem("token");
             localStorage.removeItem("userEmail");
             localStorage.removeItem("userRole");
 
-            // ✅ Redirect to login page
+           
             navigate("/login");
         } catch (err) {
             const errorMsg = err.response?.data?.errors || [{ msg: "Something went wrong. Please try again later." }];

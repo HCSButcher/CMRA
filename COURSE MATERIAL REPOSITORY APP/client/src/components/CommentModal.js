@@ -2,24 +2,31 @@ import axios from 'axios'
 import { useState } from 'react'
 
 const CommentModal = () => {
-    const [unit, setUnit] =useState('');
+    const [unit, setUnit] = useState('');
+    const [email, setEmail] = useState('');
     const [comments, setComments] =useState('')
     const [errors, setErrors] = useState('')
     
-    const handleSubmit = (e) => {
-            e.preventDefault();
-            axios.post('http://localhost:3001/comments', {unit, comments})
-            .then (result => {
-                console.log(result)
-            })
-            .catch (err => {
-                if (err.response) {
-                    setErrors(err.response.data.errors)
-                } else {
-                    console.error('Error:', err);
-                }
-            });
-        }
+const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    axios.post('http://192.168.101.100:3001/comments', { unit, email, comments })
+        .then(result => {
+            console.log(result);
+           
+            setUnit('');
+            setEmail('');
+            setComments('');
+        })
+        .catch(err => {
+            if (err.response) {
+                setErrors(err.response.data.errors);
+            } else {
+                console.error('Error:', err);
+            }
+        });
+};
+
 
   return (
     <div>
@@ -33,8 +40,8 @@ const CommentModal = () => {
 
                         }
                     form {
-                        height: 400px;
-                        width: 360px;
+                        height: auto;
+                        width: auto;
                         background-color: rgba(255, 255, 255, 0.13);
                         position: absolute;
                         transform: translate(-50%, -50%);
@@ -55,6 +62,16 @@ const CommentModal = () => {
             <form onSubmit={handleSubmit}>
                 <h2>Comments</h2>
                
+                <label htmlFor="email">Email</label>
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Enter email"
+                        autoComplete="off"
+                        name="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
                 <label htmlFor="unit">Unit</label>
                     <input
                         type="text"

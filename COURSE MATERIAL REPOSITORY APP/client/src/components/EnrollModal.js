@@ -27,7 +27,7 @@ const EnrollModal = () => {
           return;
         }
 
-        const response = await axios.get('http://localhost:3001/getStudents', {
+        const response = await axios.get('http://192.168.101.100:3001/getStudents', {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -68,7 +68,7 @@ const EnrollModal = () => {
 
   const handleEnrollSubmit = (e) => {
     e.preventDefault();
-    if (!selectedStudent || !registrationNumber || !course || !school) {  // ✅ Ensure School is filled
+    if (!selectedStudent || !registrationNumber || !course || !school) {  
       alert('Please fill in all the fields');
       return;
     }
@@ -77,16 +77,16 @@ const EnrollModal = () => {
       email: selectedStudent.email, 
       registrationNumber,
       course,
-      school,  // ✅ Send school data to the backend
+      school,  
     };
 
     axios
-      .post('http://localhost:3001/enrollStudent', data) 
+      .post('http://192.168.101.100:3001/enrollStudent', data) 
       .then((response) => {
         alert('Student enrolled successfully');
         setRegistrationNumber('');
         setCourse('');
-        setSchool(''); // ✅ Clear school input
+        setSchool(''); 
         setSelectedStudent(null);
       })
       .catch((error) => {
@@ -155,7 +155,7 @@ text-align: center;
                  <td>
                    {student.profilePicture ? (
                       <img
-                        src={`http://localhost:3001/uploads/${student.profilePicture}?${new Date().getTime()}`}
+                        src={`http://192.168.101.100:3001/uploads/${student.profilePicture}?${new Date().getTime()}`}
                         alt="profile"
                         style={{
                           width: 50,
@@ -187,7 +187,7 @@ text-align: center;
                   <td>
                     {student.profilePicture ? (
                       <img
-                        src={`http://localhost:3001/${student.profilePicture}`}
+                        src={`http://192.168.101.100:3001/${student.profilePicture}`}
                         alt=""
                         width={50}
                       />

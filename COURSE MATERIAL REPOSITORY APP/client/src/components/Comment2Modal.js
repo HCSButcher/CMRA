@@ -10,7 +10,7 @@ const Comment2Modal = () => {
         const fetchComments = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('http://localhost:3001/comments', {
+                const response = await axios.get('http://192.168.101.100:3001/comments', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -28,7 +28,7 @@ const Comment2Modal = () => {
 
     //handle comment delete
     const commentDelete = (id) => {
-        axios.delete(`http://localhost:3001/comments/${id}`)
+        axios.delete(`http://192.168.101.100:3001/comments/${id}`)
             .then(() => {
             setComments(comments.filter(comment =>comment._id !==id ))
             })

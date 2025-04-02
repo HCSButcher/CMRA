@@ -52,8 +52,8 @@ app.use(compression())
 const dbURL = 'mongodb+srv://Butcher:Butchervybz1.@nodetuts.yzl3tct.mongodb.net/Logins?retryWrites=true&w=majority&appName=Nodetuts';
 mongoose.connect(dbURL)
 .then(() => {
-        app.listen(3001, () => {
-          console.log('Server listening on port 3001');
+        app.listen(3001,'0.0.0.0', () => {
+          console.log('Server running on http://0.0.0.0:3001');
         });
         console.log('Database Connected');
       })
@@ -534,6 +534,28 @@ app.get('/coursesReg', isAuthenticated, async (req, res) => {
     }
 });
 
+//delete
+app.delete('/deleteStudent/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: "Invalid student ID format" });
+        }
+
+        const deletedStudent = await User.findByIdAndDelete(id);
+
+        if (!deletedStudent) {
+            return res.status(404).json({ message: "Student not found" });
+        }
+
+        return res.status(200).json({ message: "Student deleted successfully", deletedStudent });
+    } catch (error) {
+        console.error("❌ Error deleting student:", error);
+        return res.status(500).json({ message: "Server error" });
+    }
+});
+
 //delete school
 app.delete('/coursesReg/:school', async (req, res) => {
     try {
@@ -740,7 +762,7 @@ app.post('/sRegistrations', async (req, res) => {
     try {
         console.log("📥 Incoming Request Body:", req.body); // ✅ Log received data
 
-        const { school, stage, sDate, unitsTaken, units } = req.body;
+        const { school, stage, sDate, unitsTaken, email, units } = req.body;
 
         if (!school || !stage || !sDate || !units || units.length === 0) {
             return res.status(400).json({ message: 'All fields are required' });
@@ -1177,10 +1199,10 @@ app.get('/download/:unitName/:fileName', isAuthenticated, async (req, res) => {
 
 //post request for comments
 app.post('/comments', async(req, res) => {
-    const {unit, comments} = req.body
+    const {unit, email, comments} = req.body
     let errors= [];
     
-    if(!unit || !comments) {
+    if(!unit || !comments || !email ) {
         errors.push({msg:'please enter all fields'});
     }
     if (errors.length > 0) {
@@ -1189,6 +1211,7 @@ app.post('/comments', async(req, res) => {
     try {      
         const Comments = new Comment({
             unit,
+            email,
             comments,
         });
         await Comments.save();
@@ -1201,13 +1224,26 @@ app.post('/comments', async(req, res) => {
 //get request for comments
 app.get('/comments', isAuthenticated, async (req, res) => {
     try {
-        const comments = await Comment.find();
+        const { role, email } = req.user; // Get user role and email from authentication middleware
+
+        let comments;
+        if (role === 'student') {
+            // Students can only see their own comments
+            comments = await Comment.find({ email });
+        } else if (['lecturer', 'admin', 'Super-admin'].includes(role)) {
+            // Lecturer, Admin, and Super-admin can see all comments
+            comments = await Comment.find();
+        } else {
+            return res.status(403).json({ error: "Access denied" });
+        }
+
         res.status(200).json(comments);
     } catch (error) {
         console.error('Error fetching comments:', error);
         res.status(500).json({ error: 'Server error' });
     }
 });
+
 
 
 //handle comments delete
