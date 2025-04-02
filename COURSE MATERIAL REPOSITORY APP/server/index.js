@@ -449,10 +449,18 @@ app.get('/getLecturers', isAuthenticated, authorizeRoles("Super-admin", "admin")
     try {
         const lecturers = await User.find(
             { role: 'lecturer' },
-            'name email contact profilePicture'  
+            'name email contact profilePicture'
         );
 
-        res.status(200).json(lecturers);  
+        // Add the full URL to the profilePicture
+        const lecturersWithImages = lecturers.map(lecturer => ({
+            ...lecturer._doc,
+            profilePicture: lecturer.profilePicture
+                ? `${req.protocol}://${req.get('host')}/${lecturer.profilePicture}`
+                : null  // Handle missing profile picture
+        }));
+
+        res.status(200).json(lecturersWithImages);
     } catch (error) {
         console.error('Error fetching lecturers:', error);
         res.status(500).json({ message: 'Server error' });

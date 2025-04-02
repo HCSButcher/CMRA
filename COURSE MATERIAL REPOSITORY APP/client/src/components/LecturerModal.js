@@ -127,22 +127,23 @@ useEffect(() => {
             ) : (
               filteredLecturers.map((lecturer) => (
                 <tr key={lecturer.email}>
-                  <td>
-                    {lecturer.profilePicture ? (
-                      <img
-                        src={`http://localhost:3001/uploads/${lecturer.profilePicture}?${new Date().getTime()}`}
-                        alt="profile"
-                        style={{
-                          width: 50,
-                          height: 50,
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                        }}
-                      />
-                    ) : (
-                      "No image"
-                    )}
-                  </td>
+                 <td>
+  {lecturer.profilePicture ? (
+    <img
+      src={`${lecturer.profilePicture}?${new Date().getTime()}`}  // Adding a timestamp to prevent caching
+      alt="profile"
+      style={{
+        width: 50,
+        height: 50,
+        borderRadius: "50%",
+        objectFit: "cover",
+      }}
+    />
+  ) : (
+    "No image"
+  )}
+</td>
+
                   <td>{lecturer.name}</td>
                   <td>{lecturer.email}</td>
                   <td>{lecturer.contact}</td>
