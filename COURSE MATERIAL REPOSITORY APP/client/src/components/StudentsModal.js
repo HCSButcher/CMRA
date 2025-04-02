@@ -16,7 +16,7 @@ const StudentsModal = () => {
           return;
         }
 
-        const response = await axios.get("http://localhost:3001/getAllStudents", {
+        const response = await axios.get("http://10.1.33.99:3001/getAllStudents", {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -61,7 +61,7 @@ const StudentsModal = () => {
 
 const StudentDelete = async (id) => {
     try {
-        const response = await axios.delete(`http://localhost:3001/deleteStudent/${id}`);
+        const response = await axios.delete(`http://10.1.33.99:3001/deleteStudent/${id}`);
 
         if (response.status === 200) {
             console.log("Student deleted successfully:", response.data);

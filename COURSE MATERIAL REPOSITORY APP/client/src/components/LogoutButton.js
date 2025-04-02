@@ -9,9 +9,9 @@ const LogoutButton = () => {
 
   const handleLogout = async () => {
     try {
-        const response = await fetch("http://192.168.101.100:3001/logout", { 
+        const response = await fetch("http://10.1.33.99:3001/logout", { 
             method: "GET", 
-            credentials: "include",  // ✅ Ensure cookies are included in request
+            credentials: "include",  
         });
 
         if (!response.ok) {

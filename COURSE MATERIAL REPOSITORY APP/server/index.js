@@ -38,7 +38,7 @@ require('./config/passport')(passport);
 
 app.use(
     cors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000','http://10.1.33.99:3000'],
     credentials: true,
     })
 );
@@ -217,8 +217,6 @@ app.post("/login", (req, res, next) => {
     });
   })(req, res, next);
 });
-
-
 
 // login authentication
 app.get("/auth/user", async (req, res) => {

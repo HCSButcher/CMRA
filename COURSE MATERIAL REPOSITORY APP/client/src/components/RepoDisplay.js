@@ -16,7 +16,7 @@ const RepoDisplay = () => {
           return;
         }
 
-        const response = await fetch(`http://192.168.101.100:3001/notes/${unitName}`, {
+        const response = await fetch(`http://10.1.33.99:3001/notes/${unitName}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         
@@ -53,7 +53,7 @@ const RepoDisplay = () => {
 
       const encodedUnitName = encodeURIComponent(unit);
       const encodedFileName = encodeURIComponent(filePath.split("/").pop());
-      const url = `http://192.168.101.100:3001/download/${encodedUnitName}/${encodedFileName}`;     
+      const url = `http://10.1.33.99:3001/download/${encodedUnitName}/${encodedFileName}`;     
 
       const response = await fetch(url, {
         method: "GET",

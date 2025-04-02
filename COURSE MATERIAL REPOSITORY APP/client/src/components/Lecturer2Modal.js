@@ -12,7 +12,7 @@ const handleSubmit = async () => {
     }
 
     try {
-        const response = await fetch(`http://192.168.101.100:3001/find?email=${encodeURIComponent(email)}`, {
+        const response = await fetch(`http://10.1.33.99:3001/find?email=${encodeURIComponent(email)}`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`,

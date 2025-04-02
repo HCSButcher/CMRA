@@ -12,7 +12,7 @@ const CourseManagement = () => {
 
 
     useEffect(() => {
-        axios.get('http://192.168.101.100:3001/coursesReg')
+        axios.get('http://10.1.33.99:3001/coursesReg')
             .then((response) => {
                 setCourses(response.data);
                 setFilteredCourses(response.data); // Initialize filtered courses
@@ -31,7 +31,7 @@ useEffect(() => {
                 return;
             }
 
-            const response = await axios.get("http://192.168.101.100:3001/courseReg", {
+            const response = await axios.get("http://10.1.33.99:3001/courseReg", {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -75,7 +75,7 @@ useEffect(() => {
     // delete school
 const handleDeleteSchool = (school) => {  
 
-    axios.delete(`http://192.168.101.100:3001/coursesReg/${school}`)
+    axios.delete(`http://10.1.33.99:3001/coursesReg/${school}`)
         .then(() => {
             setCourses(courses.filter((course) => course.school !== school));
         })
@@ -93,7 +93,7 @@ const handleDeleteSchool = (school) => {
         );
 
         // Optionally update the backend
-        axios.delete(`http://192.168.101.100:3001/deleteCourse`, { data: { school, course: courseToDelete } })
+        axios.delete(`http://10.1.33.9910.1.33.99:3001/deleteCourse`, { data: { school, course: courseToDelete } })
             .then(() => setCourses(updatedCourses))
             .catch((error) => console.error('Error deleting course:', error));
     };

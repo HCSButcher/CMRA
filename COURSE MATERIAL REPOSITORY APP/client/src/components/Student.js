@@ -50,7 +50,7 @@ const handleCourseViewDelete = (unitToDelete) => {
 
 //handle comment delete
 const commentDelete = (id) => {
-  axios.delete(`http://192.168.101.100:3001/comments/${id}`)
+  axios.delete(`http://10.1.33.99:3001/comments/${id}`)
     .then(() => {
       setComments(comments.filter(comment =>comment._id !==id))
     })
@@ -63,7 +63,7 @@ useEffect(() => {
   const fetchSRegistrations = async () => {
     try {     
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://192.168.101.100:3001/sRegistrations', {
+      const response = await axios.get('http://10.1.33.99:3001/sRegistrations', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -97,7 +97,7 @@ useEffect(() => {
       // Don't send an authorization header if there's no token
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-      const response = await axios.get('http://192.168.101.100:3001/materials?recent=true', { headers });
+      const response = await axios.get('http://10.1.33.99:3001/materials?recent=true', { headers });
 
       if (Array.isArray(response.data)) {
         setMaterials(response.data);
@@ -117,7 +117,7 @@ useEffect(() => {
   const fetchAnnouncements = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://192.168.101.100:3001/announcements', {
+      const response = await axios.get('http://10.1.33.99:3001/announcements', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -147,7 +147,7 @@ useEffect(() => {
     const fetchComments = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://192.168.101.100:3001/comments', {
+        const response = await axios.get('http://10.1.33.99:3001/comments', {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -185,10 +185,10 @@ useEffect(() => {
         </div>     
       <ul> 
         
-        <li > <a style={{color:'white'}} href ="https://kabarak.ac.ke/library" target = "_blank" rel = "noopener noreferrer" >  <img src ='http://192.168.101.100:3000/schools.png' alt =''/> &nbsp;<br /> <span>Library</span></a></li>
-          <li > <a style={{color:'white'}}  href='https://pastpapers.kabarak.ac.ke/login?next=%2F' target='blank' rel='noopener noreferrer' >  <img src ='http://192.168.101.100:3000/schools.png' alt =''/> &nbsp; <br /> <span>Past Papers</span></a> </li>
-        <li > <a style={{color:'white'}} href='https://eserver.kabarak.ac.ke/Students/' target='blank' rel='noopener noreferrer' > <img src ='http://192.168.101.100:3000/teachers.png' alt =''/> &nbsp; <br /> <span>Student Portal</span></a> </li>
-        <li   onClick={() =>handleNavigate('/repository')} >  <img src ='http://192.168.101.100:3000/students.png' alt =''/> &nbsp; <span>  Repo <br />sitory  </span>  </li>
+        <li > <a style={{color:'white'}} href ="https://kabarak.ac.ke/library" target = "_blank" rel = "noopener noreferrer" >  <img src ='http://10.1.33.99:3000/schools.png' alt =''/> &nbsp;<br /> <span>Library</span></a></li>
+          <li > <a style={{color:'white'}}  href='https://pastpapers.kabarak.ac.ke/login?next=%2F' target='blank' rel='noopener noreferrer' >  <img src ='http://10.1.33.99:3000/schools.png' alt =''/> &nbsp; <br /> <span>Past Papers</span></a> </li>
+        <li > <a style={{color:'white'}} href='https://eserver.kabarak.ac.ke/Students/' target='blank' rel='noopener noreferrer' > <img src ='http://10.1.33.99:3000/teachers.png' alt =''/> &nbsp; <br /> <span>Student Portal</span></a> </li>
+        <li   onClick={() =>handleNavigate('/repository')} >  <img src ='http://10.1.33.99:3000/students.png' alt =''/> &nbsp; <span>  Repo <br />sitory  </span>  </li>
                
       
       </ul>      
@@ -197,14 +197,14 @@ useEffect(() => {
         <div className="header"> 
           <div className="reducer">
     <button onClick={toggleSidebar} className="toggle-btn">
-  <img src="http://192.168.101.100:3000/dashboard.png" alt="Toggle Sidebar" className="toggle-icon" />
+  <img src="http://10.1.33.99:3000/dashboard.png" alt="Toggle Sidebar" className="toggle-icon" />
             </button>
             </div>
   <LogoutButton />
         <div className="user">          
           
           <div className="img-case">
-          <img src ='http://192.168.101.100:3000/user.png' alt =''/>
+          <img src ='http://10.1.33.99:3000/user.png' alt =''/>
           </div>       
     </div>
   </div>

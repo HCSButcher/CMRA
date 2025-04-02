@@ -30,7 +30,7 @@ const UploadMaterials = () => {
         formData.append('unitName', unitName);
         formData.append('uploadDate', uploadDate);
 
-        axios.post('http://192.168.101.100:3001/upload', formData)
+        axios.post('http://10.1.33.99:3001/upload', formData)
             .then(result => {
                 console.log(result);
                 setSuccessMessage('File uploaded successfully!'); 

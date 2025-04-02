@@ -20,7 +20,7 @@ const Repository = () => {
         return;
       }
 
-      const response = await fetch(`http://192.168.101.100:3001/materials?search=${searchQuery}`, {
+      const response = await fetch(`http://10.1.33.99:3001/materials?search=${searchQuery}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -74,13 +74,13 @@ const Repository = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <button onClick={handleSearch}>
-                <img src="http://192.168.101.100:3000/search.png" alt="Search" />
+                <img src="http://10.1.33.99:3000/search.png" alt="Search" />
               </button>
             </div>
             <div className="user">
-              <img src="http://192.168.101.100:3000/notifications.png" alt="" />
+              <img src="http://10.1.33.99:3000/notifications.png" alt="" />
               <div className="img-case">
-                <img src="http://192.168.101.100:3000/user.png" alt="" />
+                <img src="http://10.1.33.99:3000/user.png" alt="" />
               </div>
             </div>
           </div>

@@ -14,7 +14,7 @@ const Reset = () => {
 
         try {
             const result = await axios.post(
-                "http://192.168.101.100:3001/reset", 
+                "http://10.1.33.99:3001/reset", 
                 { email, password }, 
                 { withCredentials: true } 
             );
@@ -23,7 +23,7 @@ const Reset = () => {
             alert(result.data.message);
 
             
-            await fetch("http://192.168.101.100:3001/logout", { 
+            await fetch("http://10.1.33.99:3001/logout", { 
                 method: "GET", 
                 credentials: "include" 
             });

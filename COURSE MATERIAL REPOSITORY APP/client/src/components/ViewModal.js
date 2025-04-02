@@ -22,7 +22,7 @@ const ViewModal = () => {
     const getUnits = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://192.168.101.100:3001/materials', {
+        const response = await axios.get('http://10.1.33.99:3001/materials', {
           headers: { Authorization: `Bearer ${token}` }
         });
 
