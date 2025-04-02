@@ -11,19 +11,15 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const verifyToken = async () => {
             const storedToken = localStorage.getItem("token");
-            if (!storedToken) {
-                console.log(" No token found, logging out...");
+            if (!storedToken) {                
                 setLoading(false);
                 return logout();
             }
 
-            try {
-                console.log("🔹 Verifying token with backend...");
-                const response = await axios.get("http://10.1.33.99:3001/auth/verify", {
+            try {               
+                const response = await axios.get("http://localhost:3001/auth/verify", {
                     headers: { Authorization: `Bearer ${storedToken}` }
-                });
-
-                console.log(" Token verified:", response.data);
+                });                
                 setUser(response.data.user);
                 setToken(storedToken);
             } catch (error) {
@@ -37,15 +33,13 @@ export const AuthProvider = ({ children }) => {
         verifyToken();
     }, []);
 
-    const login = (userData, authToken) => {
-        console.log(" Logging in...");
+    const login = (userData, authToken) => {        
         setUser(userData);
         setToken(authToken);
         localStorage.setItem("token", authToken);
     };
 
-    const logout = () => {
-        console.log("🔹 Logging out...");
+    const logout = () => {       
         setUser(null);
         setToken(null);
         localStorage.removeItem("token");

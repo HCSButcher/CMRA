@@ -9,7 +9,7 @@ const LogoutButton = () => {
 
   const handleLogout = async () => {
     try {
-        const response = await fetch("http://10.1.33.99:3001/logout", { 
+        const response = await fetch("http://localhost:3001/logout", { 
             method: "GET", 
             credentials: "include",  
         });

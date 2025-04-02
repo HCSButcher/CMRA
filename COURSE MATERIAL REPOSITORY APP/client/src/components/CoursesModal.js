@@ -36,7 +36,7 @@ const CoursesModal = ({ refreshTable }) => {
             }
 
             await axios.post(
-                "http://10.1.33.99:3001/courses",
+                "http://localhost:3001/courses",
                 { stage, regDate, email, schoolUnits }, // Include email
                 {
                     headers: {

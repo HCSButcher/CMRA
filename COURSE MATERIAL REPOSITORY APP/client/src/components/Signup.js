@@ -26,7 +26,7 @@ const Signup = () => {
     formData.append('file', file);
     formData.append('contact', contact);
 
-    axios.post('http://10.1.33.99:3001/register', formData)
+    axios.post('http://localhost:3001/register', formData)
       .then(result => {
         console.log(result);
         setSuccessMessage('User registered successfully!');

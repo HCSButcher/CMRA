@@ -17,7 +17,7 @@ const handleSubmit = async (e) => {
 
     try {
         
-        await fetch("http://10.1.33.99:3001/logout", { 
+        await fetch("http://localhost:3001/logout", { 
             method: "GET", 
             credentials: "include" 
         });
@@ -28,7 +28,7 @@ const handleSubmit = async (e) => {
 
         
         const result = await axios.post(
-            "http://10.1.33.99:3001/login", 
+            "http://localhost:3001/login", 
             { email, password }, 
             { withCredentials: true }
         );

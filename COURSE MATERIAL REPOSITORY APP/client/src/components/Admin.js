@@ -52,7 +52,7 @@ const openSignupModal = () => setShowSignupModal(true);
     const fetchLecturers = async () => {
       try {
         const token = localStorage.getItem("token"); 
-        const response = await axios.get('http://10.1.33.9910.1.33.99:3001/getLecturers', {
+        const response = await axios.get('http://localhost:3001/getLecturers', {
           headers: { Authorization: `Bearer ${token}` } 
         });
 
@@ -75,7 +75,7 @@ const openSignupModal = () => setShowSignupModal(true);
     const fetchStudents = async () => {
         try {
             const token = localStorage.getItem("token"); // Retrieve the token
-            const response = await axios.get('http://10.1.33.99:3001/getStudents', {
+            const response = await axios.get('http://localhost:3001/getStudents', {
                 headers: { Authorization: `Bearer ${token}` } // Send token in headers
             });
 
@@ -96,7 +96,7 @@ const openSignupModal = () => setShowSignupModal(true);
  // Lecturer delete
 const LecturerDelete = (id) => {
   axios
-    .delete(`http://10.1.33.99:3001/getLecturers/${id}`) 
+    .delete(`http://localhost:3001/getLecturers/${id}`) 
     .then(() => {
       setLecturers(lecturers.filter((lecturer) => lecturer._id !== id));
     })
@@ -106,7 +106,7 @@ const LecturerDelete = (id) => {
 // Student delete
 const StudentDelete = (id) => {
   axios
-    .delete(`http://10.1.33.99:3001/getStudents/${id}`) 
+    .delete(`http://localhost:3001/getStudents/${id}`) 
     .then(() => {
       setStudents(students.filter((student) => student._id !== id));
     })
@@ -120,7 +120,7 @@ useEffect(() => {
   const token = localStorage.getItem("token"); // Get token from localStorage
 
   axios
-    .get("http://10.1.33.99:3001/countStudents", {
+    .get("http://localhost:3001/countStudents", {
       headers: {
         Authorization: `Bearer ${token}`, // Add Authorization header
       },
@@ -140,7 +140,7 @@ useEffect(() => {
   const token = localStorage.getItem("token"); // Get token from localStorage
 
   axios
-    .get("http://10.1.33.99:3001/countLecturers", {
+    .get("http://localhost:3001/countLecturers", {
       headers: {
         Authorization: `Bearer ${token}`, // Attach the Authorization token
       },
@@ -159,7 +159,7 @@ useEffect(() => {
   const token = localStorage.getItem("token"); // Get token from localStorage
 
   axios
-    .get("http://10.1.33.99:3001/countSchool", {
+    .get("http://localhost:3001/countSchool", {
       headers: {
         Authorization: `Bearer ${token}`, // Attach the Authorization token
       },
@@ -179,7 +179,7 @@ useEffect(() => {
   const token = localStorage.getItem("token"); // Get stored token
 
   axios
-    .get("http://10.1.33.99:3001/countCourses", {
+    .get("http://localhost:3001/countCourses", {
       headers: {
         Authorization: `Bearer ${token}`, // Attach auth token
       },
@@ -215,19 +215,19 @@ useEffect(() => {
         </div>     
       <ul>       
        
-        <li onClick={openStudent2Modal} > <img src ='http://10.1.33.99:3000/students.png' alt =''/> &nbsp; <span> Student</span></li>  
-        <li  onClick={openLecturer2Modal} > <img src ='http://10.1.33.99:3000/teachers.png' alt =''/> &nbsp; <span>Lecturer</span></li>
-        <li onClick={openCourses} > <img src ='http://10.1.33.99:3000/schools.png' alt =''/> &nbsp; <span>Courses</span></li>
-         <li onClick={openSignupModal} > <img src ='http://10.1.33.99:3000/teachers.png' alt =''/> &nbsp;<span>Add Lecturer</span> </li> 
-         <li onClick={openSignupModal} > <img src ='http://10.1.33.99:3000/students.png' alt =''/> &nbsp; <span>Add Student</span></li> 
-        <li  onClick={openEnrollModal} > <img src ='http://10.1.33.99:3000/students.png' alt =''/> &nbsp;<span>Enroll Student</span> </li>        
+        <li onClick={openStudent2Modal} > <img src ='http://localhost:3000/students.png' alt =''/> &nbsp; <span> Student</span></li>  
+        <li  onClick={openLecturer2Modal} > <img src ='http://localhost:3000/teachers.png' alt =''/> &nbsp; <span>Lecturer</span></li>
+        <li onClick={openCourses} > <img src ='http://localhost:3000/schools.png' alt =''/> &nbsp; <span>Courses</span></li>
+         <li onClick={openSignupModal} > <img src ='http://localhost:3000/teachers.png' alt =''/> &nbsp;<span>Add Lecturer</span> </li> 
+         <li onClick={openSignupModal} > <img src ='http://localhost:3000/students.png' alt =''/> &nbsp; <span>Add Student</span></li> 
+        <li  onClick={openEnrollModal} > <img src ='http://localhost:3000/students.png' alt =''/> &nbsp;<span>Enroll Student</span> </li>        
       </ul>      
   </div>
     <div className="container">
         <div className="header"> 
           <div className="reducer">
     <button onClick={toggleSidebar} className="toggle-btn">
-  <img src="http://10.1.33.99:3000/dashboard.png" alt="Toggle Sidebar" className="toggle-icon" />
+  <img src="http://localhost:3000/dashboard.png" alt="Toggle Sidebar" className="toggle-icon" />
             </button>
             </div>
   <LogoutButton />
@@ -236,7 +236,7 @@ useEffect(() => {
              
               </div>
           <div className="img-case">
-          <img src ='http://10.1.33.99:3000/user.png' alt =''/>
+          <img src ='http://localhost:3000/user.png' alt =''/>
           </div>       
     </div>
   </div>
@@ -248,7 +248,7 @@ useEffect(() => {
           <h3>Students</h3>
         </div>
         <div className="icon-case">
-        <img src ='http://10.1.33.99:3000/students.png' alt =''/>
+        <img src ='http://localhost:3000/students.png' alt =''/>
         </div>
       </div>
       <div className="card">
@@ -257,7 +257,7 @@ useEffect(() => {
           <h3>Lecturers</h3>
         </div>
         <div className="icon-case">
-        <img src ='http://10.1.33.99:3000/teachers.png' alt =''/>
+        <img src ='http://localhost:3000/teachers.png' alt =''/>
         </div>
       </div>
       <div className="card">
@@ -266,7 +266,7 @@ useEffect(() => {
           <h3>Schools</h3>
         </div>
         <div className="icon-case">
-        <img src ='http://10.1.33.99:3000/schools.png' alt =''/>
+        <img src ='http://localhost:3000/schools.png' alt =''/>
         </div>
       </div>
       <div className="card">
@@ -275,7 +275,7 @@ useEffect(() => {
           <h3>Courses</h3>
         </div>
         <div className="icon-case">
-        <img src ='http://10.1.33.99:3000/schools.png' alt =''/>
+        <img src ='http://localhost:3000/schools.png' alt =''/>
         </div>
       </div>
       

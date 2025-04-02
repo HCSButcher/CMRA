@@ -33,7 +33,7 @@ const Courses = () => {
     try {
         const token = localStorage.getItem("token");
         const response = await axios.post(
-            'http://10.1.33.9910.1.33.99:3001/coursesReg', 
+            'http://localhost:3001/coursesReg', 
             { school, courseName }, 
             { headers: { Authorization: `Bearer ${token}` } } // Sending token
         );

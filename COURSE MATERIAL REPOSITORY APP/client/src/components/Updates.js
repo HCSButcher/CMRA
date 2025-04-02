@@ -13,7 +13,7 @@ const handleSubmit = (e) => {
 
     const token = localStorage.getItem('token'); // Ensure token is stored in localStorage
 
-    axios.post('http://10.1.33.99:3001/updates', 
+    axios.post('http://localhost:3001/updates', 
         { unit, unitName, email }, // Ensure email is sent
         { headers: { Authorization: `Bearer ${token}` } } // Send token
     )

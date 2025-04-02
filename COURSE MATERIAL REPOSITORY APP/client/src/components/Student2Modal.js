@@ -13,7 +13,7 @@ const Student2Modal = ({ isOpen, onClose }) => {
         }
 
         try {
-            const response = await fetch(`http://10.1.33.99:3001/student/${encodeURIComponent(email)}`, {
+            const response = await fetch(`http://localhost:3001/student/${encodeURIComponent(email)}`, {
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("token")}`,

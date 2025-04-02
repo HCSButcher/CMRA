@@ -10,7 +10,7 @@ const CommentModal = () => {
 const handleSubmit = (e) => {
     e.preventDefault();
     
-    axios.post('http://10.1.33.99:3001/comments', { unit, email, comments })
+    axios.post('http://localhost:3001/comments', { unit, email, comments })
         .then(result => {
             console.log(result);
            

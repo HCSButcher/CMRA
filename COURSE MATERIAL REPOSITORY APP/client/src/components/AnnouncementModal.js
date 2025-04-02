@@ -19,7 +19,7 @@ const AnnouncementModal = () => {
 
         try {
             const response = await axios.post(
-                "http://10.1.33.99:3001/announcements",
+                "http://localhost:3001/announcements",
                 { unit, email, date, announcements },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

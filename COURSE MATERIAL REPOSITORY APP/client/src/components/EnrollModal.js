@@ -27,7 +27,7 @@ const EnrollModal = () => {
           return;
         }
 
-        const response = await axios.get('http://10.1.33.99:3001/getStudents', {
+        const response = await axios.get('http://localhost:3001/getStudents', {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -81,7 +81,7 @@ const EnrollModal = () => {
     };
 
     axios
-      .post('http://10.1.33.99:3001/enrollStudent', data) 
+      .post('http://localhost:3001/enrollStudent', data) 
       .then((response) => {
         alert('Student enrolled successfully');
         setRegistrationNumber('');
@@ -155,7 +155,7 @@ text-align: center;
                  <td>
                    {student.profilePicture ? (
                       <img
-                        src={`http://10.1.33.99:3001/uploads/${student.profilePicture}?${new Date().getTime()}`}
+                        src={`http://localhost:3001/uploads/${student.profilePicture}?${new Date().getTime()}`}
                         alt="profile"
                         style={{
                           width: 50,
@@ -187,7 +187,7 @@ text-align: center;
                   <td>
                     {student.profilePicture ? (
                       <img
-                        src={`http://10.1.33.99:3001/${student.profilePicture}`}
+                        src={`http://localhost:3001/${student.profilePicture}`}
                         alt=""
                         width={50}
                       />

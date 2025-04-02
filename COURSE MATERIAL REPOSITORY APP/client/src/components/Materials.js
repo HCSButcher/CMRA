@@ -9,7 +9,7 @@ const Materials = () => {
         const fetchMaterials = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios('http://10.1.33.99:3001/materials', {
+                const response = await axios('http://localhost:3001/materials', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (Array.isArray(response.data)) {
@@ -78,12 +78,12 @@ const Materials = () => {
                        <p>
                            File Path: 
                            <a 
-                               href={`http://10.1.33.99:3001/download/${material._id}`} 
+                               href={`http://localhost:3001/download/${material._id}`} 
                                className="file-link"
                                target="_blank" 
                                rel="noopener noreferrer"
                            > 
-                               <img src="http://10.1.33.99:3000/pdf.png" alt="PDF Icon" />
+                               <img src="http://localhost:3000/pdf.png" alt="PDF Icon" />
                                {material.filePath.split('/').pop()}
                            </a>
                        </p>

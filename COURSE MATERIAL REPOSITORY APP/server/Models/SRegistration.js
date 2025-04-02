@@ -11,6 +11,12 @@ const userSchema = new Schema({
     unitsTaken: {
         type: Number,
     },
+     email: {
+        type: String,
+        required: true,
+        match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email address'],        
+        lowercase: true,
+    },
 
     units: {
         type: [{ type:String}]
