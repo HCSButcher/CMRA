@@ -21,12 +21,15 @@ const LogoutButton = () => {
         throw new Error(`Logout failed: ${response.statusText}`);
       }
 
-      // ✅ Ensure local storage is cleared
+      // ✅ Clear auth context
+      logout(); // <-- This was missing
+
+      // ✅ Clear local storage
       localStorage.removeItem('token');
       localStorage.removeItem('userEmail');
       localStorage.removeItem('userRole');
 
-      // ✅ Redirect user to login page
+      // ✅ Redirect to login
       navigate('/login');
     } catch (error) {
       console.error('Error during logout:', error);
