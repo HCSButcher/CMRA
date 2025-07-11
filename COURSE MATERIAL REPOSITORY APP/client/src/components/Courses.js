@@ -1,63 +1,64 @@
-import axios from "axios";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import axios from 'axios';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CourseManagement from './CourseManagement';
 const Courses = () => {
+  const navigate = useNavigate();
+  const handleNavigate = (path) => {
+    navigate(path);
+  };
 
-    const navigate = useNavigate();
-    const handleNavigate = (path) => {
-        navigate(path);
-    };
+  const [school, setSchool] = useState('');
+  const [courseName, setCourseName] = useState([]);
+  const [newCourse, setNewCourse] = useState('');
 
-    const [school, setSchool] = useState('');
-    const [courseName, setCourseName] = useState([]);
-    const [newCourse, setNewCourse] = useState('');
+  const handleAddCourse = () => {
+    if (newCourse.trim()) {
+      setCourseName([...courseName, newCourse]);
+      setNewCourse('');
+    }
+  };
 
-    const handleAddCourse = () => {
-        if (newCourse.trim()) {
-            setCourseName([...courseName, newCourse]);
-            setNewCourse('');
-        }
-    };
-
-    const handleRemoveCourses = (index) => {
-        setCourseName(courseName.filter((_, i) => i !== index));
-    };
+  const handleRemoveCourses = (index) => {
+    setCourseName(courseName.filter((_, i) => i !== index));
+  };
 
   const handleSaveCourses = async () => {
     if (!school || courseName.length === 0) {
-        console.warn("School or Course Name is empty. Please provide values.");
-        return;
+      console.warn('School or Course Name is empty. Please provide values.');
+      return;
     }
 
     try {
-        const token = localStorage.getItem("token");
-        const response = await axios.post(
-            'http://localhost:3001/coursesReg', 
-            { school, courseName }, 
-            { headers: { Authorization: `Bearer ${token}` } } // Sending token
-        );
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        'https://project-2-1u71.onrender.com/coursesReg',
+        { school, courseName },
+        { headers: { Authorization: `Bearer ${token}` } } // Sending token
+      );
 
-        console.log("Response from server:", response.data);
+      console.log('Response from server:', response.data);
 
-        setSchool('');
-        setCourseName([]);
-        alert('School and Courses saved successfully!');
+      setSchool('');
+      setCourseName([]);
+      alert('School and Courses saved successfully!');
     } catch (error) {
-        console.error('Error saving school and courses:', error.response ? error.response.data : error.message);
+      console.error(
+        'Error saving school and courses:',
+        error.response ? error.response.data : error.message
+      );
     }
-};
+  };
 
-
-      //courseManagement modal
+  //courseManagement modal
   const [showCourseManagement, setShowCourseMAnagement] = useState(false);
   const openCourseManagement = () => setShowCourseMAnagement(true);
   const closeCourseManagement = () => setShowCourseMAnagement(false);
 
-    return (
-        <div>
-            <style>
-                {`
+  return (
+    <div>
+      <style>
+        {`
                 body {
                     font-family: Arial, sans-serif;
                     background-color: #f4f4f9;
@@ -138,74 +139,80 @@ const Courses = () => {
                     background-color: #a71d2a;
                 }
                 `}
-            </style>
+      </style>
 
-            <div className="background-1">
-                <div className="shape"></div>
-                <div className="shape"></div>
+      <div className="background-1">
+        <div className="shape"></div>
+        <div className="shape"></div>
+      </div>
+
+      <form onSubmit={(e) => e.preventDefault()}>
+        <h2>Course Management</h2>
+        <ul>
+          <li className="btn" onClick={openCourseManagement}>
+            {' '}
+            Course Management
+          </li>
+          <li className="btn" onClick={() => handleNavigate('/stages')}>
+            stage & units
+          </li>
+        </ul>
+        <label htmlFor="school">School</label>
+        <select
+          name="school"
+          id="school"
+          placeholder="Enter the school"
+          value={school}
+          onChange={(e) => setSchool(e.target.value)}
+        >
+          <option value="">Select a School</option>
+          <option value="SBE">SBE</option>
+          <option value="SSET">SSET</option>
+          <option value="SMHS">SMHS</option>
+          <option value="SMPA">SMPA</option>
+          <option value="EDUC">EDUC</option>
+          <option value="Pharmacy">Pharmacy</option>
+          <option value="Law">Law</option>
+        </select>
+
+        <label htmlFor="Courses">Courses</label>
+        <input
+          type="text"
+          value={newCourse}
+          placeholder="Add a Course"
+          onChange={(e) => setNewCourse(e.target.value)}
+        />
+        <button type="button" onClick={handleAddCourse}>
+          Add Course
+        </button>
+
+        <ul className="courses-container">
+          {courseName.map((unit, index) => (
+            <li key={index}>
+              {unit}
+              <button type="button" onClick={() => handleRemoveCourses(index)}>
+                Remove
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        <button type="button" onClick={handleSaveCourses}>
+          Save School & Courses
+        </button>
+        {showCourseManagement && (
+          <div className="modal">
+            <div className="modal-container">
+              <span className="close" onClick={closeCourseManagement}>
+                &times;{' '}
+              </span>
+              <CourseManagement closeModal={closeCourseManagement} />
             </div>
-
-            <form onSubmit={(e) => e.preventDefault()}>
-                <h2>Course Management</h2>
-                <ul>
-                <li className="btn" onClick={openCourseManagement}> Course Management</li>
-                <li className="btn" onClick={() =>handleNavigate('/stages')}>stage & units</li>
-                </ul>
-                    <label htmlFor="school">School</label>
-                <select
-                    name="school"
-                    id="school"
-                    placeholder="Enter the school"
-                    value={school}
-                    onChange={(e) => setSchool(e.target.value)}
-                >
-                    <option value="">Select a School</option>
-                    <option value="SBE">SBE</option>
-                    <option value="SSET">SSET</option>
-                    <option value="SMHS">SMHS</option>
-                    <option value="SMPA">SMPA</option>
-                    <option value="EDUC">EDUC</option>
-                    <option value="Pharmacy">Pharmacy</option>
-                    <option value="Law">Law</option>
-                </select>
-
-                <label htmlFor="Courses">Courses</label>                
-                <input
-                    type="text"
-                    value={newCourse}
-                    placeholder="Add a Course"
-                    onChange={(e) => setNewCourse(e.target.value)}
-                />
-                <button type="button" onClick={handleAddCourse}>
-                    Add Course
-                </button>
-
-                <ul className="courses-container">
-                    {courseName.map((unit, index) => (
-                        <li key={index}>
-                            {unit}
-                            <button type="button" onClick={() => handleRemoveCourses(index)}>
-                                Remove
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-
-                <button type="button" onClick={handleSaveCourses}>
-                    Save School & Courses
-                </button>
-                {showCourseManagement && (
-                    <div className="modal">
-                        <div className="modal-container">
-                            <span className="close" onClick={closeCourseManagement}>&times; </span>
-                            <CourseManagement closeModal={closeCourseManagement} />
-                        </div>
-                    </div>
-                )}               
-             
-            </form>
-        </div>
-    );
+          </div>
+        )}
+      </form>
+    </div>
+  );
 };
 
 export default Courses;

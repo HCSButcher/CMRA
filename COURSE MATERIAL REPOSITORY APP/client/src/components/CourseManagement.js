@@ -1,107 +1,150 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 const CourseManagement = () => {
+  const [courses, setCourses] = useState([]);
+  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSearchActive, setIsSearchActive] = useState(false);
 
-    const [courses, setCourses] = useState([]);
-    const [filteredCourses, setFilteredCourses] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [isSearchActive, setIsSearchActive] = useState(false);
-
-
-
-
-    useEffect(() => {
-        axios.get('http://localhost:3001/coursesReg')
-            .then((response) => {
-                setCourses(response.data);
-                setFilteredCourses(response.data); // Initialize filtered courses
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-            });
-    }, []);
-
-useEffect(() => {
+  // Fetch courses from the backend
+  useEffect(() => {
     const fetchCourses = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                console.warn("No token found. User might not be authenticated.");
-                return;
-            }
-
-            const response = await axios.get("http://localhost:3001/courseReg", {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            console.log("Response from server:", response.data);
-
-            if (Array.isArray(response.data)) {
-                setCourses(response.data);
-                setFilteredCourses(response.data);
-            } else {
-                console.error("Unexpected response format:", response.data);
-            }
-        } catch (error) {
-            console.error("Error fetching CoursesReg:", error.response ? error.response.data : error.message);
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          console.warn('No token found. User might not be authenticated.');
+          return;
         }
+
+        const response = await axios.get(
+          'https://project-2-1u71.onrender.com/coursesReg',
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        console.log('Response from server:', response.data);
+
+        if (Array.isArray(response.data)) {
+          setCourses(response.data);
+          setFilteredCourses(response.data);
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (error) {
+        console.error(
+          'Error fetching CoursesReg:',
+          error.response ? error.response.data : error.message
+        );
+      }
     };
 
     fetchCourses();
-}, []);
+  }, []);
 
+  // Handle search
+  const handleSearchChange = (e) => {
+    const searchValue = e.target.value.toLowerCase();
+    setSearchTerm(searchValue);
 
-    // Handle search
-    const handleSearchChange = (e) => {
-        const searchValue = e.target.value.toLowerCase();
-        setSearchTerm(searchValue);
+    if (searchValue === '') {
+      setIsSearchActive(false);
+      setFilteredCourses(courses); // Reset to all courses
+    } else {
+      setIsSearchActive(true);
+      setFilteredCourses(
+        courses.filter(
+          (course) =>
+            course.school?.toLowerCase().includes(searchValue) || // Ensure `school` exists
+            course.courseName?.some((c) =>
+              c.toLowerCase().includes(searchValue)
+            ) // Ensure `courseName` exists
+        )
+      );
+    }
+  };
 
-        if (searchValue === '') {
-            setIsSearchActive(false);
-            setFilteredCourses(courses); // Reset to all courses
-        } else {
-            setIsSearchActive(true);
-            setFilteredCourses(
-                courses.filter(
-                    (course) =>
-                        course.school?.toLowerCase().includes(searchValue) || // Ensure `school` exists
-                        course.courseName?.some(c => c.toLowerCase().includes(searchValue)) // Ensure `courseName` exists
-                )
-            );
+  // Delete a school and all its courses
+  const handleDeleteSchool = async (school) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn('No token found. User might not be authenticated.');
+        return;
+      }
+
+      await axios.delete(
+        `https://project-2-1u71.onrender.com/coursesReg/${school}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
-    };
+      );
 
-    // delete school
-const handleDeleteSchool = (school) => {  
+      // Update state after deletion
+      setCourses(courses.filter((course) => course.school !== school));
+      setFilteredCourses(
+        filteredCourses.filter((course) => course.school !== school)
+      );
+    } catch (error) {
+      console.error('Error deleting school:', error);
+    }
+  };
 
-    axios.delete(`http://localhost:3001/coursesReg/${school}`)
-        .then(() => {
-            setCourses(courses.filter((course) => course.school !== school));
-        })
-        .catch((error) => console.error('Error deleting school:', error));
-};
+  // Delete a specific course from a school
+  const handleDeleteCourse = async (courseToDelete) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn('No token found. User might not be authenticated.');
+        return;
+      }
 
+      await axios.delete(
+        'https://project-2-1u71.onrender.com/coursesReg/deleteCourse',
+        {
+          headers: { Authorization: `Bearer ${token}` }, // Pass the token
+          data: { course: courseToDelete }, // Send the course name in the request body
+        }
+      );
 
+      // Update UI: Remove the course from the displayed list
+      setCourses((prevCourses) =>
+        prevCourses.map((course) =>
+          course.courseName.includes(courseToDelete)
+            ? {
+                ...course,
+                courseName: course.courseName.filter(
+                  (c) => c !== courseToDelete
+                ),
+              }
+            : course
+        )
+      );
+      setFilteredCourses((prevFiltered) =>
+        prevFiltered.map((course) =>
+          course.courseName.includes(courseToDelete)
+            ? {
+                ...course,
+                courseName: course.courseName.filter(
+                  (c) => c !== courseToDelete
+                ),
+              }
+            : course
+        )
+      );
+    } catch (error) {
+      console.error(
+        'Error deleting course:',
+        error.response ? error.response.data : error.message
+      );
+    }
+  };
 
-    // Delete a specific course
-    const handleDeleteCourse = (school, courseToDelete) => {
-        const updatedCourses = courses.map((course) =>
-            course.school === school
-                ? { ...course, courseName: course.courseName.filter((c) => c !== courseToDelete) }
-                : course
-        );
-
-        // Optionally update the backend
-        axios.delete(`http://localhost:3001/deleteCourse`, { data: { school, course: courseToDelete } })
-            .then(() => setCourses(updatedCourses))
-            .catch((error) => console.error('Error deleting course:', error));
-    };
-
-    return (
-        <div className="enroll-modal">
-            <style>
-                {`
+  return (
+    <div className="enroll-modal">
+      <style>
+        {`
                 body {
                     background-color: #080710;
                 }
@@ -129,8 +172,8 @@ const handleDeleteSchool = (school) => {
                     text-align: left;
                 }
 
-                .student-table th , .student-table td , li{
-                color: #080710;
+                .student-table th, .student-table td, li {
+                    color: #080710;
                     background-color: #f2f2f2;
                 }
 
@@ -148,77 +191,75 @@ const handleDeleteSchool = (school) => {
                     background-color: #0056b3;
                 }
                 `}
-            </style>
+      </style>
 
-            <h2>Course Management</h2>
-            <input
-                type="text"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                placeholder="Search by school or course"
-                className="search-bar"
-            />
-            <div className="table-container">
-                <table className="student-table">
-                    <thead>
-                        <tr>
-                            <th>School</th>
-                            <th>Courses</th>
-                            <th>Options</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredCourses.length > 0 ? (
-                            filteredCourses.map((schoolData) => (
-                                <tr key={schoolData.school}>
-                                    <td>
-                                        {schoolData.school}
-                                       
-                                    </td>
-                                    <td>
-                                        <ul>
-                                            {/* Ensure that courseName is an array before mapping */}
-                                            {Array.isArray(schoolData.courseName) && schoolData.courseName.length > 0 ? (
-                                                schoolData.courseName.map((course) => (
-                                                    <li key={course}>
-                                                        {course}
-                                                        <button
-                                                            className="btn"
-                                                            onClick={() =>
-                                                                handleDeleteCourse(schoolData.school, course)
-                                                            }
-                                                        >
-                                                            Delete
-                                                        </button>
-                                                    </li>
-                                                ))
-                                            ) : (
-                                                <li>No courses available</li>
-                                            )}
-                                        </ul>
-                                    </td>
-                                    <td>
-                                         <button
-                                            className="btn"
-                                            onClick={() => handleDeleteSchool(schoolData.school)}
-                                        >
-                                            Delete <br/>School
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="3" style={{ textAlign: 'center' }}>
-                                    No courses registered
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
+      <h2>Course Management</h2>
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={handleSearchChange}
+        placeholder="Search by school or course"
+        className="search-bar"
+      />
+      <div className="table-container">
+        <table className="student-table">
+          <thead>
+            <tr>
+              <th>School</th>
+              <th>Courses</th>
+              <th>Options</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredCourses.length > 0 ? (
+              filteredCourses.map((schoolData) => (
+                <tr key={schoolData.school}>
+                  <td>{schoolData.school}</td>
+                  <td>
+                    <ul>
+                      {Array.isArray(schoolData.courseName) &&
+                      schoolData.courseName.length > 0 ? (
+                        schoolData.courseName.map((course) => (
+                          <li key={course}>
+                            {course}
+                            <button
+                              className="btn"
+                              onClick={() =>
+                                handleDeleteCourse(schoolData.school, course)
+                              }
+                            >
+                              Delete
+                            </button>
+                          </li>
+                        ))
+                      ) : (
+                        <li>No courses available</li>
+                      )}
+                    </ul>
+                  </td>
+                  <td>
+                    <button
+                      className="btn"
+                      onClick={() => handleDeleteSchool(schoolData.school)}
+                    >
+                      Delete <br />
+                      School
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="3" style={{ textAlign: 'center' }}>
+                  No courses registered
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 };
 
 export default CourseManagement;

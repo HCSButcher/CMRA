@@ -1,7 +1,7 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useAuth } from "../context/AuthContext";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const LogoutButton = () => {
   const navigate = useNavigate();
@@ -9,26 +9,29 @@ const LogoutButton = () => {
 
   const handleLogout = async () => {
     try {
-        const response = await fetch("http://localhost:3001/logout", { 
-            method: "GET", 
-            credentials: "include",  
-        });
-
-        if (!response.ok) {
-            throw new Error(`Logout failed: ${response.statusText}`);
+      const response = await fetch(
+        'https://project-2-1u71.onrender.com/logout',
+        {
+          method: 'GET',
+          credentials: 'include',
         }
+      );
 
-        // ✅ Ensure local storage is cleared
-        localStorage.removeItem("token");
-        localStorage.removeItem("userEmail");
-        localStorage.removeItem("userRole");
+      if (!response.ok) {
+        throw new Error(`Logout failed: ${response.statusText}`);
+      }
 
-        // ✅ Redirect user to login page
-        navigate("/login");
+      // ✅ Ensure local storage is cleared
+      localStorage.removeItem('token');
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userRole');
+
+      // ✅ Redirect user to login page
+      navigate('/login');
     } catch (error) {
-        console.error("Error during logout:", error);
+      console.error('Error during logout:', error);
     }
-};
+  };
 
   return (
     <>
@@ -54,7 +57,9 @@ const LogoutButton = () => {
           }
         `}
       </style>
-      <button className="btn-1" onClick={handleLogout}>Log out</button>
+      <button className="btn-1" onClick={handleLogout}>
+        Log out
+      </button>
     </>
   );
 };

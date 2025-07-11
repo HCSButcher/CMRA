@@ -1,38 +1,41 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const StudentsModal = () => {
   const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
 
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem('token');
         if (!token) {
-          console.warn("No token found. User might not be authenticated.");
+          console.warn('No token found. User might not be authenticated.');
           return;
         }
 
-        const response = await axios.get("http://localhost:3001/getAllStudents", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await axios.get(
+          'https://project-2-1u71.onrender.com/getAllStudents',
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-        console.log("Response Status:", response.status);
-        console.log("API Response Data:", response.data);
+        console.log('Response Status:', response.status);
+        console.log('API Response Data:', response.data);
 
         if (Array.isArray(response.data)) {
           setStudents(response.data);
           setFilteredStudents(response.data);
         } else {
-          console.error("Unexpected response format:", response.data);
+          console.error('Unexpected response format:', response.data);
         }
       } catch (error) {
-        console.error("Error fetching students:", error);
+        console.error('Error fetching students:', error);
         if (error.response) {
-          console.error("Server Response:", error.response.data);
+          console.error('Server Response:', error.response.data);
         }
       }
     };
@@ -44,7 +47,7 @@ const StudentsModal = () => {
     const searchValue = e.target.value.toLowerCase();
     setSearchTerm(searchValue);
 
-    if (searchValue === "") {
+    if (searchValue === '') {
       setIsSearchActive(false);
       setFilteredStudents(students);
     } else {
@@ -59,29 +62,30 @@ const StudentsModal = () => {
     }
   };
 
-const StudentDelete = async (id) => {
+  const StudentDelete = async (id) => {
     try {
-        const response = await axios.delete(`http://localhost:3001/deleteStudent/${id}`);
+      const response = await axios.delete(
+        `https://project-2-1u71.onrender.com/deleteStudent/${id}`
+      );
 
-        if (response.status === 200) {
-            console.log("Student deleted successfully:", response.data);
-            setStudents((prevStudents) =>
-                prevStudents.filter((student) => student._id !== id)
-            );
-            setFilteredStudents((prevStudents) =>
-                prevStudents.filter((student) => student._id !== id)
-            );
-        } else {
-            console.error(" Unexpected response:", response);
-        }
+      if (response.status === 200) {
+        console.log('Student deleted successfully:', response.data);
+        setStudents((prevStudents) =>
+          prevStudents.filter((student) => student._id !== id)
+        );
+        setFilteredStudents((prevStudents) =>
+          prevStudents.filter((student) => student._id !== id)
+        );
+      } else {
+        console.error(' Unexpected response:', response);
+      }
     } catch (error) {
-        console.error(" Error deleting student:", error);
-        if (error.response) {
-            console.error("Server Response:", error.response.data);
-        }
+      console.error(' Error deleting student:', error);
+      if (error.response) {
+        console.error('Server Response:', error.response.data);
+      }
     }
-};
-
+  };
 
   return (
     <div className="enroll-modal">
@@ -147,24 +151,27 @@ const StudentDelete = async (id) => {
                   <td>
                     {student.profilePicture ? (
                       <img
-                        src={`http://localhost:3001/uploads/${student.profilePicture}?${new Date().getTime()}`}
+                        src={`https://project-2-1u71.onrender.com/uploads/${
+                          student.profilePicture
+                        }?${new Date().getTime()}`}
                         alt="profile"
                         style={{
                           width: 50,
                           height: 50,
-                          borderRadius: "50%",
-                          objectFit: "cover",
+                          borderRadius: '50%',
+                          objectFit: 'cover',
                         }}
                       />
                     ) : (
-                      "No image"
+                      'No image'
                     )}
                   </td>
                   <td>{student.name}</td>
                   <td>{student.email}</td>
                   <td>{student.registrationNumber}</td>
                   <td>{student.course}</td>
-                  <td>{student.school || "N/A"}</td> {/* ✅ Added School Data */}
+                  <td>{student.school || 'N/A'}</td>{' '}
+                  {/* ✅ Added School Data */}
                   <td>{student.contact}</td>
                   <td>
                     <button

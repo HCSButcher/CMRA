@@ -1,50 +1,37 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useState } from 'react';
+import axios from 'axios';
 
 const Reset = () => {
-    const navigate = useNavigate();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [errors, setErrors] = useState([]);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState([]);
+  const [successMessage, setSuccessMessage] = useState('');
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setErrors([]);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrors([]);
+    setSuccessMessage('');
 
-        try {
-            const result = await axios.post(
-                "http://localhost:3001/reset", 
-                { email, password }, 
-                { withCredentials: true } 
-            );
+    try {
+      const result = await axios.post(
+        'https://project-2-1u71.onrender.com/reset',
+        { email, password } // No authentication required
+      );
 
-            console.log("🔹 Reset Response:", result.data);
-            alert(result.data.message);
+      console.log('🔹 Reset Response:', result.data);
+      setSuccessMessage(result.data.message);
+    } catch (err) {
+      const errorMsg = err.response?.data?.errors || [
+        { msg: 'Something went wrong. Please try again later.' },
+      ];
+      setErrors(errorMsg);
+      console.error('Error:', err);
+    }
+  };
 
-            
-            await fetch("http://localhost:3001/logout", { 
-                method: "GET", 
-                credentials: "include" 
-            });
-
-            
-            localStorage.removeItem("token");
-            localStorage.removeItem("userEmail");
-            localStorage.removeItem("userRole");
-
-           
-            navigate("/login");
-        } catch (err) {
-            const errorMsg = err.response?.data?.errors || [{ msg: "Something went wrong. Please try again later." }];
-            setErrors(errorMsg);
-            console.error("Error:", err);
-        }
-    };
-
-    return (
-        <div>
-            <style>{`
+  return (
+    <div>
+      <style>{`
                 body { background-color: #080710; }
                 h1, h2, p { color: #ffffff; text-align: center; }
                 .background { width: 430px; height: 520px; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
@@ -57,40 +44,45 @@ const Reset = () => {
                 button { margin-top: 30px; padding: 10px; font-size: 18px; }
             `}</style>
 
-            <div className="background">
-                <div className="shape"></div>
-                <div className="shape"></div>
-            </div>
-            <h1>Course Material Repository App</h1>
-            <form onSubmit={handleSubmit}>
-                <h2>Reset Password</h2>
-                <label>Email</label>
-                <input 
-                    type="email" 
-                    placeholder="Enter email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    required 
-                />
-                <label>New Password</label>
-                <input 
-                    type="password" 
-                    placeholder="Enter new password" 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    required 
-                />
-                <button type="submit">Change Password</button>
-                {errors.length > 0 && (
-                    <ul>
-                        {errors.map((err, idx) => (
-                            <li key={idx} style={{ color: 'red' }}>{err.msg}</li>
-                        ))}
-                    </ul>
-                )}
-            </form>
-        </div>
-    );
+      <div className="background">
+        <div className="shape"></div>
+        <div className="shape"></div>
+      </div>
+      <h1>Course Material Repository App</h1>
+      <form onSubmit={handleSubmit}>
+        <h2>Reset Password</h2>
+        <label>Email</label>
+        <input
+          type="email"
+          placeholder="Enter email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <label>New Password</label>
+        <input
+          type="password"
+          placeholder="Enter new password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Change Password</button>
+
+        {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
+
+        {errors.length > 0 && (
+          <ul>
+            {errors.map((err, idx) => (
+              <li key={idx} style={{ color: 'red' }}>
+                {err.msg}
+              </li>
+            ))}
+          </ul>
+        )}
+      </form>
+    </div>
+  );
 };
 
 export default Reset;

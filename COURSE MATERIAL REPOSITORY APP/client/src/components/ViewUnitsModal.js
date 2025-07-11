@@ -6,11 +6,12 @@ const ViewUnitsModal = () => {
 
   // Fetch registrations
   useEffect(() => {
-    axios.get('http://localhost:3001/sRegistrations')
-      .then(response => {
+    axios
+      .get('https://project-2-1u71.onrender.com/sRegistrations')
+      .then((response) => {
         setUnits(response.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching data:', error);
       });
   }, []);
@@ -19,9 +20,12 @@ const ViewUnitsModal = () => {
     const getUnits = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3001/sRegistrations', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await axios.get(
+          'https://project-2-1u71.onrender.com/sRegistrations',
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         if (Array.isArray(response.data)) {
           setUnits(response.data);
         } else {
@@ -34,19 +38,23 @@ const ViewUnitsModal = () => {
     getUnits();
   }, []);
 
-//registration delete
-const dropUnit = (registrationId, unit) => {
-  axios.delete(`http://localhost:3001/sRegistrations/${registrationId}/${unit}`)
-    .then(() => {
-      setUnits(units.map(u => 
-        u._id === registrationId 
-          ? { ...u, units: u.units.filter(uName => uName !== unit) } 
-          : u
-      ));
-    })
-    .catch(error => console.error('Error deleting unit:', error));
-};
-
+  //registration delete
+  const dropUnit = (registrationId, unit) => {
+    axios
+      .delete(
+        `https://project-2-1u71.onrender.com/sRegistrations/${registrationId}/${unit}`
+      )
+      .then(() => {
+        setUnits(
+          units.map((u) =>
+            u._id === registrationId
+              ? { ...u, units: u.units.filter((uName) => uName !== unit) }
+              : u
+          )
+        );
+      })
+      .catch((error) => console.error('Error deleting unit:', error));
+  };
 
   return (
     <div>
@@ -104,20 +112,24 @@ const dropUnit = (registrationId, unit) => {
         <form action="">
           <h2>Units Registered</h2>
           <ul className="unit-list">
-            {units.map((registration) => (
+            {units.map((registration) =>
               registration.units.map((individualUnit, index) => (
                 <li key={`${registration._id}-${index}`} className="unit-item">
                   <span>{individualUnit}</span>
-                  <li className="btn" 
-                  onClick={() => dropUnit(registration._id, individualUnit)}>Drop Unit</li>
+                  <li
+                    className="btn"
+                    onClick={() => dropUnit(registration._id, individualUnit)}
+                  >
+                    Drop Unit
+                  </li>
                 </li>
               ))
-            ))}
+            )}
           </ul>
         </form>
       </div>
     </div>
   );
-}
+};
 
 export default ViewUnitsModal;

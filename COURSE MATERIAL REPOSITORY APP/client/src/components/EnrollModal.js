@@ -9,38 +9,44 @@ const EnrollModal = () => {
     navigate(path);
   };
 
-  const [students, setStudents] = useState([]); 
-  const [filteredStudents, setFilteredStudents] = useState([]); 
-  const [searchTerm, setSearchTerm] = useState(''); 
-  const [registrationNumber, setRegistrationNumber] = useState(''); 
-  const [course, setCourse] = useState(''); 
+  const [students, setStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [registrationNumber, setRegistrationNumber] = useState('');
+  const [course, setCourse] = useState('');
   const [school, setSchool] = useState(''); // ✅ Added state for School
-  const [selectedStudent, setSelectedStudent] = useState(null); 
-  const [isSearchActive, setIsSearchActive] = useState(false); 
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [isSearchActive, setIsSearchActive] = useState(false);
 
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem('token');
         if (!token) {
-          console.warn("No token found. User might not be authenticated.");
+          console.warn('No token found. User might not be authenticated.');
           return;
         }
 
-        const response = await axios.get('http://localhost:3001/getStudents', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await axios.get(
+          'https://project-2-1u71.onrender.com/getStudents',
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-        console.log("Response from server:", response.data);
+        console.log('Response from server:', response.data);
 
         if (Array.isArray(response.data)) {
           setStudents(response.data);
           setFilteredStudents(response.data);
         } else {
-          console.error("Unexpected response format:", response.data);
+          console.error('Unexpected response format:', response.data);
         }
       } catch (error) {
-        console.error('Error fetching students:', error.response ? error.response.data : error.message);
+        console.error(
+          'Error fetching students:',
+          error.response ? error.response.data : error.message
+        );
       }
     };
 
@@ -68,25 +74,25 @@ const EnrollModal = () => {
 
   const handleEnrollSubmit = (e) => {
     e.preventDefault();
-    if (!selectedStudent || !registrationNumber || !course || !school) {  
+    if (!selectedStudent || !registrationNumber || !course || !school) {
       alert('Please fill in all the fields');
       return;
     }
 
     const data = {
-      email: selectedStudent.email, 
+      email: selectedStudent.email,
       registrationNumber,
       course,
-      school,  
+      school,
     };
 
     axios
-      .post('http://localhost:3001/enrollStudent', data) 
+      .post('https://project-2-1u71.onrender.com/enrollStudent', data)
       .then((response) => {
         alert('Student enrolled successfully');
         setRegistrationNumber('');
         setCourse('');
-        setSchool(''); 
+        setSchool('');
         setSelectedStudent(null);
       })
       .catch((error) => {
@@ -124,10 +130,12 @@ text-align: center;
 }
         `}
       </style>
-     
+
       <h2>Enroll Student</h2>
       <ul>
-        <li className ='btn-e' onClick={() =>handleNavigate('/enroll')} >View Page</li>
+        <li className="btn-e" onClick={() => handleNavigate('/enroll')}>
+          View Page
+        </li>
       </ul>
       <input
         type="text"
@@ -147,66 +155,66 @@ text-align: center;
             </tr>
           </thead>
           <tbody>
-            {filteredStudents.length === 0 && !isSearchActive ? (
-              students.map((student) => (
-                <tr key={student.email}>
-                  <td>{student.name}</td>
-                  <td>{student.email}</td>
-                 <td>
-                   {student.profilePicture ? (
-                      <img
-                        src={`http://localhost:3001/uploads/${student.profilePicture}?${new Date().getTime()}`}
-                        alt="profile"
-                        style={{
-                          width: 50,
-                          height: 50,
-                          borderRadius: '50%',
-                          objectFit: 'cover'
-                        }}
-                      />
-                    ) : (
-                      'No image'
-                    )}
-                  </td>
-                  <td>
-                    <button
-                      className="btn"
-                      onClick={() => setSelectedStudent(student)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      Select for enrollment
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              filteredStudents.map((student) => (
-                <tr key={student.email}>
-                  <td>{student.name}</td>
-                  <td>{student.email}</td>
-                  <td>
-                    {student.profilePicture ? (
-                      <img
-                        src={`http://localhost:3001/${student.profilePicture}`}
-                        alt=""
-                        width={50}
-                      />
-                    ) : (
-                      'No image'
-                    )}
-                  </td>
-                  <td>
-                    <button
-                      className="btn"
-                      onClick={() => setSelectedStudent(student)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      Select for enrollment
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
+            {filteredStudents.length === 0 && !isSearchActive
+              ? students.map((student) => (
+                  <tr key={student.email}>
+                    <td>{student.name}</td>
+                    <td>{student.email}</td>
+                    <td>
+                      {student.profilePicture ? (
+                        <img
+                          src={`https://project-2-1u71.onrender.com/uploads/${
+                            student.profilePicture
+                          }?${new Date().getTime()}`}
+                          alt="profile"
+                          style={{
+                            width: 50,
+                            height: 50,
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                          }}
+                        />
+                      ) : (
+                        'No image'
+                      )}
+                    </td>
+                    <td>
+                      <button
+                        className="btn"
+                        onClick={() => setSelectedStudent(student)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Select for enrollment
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              : filteredStudents.map((student) => (
+                  <tr key={student.email}>
+                    <td>{student.name}</td>
+                    <td>{student.email}</td>
+                    <td>
+                      {student.profilePicture ? (
+                        <img
+                          src={`https://project-2-1u71.onrender.com/${student.profilePicture}`}
+                          alt=""
+                          width={50}
+                        />
+                      ) : (
+                        'No image'
+                      )}
+                    </td>
+                    <td>
+                      <button
+                        className="btn"
+                        onClick={() => setSelectedStudent(student)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Select for enrollment
+                      </button>
+                    </td>
+                  </tr>
+                ))}
           </tbody>
         </table>
       </div>
@@ -214,14 +222,14 @@ text-align: center;
       {selectedStudent ? (
         <div className="enroll-form">
           <h3>Enroll {selectedStudent.name}</h3>
-          
+
           <form onSubmit={handleEnrollSubmit}>
             <div>
               <label>Registration Number</label>
               <input
                 type="text"
-                id='registrationNumber'
-                name='registrationNumber'
+                id="registrationNumber"
+                name="registrationNumber"
                 value={registrationNumber}
                 onChange={(e) => setRegistrationNumber(e.target.value)}
                 required
@@ -231,21 +239,21 @@ text-align: center;
               <label>Course</label>
               <input
                 type="text"
-                id='course'
-                name='course'
+                id="course"
+                name="course"
                 value={course}
                 onChange={(e) => setCourse(e.target.value)}
                 required
               />
             </div>
-            <div> 
-              <label>School</label> 
+            <div>
+              <label>School</label>
               <input
                 type="text"
-                id='school'
-                name='school'
+                id="school"
+                name="school"
                 value={school}
-                onChange={(e) => setSchool(e.target.value)} 
+                onChange={(e) => setSchool(e.target.value)}
                 required
               />
             </div>

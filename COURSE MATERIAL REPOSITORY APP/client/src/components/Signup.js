@@ -26,8 +26,9 @@ const Signup = () => {
     formData.append('file', file);
     formData.append('contact', contact);
 
-    axios.post('http://localhost:3001/register', formData)
-      .then(result => {
+    axios
+      .post('https://project-2-1u71.onrender.com/register', formData)
+      .then((result) => {
         console.log(result);
         setSuccessMessage('User registered successfully!');
         setName('');
@@ -37,9 +38,11 @@ const Signup = () => {
         setFile(null);
         setErrors([]);
       })
-      .catch(err => {
+      .catch((err) => {
         if (err.response && err.response.data) {
-          const errorMessage = err.response.data.errors || [{ msg: 'Upload failed' }];
+          const errorMessage = err.response.data.errors || [
+            { msg: 'Upload failed' },
+          ];
           setErrors(errorMessage);
         } else {
           setErrors([{ msg: 'Upload failed' }]);
@@ -233,11 +236,11 @@ const Signup = () => {
       <form onSubmit={handleSubmit}>
         <h2>Create Account</h2>
         <label htmlFor="file">Profile Picture</label>
-        <input 
+        <input
           type="file"
-          id='file'
-          accept='.pdf, .png, .jpg, .mp4'
-          name='file'
+          id="file"
+          accept=".pdf, .png, .jpg, .mp4"
+          name="file"
           onChange={(e) => setFile(e.target.files[0])}
         />
 
@@ -250,7 +253,7 @@ const Signup = () => {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        
+
         <label htmlFor="email">Email</label>
         <input
           type="email"
@@ -260,7 +263,7 @@ const Signup = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        
+
         <label htmlFor="contact">Contact</label>
         <input
           type="text"

@@ -1,30 +1,32 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import UploadModal from './UploadMaterials'
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import UploadModal from './UploadMaterials';
 
 const ViewModal = () => {
   const [units, setUnits] = useState([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [showViewModal, setShowViewModal] = useState(true); 
+  const [showViewModal, setShowViewModal] = useState(true);
 
   const openUploadModal = () => {
-    setShowViewModal(false); 
-    setShowUploadModal(true); 
+    setShowViewModal(false);
+    setShowUploadModal(true);
   };
 
   const closeUploadModal = () => {
-    setShowUploadModal(false); 
-    setShowViewModal(true); 
+    setShowUploadModal(false);
+    setShowViewModal(true);
   };
-
 
   useEffect(() => {
     const getUnits = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3001/materials', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await axios.get(
+          'https://project-2-1u71.onrender.com/materials',
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         if (Array.isArray(response.data)) {
           setUnits(response.data);
@@ -151,7 +153,11 @@ const ViewModal = () => {
                     <td>{unit.unit}</td>
                     <td>{unit.name}</td>
                     <td>
-                      <button className="btn" type="button" onClick={openUploadModal}>
+                      <button
+                        className="btn"
+                        type="button"
+                        onClick={openUploadModal}
+                      >
                         Add
                       </button>
                     </td>
