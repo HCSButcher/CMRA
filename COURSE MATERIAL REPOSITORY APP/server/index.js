@@ -36,7 +36,7 @@ require("./config/passport")(passport);
 
 app.use(
   cors({
-    origin: "https://project-2-1u71.onrender.com",
+    origin: "https://project-2-1-fq45.onrender.com",
     credentials: true,
   })
 );
@@ -929,12 +929,10 @@ app.post("/courses", isAuthenticated, async (req, res) => {
       ];
       existingCourseRegistration.regDate = regDate; // Update the registration date
       await existingCourseRegistration.save();
-      return res
-        .status(200)
-        .json({
-          msg: "Course registration updated successfully",
-          existingCourseRegistration,
-        });
+      return res.status(200).json({
+        msg: "Course registration updated successfully",
+        existingCourseRegistration,
+      });
     }
 
     const courseRegistration = new CourseRegistration({
@@ -945,12 +943,10 @@ app.post("/courses", isAuthenticated, async (req, res) => {
     });
 
     await courseRegistration.save();
-    return res
-      .status(200)
-      .json({
-        msg: "Course registration created successfully",
-        courseRegistration,
-      });
+    return res.status(200).json({
+      msg: "Course registration created successfully",
+      courseRegistration,
+    });
   } catch (err) {
     console.error("Error creating/updating course registration:", err);
     res.status(500).send("Server error");
