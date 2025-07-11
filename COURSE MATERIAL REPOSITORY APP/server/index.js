@@ -358,36 +358,31 @@ app.get("/logout", (req, res) => {
 
 
 // Post request for password reset
-app.post("/reset", async (req, res) => {    
+app.post('/reset', async (req, res) => {
+    const { email, password } = req.body;
 
     try {
-        const { email, password } = req.body;
-
-        if (!email || !password) {
-            return res.status(400).json({ errors: [{ msg: "Email and new password are required." }] });
-        }
-        
+        // Check if the user exists
         const user = await User.findOne({ email });
-        if (!user) {            
-            return res.status(404).json({ errors: [{ msg: "No account with that email exists." }] });       }
+        if (!user) {
+            return res.status(404).json({ errors: [{ msg: 'User not found' }] });
+        }
 
-        
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await User.updateOne({ email }, { $set: { password: hashedPassword } });
-                
-        res.clearCookie("refreshToken", {
-            httpOnly: true,
-            secure: true,
-            sameSite: "Strict",
-        });
+        // Hash the new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-        return res.json({ message: " Password reset successful! Redirecting to login..." });
+        // Update the password
+        user.password = hashedPassword;
+        await user.save();
 
-    } catch (err) {
-        console.error(" Error resetting password:", err);
-        return res.status(500).json({ errors: [{ msg: "An error occurred. Please try again later." }] });
+        res.status(200).json({ message: 'Password changed successfully' });
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        res.status(500).json({ errors: [{ msg: 'Internal server error' }] });
     }
 });
+
 
 
 
@@ -578,8 +573,39 @@ app.delete('/deleteStudent/:id', async (req, res) => {
     }
 });
 
+//delete individual course
+app.delete("/coursesReg/deleteCourse", isAuthenticated, async (req, res) => {
+    try {
+        const { course } = req.body; // Get course from request body
+
+        if (!course) {
+            return res.status(400).json({ error: "Course name is required" });
+        }
+
+        // Find the document containing the course and remove it from courseName array
+        const updatedSchool = await UnitStage.findOneAndUpdate(
+            { courseName: course }, // Find a document where courseName contains the course
+            { $pull: { courseName: course } }, // Remove the course from the array
+            { new: true } // Return updated document
+        );
+
+        if (!updatedSchool) {
+            return res.status(404).json({ message: `Course "${course}" not found` });
+        }
+
+        return res.status(200).json({
+            message: `Course "${course}" deleted successfully.`,
+            updatedSchool,
+        });
+    } catch (error) {
+        console.error("Error deleting course:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+
 //delete school
-app.delete('/coursesReg/:school', async (req, res) => {
+app.delete("/coursesReg/:school", isAuthenticated, async (req, res) => {
     try {
         const { school } = req.params;
 
@@ -587,41 +613,35 @@ app.delete('/coursesReg/:school', async (req, res) => {
         const deletedSchool = await UnitStage.findOneAndDelete({ school });
 
         if (!deletedSchool) {
-            return res.status(404).json({ message: 'School not found' });
+            return res.status(404).json({ message: "School not found" });
         }
 
-        res.status(200).json({ message: 'School and its courses deleted successfully', deletedSchool });
-    } catch (error) {
-        console.error('Error deleting school:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
-
-//delete individual course
-app.delete('/deleteCourse', async (req, res) => {
-    const { school, course } = req.body;
-    if (!school || !course) {
-        return res.status(400).json({ error: "Both 'school' and 'course' are required" });
-    }
-
-    try {
-        const updatedCourse = await UnitStage.findOneAndUpdate(
-            { school },
-            { $pull: { courseName: course } },
-            { new: true }
-        );
-        if (!updatedCourse) {
-            return res.status(400).json({ message: 'School not found or course does not exist' });
-        }
-        return res.status(200).json({
-            message: ` course"${course} "deleted successfully from "${school}." `,
-            updatedSchool: updatedCourse
+        res.status(200).json({
+            message: `School "${school}" and its courses deleted successfully`,
+            deletedSchool,
         });
     } catch (error) {
-        console.error('Error deleting course:', error);
-        return res.status(500).json({ error: 'Internal server error' });
+        console.error("Error deleting school:", error);
+        res.status(500).json({ message: "Server error" });
     }
 });
+
+
+//get user
+app.get('/user', isAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('email role'); // Fetch user email & role
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.json(user);
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+
 
 
 // endpoint for update
