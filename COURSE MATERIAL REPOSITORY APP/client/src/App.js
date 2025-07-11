@@ -42,7 +42,10 @@ const App = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch('/api/messages', { credentials: 'include' });
+        const response = await fetch(
+          'https://project-2-1u71.onrender.com/api/messages',
+          { credentials: 'include' }
+        );
 
         if (!response.ok) {
           throw new Error('Failed to fetch messages');
@@ -66,28 +69,43 @@ const App = () => {
     <BrowserRouter>
       <AuthProvider>
         <TokenRedirect /> {/* ✅ Moved inside BrowserRouter */}
-        <Alert type="success" messages={messages.success_msg ? [messages.success_msg] : []} />
-        <Alert type="danger" messages={messages.error_msg ? [messages.error_msg] : []} />
+        <Alert
+          type="success"
+          messages={messages.success_msg ? [messages.success_msg] : []}
+        />
+        <Alert
+          type="danger"
+          messages={messages.error_msg ? [messages.error_msg] : []}
+        />
         <Alert type="warning" messages={messages.errors} />
-
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Signup />} />
-
-          <Route element={<ProtectedRoute allowedRoles={['admin', 'Super-admin']} />}>
+          <Route
+            element={<ProtectedRoute allowedRoles={['admin', 'Super-admin']} />}
+          >
             <Route path="/admin" element={<Admin />} />
           </Route>
-
-          <Route element={<ProtectedRoute allowedRoles={['student', 'admin', 'Super-admin']} />}>
+          <Route
+            element={
+              <ProtectedRoute
+                allowedRoles={['student', 'admin', 'Super-admin']}
+              />
+            }
+          >
             <Route path="/student" element={<Student />} />
           </Route>
-
-          <Route element={<ProtectedRoute allowedRoles={['lecturer', 'admin', 'Super-admin']} />}>
+          <Route
+            element={
+              <ProtectedRoute
+                allowedRoles={['lecturer', 'admin', 'Super-admin']}
+              />
+            }
+          >
             <Route path="/lecturer" element={<Lecturer />} />
           </Route>
-
-          <Route path="/reset" element={<Reset />} />                
+          <Route path="/reset" element={<Reset />} />
           <Route path="/materials" element={<Materials />} />
           <Route path="/upload" element={<UploadMaterials />} />
           <Route path="/lecturer/:email" element={<Lecturer />} />
@@ -109,22 +127,21 @@ const App = () => {
           <Route path="/comment2Modal" element={<Comment2Modal />} />
           <Route path="/viewModal" element={<ViewModal />} />
           <Route path="/notes/:unitName" element={<RepoDisplay />} />
-
-          <Route path="*" element={<Login />} /> {/* ✅ Fixed incorrect syntax */}
+          <Route path="*" element={<Login />} />{' '}
+          {/* ✅ Fixed incorrect syntax */}
         </Routes>
       </AuthProvider>
     </BrowserRouter>
   );
 };
 
-
 const TokenRedirect = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (!token) {
-      navigate("/login");
+      navigate('/login');
     }
   }, [navigate]);
 
