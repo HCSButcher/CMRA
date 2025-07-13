@@ -30,7 +30,7 @@ const UploadMaterials = () => {
         formData.append('unitName', unitName);
         formData.append('uploadDate', uploadDate);
 
-        axios.post('http://10.1.33.99:3001/upload', formData)
+        axios.post('https://project-2-1u71.onrender.com/upload', formData)
             .then(result => {
                 console.log(result);
                 setSuccessMessage('File uploaded successfully!'); 
