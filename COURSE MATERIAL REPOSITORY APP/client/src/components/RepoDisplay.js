@@ -16,7 +16,7 @@ const RepoDisplay = () => {
           return;
         }
 
-        const response = await fetch(`http://10.1.33.99:3001/notes/${unitName}`, {
+        const response = await fetch(`https://project-2-1u71.onrender.com/notes/${unitName}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         
@@ -53,7 +53,7 @@ const RepoDisplay = () => {
 
       const encodedUnitName = encodeURIComponent(unit);
       const encodedFileName = encodeURIComponent(filePath.split("/").pop());
-      const url = `http://10.1.33.99:3001/download/${encodedUnitName}/${encodedFileName}`;     
+      const url = `https://project-2-1u71.onrender.com/download/${encodedUnitName}/${encodedFileName}`;     
 
       const response = await fetch(url, {
         method: "GET",
