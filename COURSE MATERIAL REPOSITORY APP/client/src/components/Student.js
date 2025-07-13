@@ -50,7 +50,7 @@ const handleCourseViewDelete = (unitToDelete) => {
 
 //handle comment delete
 const commentDelete = (id) => {
-  axios.delete(`http://10.1.33.99:3001/comments/${id}`)
+  axios.delete(`https://project-2-1u71.onrender.com/comments/${id}`)
     .then(() => {
       setComments(comments.filter(comment =>comment._id !==id))
     })
@@ -63,7 +63,7 @@ useEffect(() => {
   const fetchSRegistrations = async () => {
     try {     
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://10.1.33.99:3001/sRegistrations', {
+      const response = await axios.get('https://project-2-1u71.onrender.com/sRegistrations', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -96,7 +96,7 @@ useEffect(() => {
 
             const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-      const response = await axios.get('http://10.1.33.99:3001/materials?recent=true', { headers });
+      const response = await axios.get('https://project-2-1u71.onrender.com/materials?recent=true', { headers });
 
       if (Array.isArray(response.data)) {
         setMaterials(response.data);
@@ -116,7 +116,7 @@ useEffect(() => {
   const fetchAnnouncements = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://10.1.33.99:3001/announcements', {
+      const response = await axios.get('https://project-2-1u71.onrender.com/announcements', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -146,7 +146,7 @@ useEffect(() => {
     const fetchComments = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://10.1.33.99:3001/comments', {
+        const response = await axios.get('https://project-2-1u71.onrender.com/comments', {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -196,14 +196,14 @@ useEffect(() => {
         <div className="header"> 
           <div className="reducer">
     <button onClick={toggleSidebar} className="toggle-btn">
-  <img src="http://10.1.33.99:3000/dashboard.png" alt="Toggle Sidebar" className="toggle-icon" />
+  <img src="http://localhost:3000/dashboard.png" alt="Toggle Sidebar" className="toggle-icon" />
             </button>
             </div>
   <LogoutButton />
         <div className="user">          
           
           <div className="img-case">
-          <img src ='http://10.1.33.99:3000/user.png' alt =''/>
+          <img src ='http://localhost:3000/user.png' alt =''/>
           </div>       
     </div>
   </div>
