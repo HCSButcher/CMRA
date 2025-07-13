@@ -20,7 +20,7 @@ const Repository = () => {
         return;
       }
 
-      const response = await fetch(`http://10.1.33.99:3001/materials?search=${searchQuery}`, {
+      const response = await fetch(`https://project-2-1u71.onrender.com/materials?search=${searchQuery}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -74,13 +74,13 @@ const Repository = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <button onClick={handleSearch}>
-                <img src="http://10.1.33.99:3000/search.png" alt="Search" />
+                <img src="http://localhost:3000/search.png" alt="Search" />
               </button>
             </div>
             <div className="user">
-              <img src="http://10.1.33.99:3000/notifications.png" alt="" />
+              <img src="http://localhost:3000/notifications.png" alt="" />
               <div className="img-case">
-                <img src="http://10.1.33.99:3000/user.png" alt="" />
+                <img src="http://localhost:3000/user.png" alt="" />
               </div>
             </div>
           </div>
