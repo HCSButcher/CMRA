@@ -10,7 +10,7 @@ const Comment2Modal = () => {
         const fetchComments = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('http://10.1.33.99:3001/comments', {
+                const response = await axios.get('https://project-2-1u71.onrender.com/comments', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
