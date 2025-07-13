@@ -14,7 +14,7 @@ const Reset = () => {
 
     try {
         const result = await axios.post(
-            "http://10.1.33.99:3001/reset", 
+            "https://project-2-1u71.onrender.com/reset", 
             { email, password }, 
             { withCredentials: true } 
         );
@@ -22,7 +22,7 @@ const Reset = () => {
         if (result.data.success) {
             alert(result.data.message);
 
-            await fetch("http://10.1.33.99:3001/logout", { 
+            await fetch("https://project-2-1u71.onrender.com/logout", { 
                 method: "GET", 
                 credentials: "include" 
             });
