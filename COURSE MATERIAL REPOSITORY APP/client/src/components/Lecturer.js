@@ -111,7 +111,7 @@ useEffect(() => {
             const token = localStorage.getItem('token');
             const email = localStorage.getItem('email'); 
 
-            const response = await axios.get(`http://10.1.33.99:3001/updates?email=${email}`, {
+            const response = await axios.get(`https://project-2-1u71.onrender.com/updates?email=${email}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -141,7 +141,7 @@ useEffect(() => {
                 return;
             }
 
-            const response = await axios.get(`http://10.1.33.99:3001/announcements?email=${email}`, {
+            const response = await axios.get(`https://project-2-1u71.onrender.com/announcements?email=${email}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -165,7 +165,7 @@ useEffect(() => {
 
 //handle announcement delete
 const handleDelete = (id) =>{
-  axios.delete(`http://10.1.33.99:3001/announcements/${id}`)
+  axios.delete(`https://project-2-1u71.onrender.com/announcements/${id}`)
   .then(()=> {
     setAnnouncements(announcements.filter(announcement => announcement._id !== id));
   })
@@ -174,7 +174,7 @@ const handleDelete = (id) =>{
 
   //handle update delete
   const updateDelete = (id) => {
-    axios.delete(`http://10.1.33.99:3001/updates/${id}`)
+    axios.delete(`https://project-2-1u71.onrender.com/updates/${id}`)
     .then(() => {
       setUpdates(updates.filter(update => update._id !== id));      
     })
