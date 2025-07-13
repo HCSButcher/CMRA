@@ -42,7 +42,7 @@ const App = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch('/api/messages', { credentials: 'include' });
+        const response = await fetch('https://project-2-1u71.onrender.com/api/messages', { credentials: 'include' });
 
         if (!response.ok) {
           throw new Error('Failed to fetch messages');
