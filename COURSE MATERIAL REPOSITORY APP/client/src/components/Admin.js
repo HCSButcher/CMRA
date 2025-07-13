@@ -52,7 +52,7 @@ const openSignupModal = () => setShowSignupModal(true);
     const fetchLecturers = async () => {
       try {
         const token = localStorage.getItem("token"); 
-        const response = await axios.get('http://10.1.33.99:3001/getLecturers', {
+        const response = await axios.get('https://project-2-1u71.onrender.com/getLecturers', {
           headers: { Authorization: `Bearer ${token}` } 
         });
         if (Array.isArray(response.data)) {
@@ -74,7 +74,7 @@ const openSignupModal = () => setShowSignupModal(true);
     const fetchStudents = async () => {
         try {
             const token = localStorage.getItem("token"); // Retrieve the token
-            const response = await axios.get('http://10.1.33.99:3001/getStudents', {
+            const response = await axios.get('https://project-2-1u71.onrender.com/getStudents', {
                 headers: { Authorization: `Bearer ${token}` } // Send token in headers
             });
 
@@ -95,7 +95,7 @@ const openSignupModal = () => setShowSignupModal(true);
  // Lecturer delete
 const LecturerDelete = (id) => {
   axios
-    .delete(`http://10.1.33.99:3001/getLecturers/${id}`) 
+    .delete(`https://project-2-1u71.onrender.com/getLecturers/${id}`) 
     .then(() => {
       setLecturers(lecturers.filter((lecturer) => lecturer._id !== id));
     })
@@ -105,7 +105,7 @@ const LecturerDelete = (id) => {
 // Student delete
 const StudentDelete = (id) => {
   axios
-    .delete(`http://10.1.33.99:3001/getStudents/${id}`) 
+    .delete(`https://project-2-1u71.onrender.com/getStudents/${id}`) 
     .then(() => {
       setStudents(students.filter((student) => student._id !== id));
     })
