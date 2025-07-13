@@ -12,7 +12,7 @@ const CourseManagement = () => {
 
 
     useEffect(() => {
-        axios.get('http://10.1.33.99:3001/coursesReg')
+        axios.get('https://project-2-1u71.onrender.com/coursesReg')
             .then((response) => {
                 setCourses(response.data);
                 setFilteredCourses(response.data); // Initialize filtered courses
@@ -31,7 +31,7 @@ useEffect(() => {
                 return;
             }
 
-            const response = await axios.get("http://10.1.33.99:3001/courseReg", {
+            const response = await axios.get("https://project-2-1u71.onrender.com/courseReg", {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
