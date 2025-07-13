@@ -16,7 +16,7 @@ const StudentsModal = () => {
           return;
         }
 
-        const response = await axios.get("http://10.1.33.99:3001/getAllStudents", {
+        const response = await axios.get("https://project-2-1u71.onrender.com/getAllStudents", {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -61,7 +61,7 @@ const StudentsModal = () => {
 
 const StudentDelete = async (id) => {
     try {
-        const response = await axios.delete(`http://10.1.33.99:3001/deleteStudent/${id}`);
+        const response = await axios.delete(`https://project-2-1u71.onrender.com/deleteStudent/${id}`);
 
         if (response.status === 200) {
             console.log("Student deleted successfully:", response.data);
@@ -147,7 +147,7 @@ const StudentDelete = async (id) => {
                   <td>
                     {student.profilePicture ? (
                       <img
-                        src={`http://localhost:3001/uploads/${student.profilePicture}?${new Date().getTime()}`}
+                        src={`https://project-2-1u71.onrender.com/uploads/${student.profilePicture}?${new Date().getTime()}`}
                         alt="profile"
                         style={{
                           width: 50,
