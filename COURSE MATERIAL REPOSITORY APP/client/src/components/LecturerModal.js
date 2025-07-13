@@ -16,7 +16,7 @@ useEffect(() => {
                 return;
             }
 
-            const response = await axios.get("http://10.1.33.99:3001/getLecturers", {
+            const response = await axios.get("https://project-2-1u71.onrender.com/getLecturers", {
                 headers: { Authorization: `Bearer ${token}` } 
             });
 
@@ -60,7 +60,7 @@ useEffect(() => {
 
   const LecturerDelete = (id) => {
     axios
-      .delete(`http://10.1.33.99:3001/deleteLecturer/${id}`)
+      .delete(`https://project-2-1u71.onrender.com/deleteLecturer/${id}`)
       .then(() => {
         setLecturers((prevLecturers) =>
           prevLecturers.filter((lecturer) => lecturer._id !== id)
@@ -130,7 +130,7 @@ useEffect(() => {
                   <td>
                     {lecturer.profilePicture ? (
                       <img
-                        src={`http://10.1.33.99:3001/uploads/${lecturer.profilePicture}?${new Date().getTime()}`}
+                        src={`https://project-2-1u71.onrender.com/uploads/${lecturer.profilePicture}?${new Date().getTime()}`}
                         alt="profile"
                         style={{
                           width: 50,
