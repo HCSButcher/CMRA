@@ -203,7 +203,7 @@ useEffect(() => {
         <div className="user">          
           
           <div className="img-case">
-          <img src ='http://localhost:3000/user.png' alt =''/>
+          <img src ='/user.png' alt =''/>
           </div>       
     </div>
   </div>
