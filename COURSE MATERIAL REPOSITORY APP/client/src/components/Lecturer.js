@@ -240,7 +240,7 @@ const uploadDelete = (id) => {
         <div className="user">          
           
           <div className="img-case">
-          <img src ='http://10.1.33.99:3000/user.png' alt =''/>
+          <img src ='/user.png' alt =''/>
           </div>       
     </div>
   </div>
