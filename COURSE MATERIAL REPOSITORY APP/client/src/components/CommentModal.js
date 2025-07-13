@@ -10,7 +10,7 @@ const CommentModal = () => {
 const handleSubmit = (e) => {
     e.preventDefault();
     
-    axios.post('http://10.1.33.99:3001/comments', { unit, email, comments })
+    axios.post('https://project-2-1u71.onrender.com/comments', { unit, email, comments })
         .then(result => {
             console.log(result);
            
