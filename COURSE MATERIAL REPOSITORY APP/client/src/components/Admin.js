@@ -119,7 +119,7 @@ useEffect(() => {
   const token = localStorage.getItem("token"); // Get token from localStorage
 
   axios
-    .get("http://10.1.33.99:3001/countStudents", {
+    .get("https://project-2-1u71.onrender.com/countStudents", {
       headers: {
         Authorization: `Bearer ${token}`, // Add Authorization header
       },
@@ -139,7 +139,7 @@ useEffect(() => {
   const token = localStorage.getItem("token"); // Get token from localStorage
 
   axios
-    .get("http://10.1.33.99:3001/countLecturers", {
+    .get("https://project-2-1u71.onrender.com/countLecturers", {
       headers: {
         Authorization: `Bearer ${token}`, // Attach the Authorization token
       },
@@ -158,7 +158,7 @@ useEffect(() => {
   const token = localStorage.getItem("token"); // Get token from localStorage
 
   axios
-    .get("http://10.1.33.99:3001/countSchool", {
+    .get("https://project-2-1u71.onrender.com/countSchool", {
       headers: {
         Authorization: `Bearer ${token}`, // Attach the Authorization token
       },
@@ -178,7 +178,7 @@ useEffect(() => {
   const token = localStorage.getItem("token"); // Get stored token
 
   axios
-    .get("http://10.1.33.99:3001/countCourses", {
+    .get("https://project-2-1u71.onrender.com/countCourses", {
       headers: {
         Authorization: `Bearer ${token}`, // Attach auth token
       },
