@@ -37,11 +37,15 @@ dotenv.config();
 require('./config/passport')(passport);
 
 app.use(
-    cors({
-    origin: ['http://localhost:3000','http://10.1.33.99:3000'],
+  cors({
+    origin: [
+      'https://project-2-1-fq45.onrender.com'// ✅ Your Render frontend URL
+     // ✅ Keep if you still use local dev
+    ],
     credentials: true,
-    })
+  })
 );
+
 
 app.use(express.json());
 
