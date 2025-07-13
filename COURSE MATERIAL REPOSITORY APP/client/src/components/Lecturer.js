@@ -223,17 +223,17 @@ const uploadDelete = (id) => {
         </div>     
       <ul>        
        
-        <li onClick={() =>handleNavigate('/enroll')} > <img src ='http://10.1.33.99:3000/teachers.png' alt =''/> &nbsp; <span>Course Management</span></li>
-        <li onClick={openComment2Modal }  > <img src ='http://10.1.33.99:3000/students.png' alt =''/> &nbsp; <span>Student Interaction</span></li>        
-        <li > <a style={{color:'white'}} href ="https://kabarak.ac.ke/library" target = "_blank" rel = "noopener noreferrer" >  <img src ='http://10.1.33.99:3000/schools.png' alt =''/> &nbsp;<br /> <span>Library</span></a></li>
-        <li  onClick={openUploadModal}> <img src ='http://10.1.33.99:3000/download.png' alt =''/> &nbsp;<span>Upload Materials</span> </li>        
+        <li onClick={() =>handleNavigate('/enroll')} > <img src ='/teachers.png' alt =''/> &nbsp; <span>Course Management</span></li>
+        <li onClick={openComment2Modal }  > <img src ='/students.png' alt =''/> &nbsp; <span>Student Interaction</span></li>        
+        <li > <a style={{color:'white'}} href ="https://kabarak.ac.ke/library" target = "_blank" rel = "noopener noreferrer" >  <img src ='/schools.png' alt =''/> &nbsp;<br /> <span>Library</span></a></li>
+        <li  onClick={openUploadModal}> <img src ='/download.png' alt =''/> &nbsp;<span>Upload Materials</span> </li>        
       </ul>      
   </div>
    <div className="container">
         <div className="header"> 
           <div className="reducer">
     <button onClick={toggleSidebar} className="toggle-btn">
-  <img src="http://10.1.33.99:3000/dashboard.png" alt="Toggle Sidebar" className="toggle-icon" />
+  <img src="/dashboard.png" alt="Toggle Sidebar" className="toggle-icon" />
             </button>
             </div>
   <LogoutButton />
