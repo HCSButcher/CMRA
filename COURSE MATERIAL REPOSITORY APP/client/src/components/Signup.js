@@ -26,7 +26,7 @@ const Signup = () => {
     formData.append('file', file);
     formData.append('contact', contact);
 
-    axios.post('http://10.1.33.99:3001/register', formData)
+    axios.post('https://project-2-1u71.onrender.com/register', formData)
       .then(result => {
         console.log(result);
         setSuccessMessage('User registered successfully!');
