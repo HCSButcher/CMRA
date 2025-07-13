@@ -36,7 +36,7 @@ const CoursesModal = ({ refreshTable }) => {
             }
 
             await axios.post(
-                "http://10.1.33.99:3001/courses",
+                "https://project-2-1u71.onrender.com/courses",
                 { stage, regDate, email, schoolUnits }, // Include email
                 {
                     headers: {
