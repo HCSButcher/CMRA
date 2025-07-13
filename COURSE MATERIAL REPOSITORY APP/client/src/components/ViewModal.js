@@ -22,7 +22,7 @@ const ViewModal = () => {
     const getUnits = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://10.1.33.99:3001/materials', {
+        const response = await axios.get('https://project-2-1u71.onrender.com/materials', {
           headers: { Authorization: `Bearer ${token}` }
         });
 
