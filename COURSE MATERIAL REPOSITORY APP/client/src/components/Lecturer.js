@@ -183,7 +183,7 @@ const handleDelete = (id) =>{
 
 // handle course registration delete
 const regDelete = (id) => {
-  axios.delete(`http://10.1.33.99:3001/courses/${id}`)
+  axios.delete(`https://project-2-1u71.onrender.com/courses/${id}`)
   .then (() =>{
     setRegistrations(registrations.filter(registration =>registration._id !==id));
   })
@@ -192,7 +192,7 @@ const regDelete = (id) => {
 
 //handle upload delete
 const uploadDelete = (id) => {
-  axios.delete(`http://10.1.33.99:3001/materials/${id}`)
+  axios.delete(`https://project-2-1u71.onrender.com/materials/${id}`)
     .then(() => {
       setMaterials(prevMaterials => prevMaterials.filter(material => material._id !== id));
       console.log(`Upload with ID: ${id} deleted successfully.`);
