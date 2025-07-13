@@ -20,7 +20,7 @@ const handleRemoveUnit = (index) => {
 const handleSaveStage = async() => {
     if(!school || !stage || units.length === 0) return;
     try {
-        await axios.post('http://10.1.33.99:3001/stages', {school, stage, units});
+        await axios.post('https://project-2-1u71.onrender.com/stages', {school, stage, units});
         setSchool('');
         setStage('');
         setUnits([]);
