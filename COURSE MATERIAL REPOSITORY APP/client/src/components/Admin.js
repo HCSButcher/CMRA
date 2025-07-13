@@ -214,19 +214,19 @@ useEffect(() => {
         </div>     
       <ul>       
        
-        <li onClick={openStudent2Modal} > <img src ='http://10.1.33.99:3000/students.png' alt =''/> &nbsp; <span> Student</span></li>  
-        <li  onClick={openLecturer2Modal} > <img src ='http://10.1.33.99:3000/teachers.png' alt =''/> &nbsp; <span>Lecturer</span></li>
-        <li onClick={openCourses} > <img src ='http://10.1.33.99:3000/schools.png' alt =''/> &nbsp; <span>Courses</span></li>
-         <li onClick={openSignupModal} > <img src ='http://10.1.33.99:3000/teachers.png' alt =''/> &nbsp;<span>Add Lecturer</span> </li> 
-         <li onClick={openSignupModal} > <img src ='http://10.1.33.99:3000/students.png' alt =''/> &nbsp; <span>Add Student</span></li> 
-        <li  onClick={openEnrollModal} > <img src ='http://10.1.33.99:3000/students.png' alt =''/> &nbsp;<span>Enroll Student</span> </li>        
+        <li onClick={openStudent2Modal} > <img src ='https://project-2-1-fq45.onrender.com/students.png' alt =''/> &nbsp; <span> Student</span></li>  
+        <li  onClick={openLecturer2Modal} > <img src ='https://project-2-1-fq45.onrender.com/teachers.png' alt =''/> &nbsp; <span>Lecturer</span></li>
+        <li onClick={openCourses} > <img src ='https://project-2-1-fq45.onrender.com/schools.png' alt =''/> &nbsp; <span>Courses</span></li>
+         <li onClick={openSignupModal} > <img src ='https://project-2-1-fq45.onrender.com/teachers.png' alt =''/> &nbsp;<span>Add Lecturer</span> </li> 
+         <li onClick={openSignupModal} > <img src ='https://project-2-1-fq45.onrender.com/students.png' alt =''/> &nbsp; <span>Add Student</span></li> 
+        <li  onClick={openEnrollModal} > <img src ='https://project-2-1-fq45.onrender.com/students.png' alt =''/> &nbsp;<span>Enroll Student</span> </li>        
       </ul>      
   </div>
     <div className="container">
         <div className="header"> 
           <div className="reducer">
     <button onClick={toggleSidebar} className="toggle-btn">
-  <img src="http://10.1.33.99:3000/dashboard.png" alt="Toggle Sidebar" className="toggle-icon" />
+  <img src="https://project-2-1-fq45.onrender.com/dashboard.png" alt="Toggle Sidebar" className="toggle-icon" />
             </button>
             </div>
   <LogoutButton />
