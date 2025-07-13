@@ -31,8 +31,6 @@ const Login = () => {
         { withCredentials: true }
       );
 
-      console.log('🔹 Login Response:', result.data);
-
       if (result.data.token) {
         await login(result.data.user, result.data.token);
         console.log('User logged in and set in context');
