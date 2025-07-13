@@ -22,7 +22,7 @@ const SCoursesModal = () => {
                 return;
             }
 
-            const response = await axios.get("http://10.1.33.99:3001/stages", {
+            const response = await axios.get("https://project-2-1u71.onrender.com/stages", {
                 params: { school }, 
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -42,7 +42,7 @@ const SCoursesModal = () => {
                 return;
             }
           
-            const response = await axios.get("http://10.1.33.99:3001/units", {
+            const response = await axios.get("https://project-2-1u71.onrender.com/units", {
                 params: { school, stage },
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -107,7 +107,7 @@ const SCoursesModal = () => {
                 return;
             }
 
-            await axios.post("http://10.1.33.99:3001/sRegistrations", {
+            await axios.post("https://project-2-1u71.onrender.com/sRegistrations", {
                 school: selectedSchool,
                 stage: selectedStage,
                 sDate,
