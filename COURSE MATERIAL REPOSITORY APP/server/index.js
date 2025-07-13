@@ -38,11 +38,8 @@ require('./config/passport')(passport);
 
 app.use(
   cors({
-    origin: [
-      'https://project-2-1-fq45.onrender.com'// ✅ Your Render frontend URL
-     // ✅ Keep if you still use local dev
-    ],
-    credentials: true,
+    origin: 'https://project-2-1-fq45.onrender.com', // ✅ Only your deployed frontend
+    credentials: true, // ✅ Required for cookies/auth headers
   })
 );
 
