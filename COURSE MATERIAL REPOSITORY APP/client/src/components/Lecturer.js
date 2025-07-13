@@ -65,7 +65,7 @@ useEffect(() => {
             const token = localStorage.getItem('token');
             const email = localStorage.getItem('email');  // Get logged-in lecturer's email
 
-            const response = await axios.get(`http://10.1.33.99:3001/courses?email=${email}`, {
+            const response = await axios.get(`https://project-2-1u71.onrender.com/courses?email=${email}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -90,7 +90,7 @@ useEffect(() => {
 
             const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-      const response = await axios.get('http://10.1.33.99:3001/materials?recent=true', { headers });
+      const response = await axios.get('https://project-2-1u71.onrender.com/materials?recent=true', { headers });
 
       if (Array.isArray(response.data)) {
         setMaterials(response.data);
