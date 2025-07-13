@@ -21,7 +21,7 @@ const Signup = () => {
     const formData = new FormData();
     formData.append('name', name);
     formData.append('email', email);
-    formData.append('role', role);
+    formData.append('role', role || 'Student');
     formData.append('password', password);
     formData.append('file', file);
     formData.append('contact', contact);
