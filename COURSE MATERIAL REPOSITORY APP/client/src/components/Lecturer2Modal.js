@@ -12,7 +12,7 @@ const handleSubmit = async () => {
     }
 
     try {
-        const response = await fetch(`http://10.1.33.99:3001/find?email=${encodeURIComponent(email)}`, {
+        const response = await fetch(`https://project-2-1u71.onrender.com/find?email=${encodeURIComponent(email)}`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`,
