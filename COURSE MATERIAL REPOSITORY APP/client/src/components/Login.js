@@ -107,6 +107,18 @@ const handleSubmit = async (e) => {
             </div>
 
             <h1>Course Material Repository App</h1>
+     <p>
+        to log in as admin <br /> admin@gmail.com <br />
+        Password: admin123{' '}
+      </p>
+      <p>
+        to log in as student <br /> one@gmail.com <br />
+        Password: one123{' '}
+      </p>
+      <p>
+        to log in as Lecturer <br /> collins@gmail.com <br />
+        Password: collins123{' '}
+      </p>
             <form onSubmit={handleSubmit}>
                 <div className={LoginCSS.form_group}>
                     <h2>Log in to your account</h2>
