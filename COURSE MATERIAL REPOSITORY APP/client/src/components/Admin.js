@@ -247,7 +247,7 @@ useEffect(() => {
           <h3>Students</h3>
         </div>
         <div className="icon-case">
-        <img src ='http://10.1.33.99:3000/students.png' alt =''/>
+        <img src ='/students.png' alt =''/>
         </div>
       </div>
       <div className="card">
@@ -256,7 +256,7 @@ useEffect(() => {
           <h3>Lecturers</h3>
         </div>
         <div className="icon-case">
-        <img src ='http://10.1.33.99:3000/teachers.png' alt =''/>
+        <img src ='/teachers.png' alt =''/>
         </div>
       </div>
       <div className="card">
@@ -265,7 +265,7 @@ useEffect(() => {
           <h3>Schools</h3>
         </div>
         <div className="icon-case">
-        <img src ='http://10.1.33.99:3000/schools.png' alt =''/>
+        <img src ='/schools.png' alt =''/>
         </div>
       </div>
       <div className="card">
@@ -274,7 +274,7 @@ useEffect(() => {
           <h3>Courses</h3>
         </div>
         <div className="icon-case">
-        <img src ='http://10.1.33.99:3000/schools.png' alt =''/>
+        <img src ='/schools.png' alt =''/>
         </div>
       </div>
       
