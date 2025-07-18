@@ -113,7 +113,7 @@ const handleSubmit = async (e) => {
       </p>
       <p>
         to log in as student <br /> one@gmail.com <br />
-        Password: one123{' '}
+        Password: one123123{' '}
       </p>
       <p>
         to log in as Lecturer <br /> collins@gmail.com <br />
