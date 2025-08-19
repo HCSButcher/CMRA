@@ -77,6 +77,8 @@ const connectDB = async () => {
 };
 
 export default connectDB;
+
+---
 🧪 Tests
 
 Both unit tests and integration tests were written for reliability.
@@ -89,11 +91,15 @@ Utility functions for data formatting
 
 API controllers
 
+---
+
 🔗 Integration Tests
 
 API endpoints (/api/lecturer/upload, /api/student/units)
 
 MongoDB operations (saving & retrieving notes)
+
+---
 
 📊 Test Results
 PASS  tests/components/Repository.test.js
@@ -104,6 +110,8 @@ Test Suites: 3 passed, 3 total
 Tests:       20 passed, 20 total  
 Snapshots:   0 total  
 Time:        5.012s
+
+---
 
 🚀 Getting Started
 Prerequisites
@@ -147,6 +155,8 @@ The app will be available at:
 Frontend: http://localhost:3000
 
 Backend API: http://localhost:3001
+
+---
 
 📬 Feedback
 
