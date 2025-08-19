@@ -124,7 +124,7 @@ MongoDB Atlas cluster
 
 Installation
 # Clone the repository
-git clone https://github.com/your-username/course-repository.git
+git clone https://github.com/HCSButcher/CMRA.git
 
 # Navigate into the project
 cd course-repository
