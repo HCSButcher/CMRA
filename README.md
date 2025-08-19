@@ -78,8 +78,8 @@ const connectDB = async () => {
 
 export default connectDB;
 
----
-🧪 Tests
+
+## 🧪 Tests
 
 Both unit tests and integration tests were written for reliability.
 
@@ -91,9 +91,9 @@ Utility functions for data formatting
 
 API controllers
 
----
 
-🔗 Integration Tests
+
+## 🔗 Integration Tests
 
 API endpoints (/api/lecturer/upload, /api/student/units)
 
@@ -101,7 +101,7 @@ MongoDB operations (saving & retrieving notes)
 
 ---
 
-📊 Test Results
+## 📊 Test Results
 PASS  tests/components/Repository.test.js
 PASS  tests/api/lecturer.test.js
 PASS  tests/api/student.test.js
@@ -113,7 +113,7 @@ Time:        5.012s
 
 ---
 
-🚀 Getting Started
+## 🚀 Getting Started
 Prerequisites
 
 Node.js >= 18
@@ -158,7 +158,7 @@ Backend API: http://localhost:3001
 
 ---
 
-📬 Feedback
+## 📬 Feedback
 
 Feel free to contribute or raise issues.
 For direct inquiries, use the contact details on my portfolio.
